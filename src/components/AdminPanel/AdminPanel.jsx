@@ -238,13 +238,6 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     return counts;
   }, [students]);
 
-  // Recent Student Admissions (sorted by createdAt desc, fallback to index)
-  const recentStudents = useMemo(() => {
-    return [...students]
-      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-      .slice(0, 6);
-  }, [students]);
-
   // Quick Action Handlers
   const handleNewAdmissionClick = () => {
     setSelectedClassFromDashboard(null);
@@ -502,79 +495,8 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
                 </div>
               </div>
 
-              {/* Two Column Section: Recent Students & Recent Notices */}
-              <div className="dashboard-columns">
-                {/* Recent Students Table */}
-                <div className="dashboard-card">
-                  <div className="card-header">
-                    <div>
-                      <h4>Recent Student Admissions</h4>
-                      <p>Latest enrollments for the 2026-27 batch</p>
-                    </div>
-                    <button 
-                      className="card-link-btn" 
-                      onClick={() => {
-                        setSelectedClassFromDashboard(null);
-                        setOpenStudentAddModal(false);
-                        setActiveTab('students');
-                      }}
-                    >
-                      View All Students <ArrowRight size={14} />
-                    </button>
-                  </div>
-                  <div className="table-responsive">
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Student ID</th>
-                          <th>Name</th>
-                          <th>Class</th>
-                          <th>Roll</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentStudents.length === 0 ? (
-                          <tr>
-                            <td colSpan="5" className="empty-table-cell">
-                              {studentsLoading ? 'Loading student records...' : 'No enrolled students found.'}
-                            </td>
-                          </tr>
-                        ) : (
-                          recentStudents.map((s) => (
-                            <tr 
-                              key={s._id || s.id || s.studentId} 
-                              className="clickable-row"
-                              onClick={() => {
-                                if (s.classId) {
-                                  handleOpenClassView(s.classId);
-                                } else {
-                                  setActiveTab('students');
-                                }
-                              }}
-                              title="Click to view in Students Manager"
-                            >
-                              <td className="code-font">{s.studentId || s.id}</td>
-                              <td className="bold-font">{s.name}</td>
-                              <td>
-                                <span className="class-pill">
-                                  {s.className || s.classId || s.class || 'Class X'}
-                                </span>
-                              </td>
-                              <td>{s.roll || '-'}</td>
-                              <td>
-                                <span className={`status-pill ${s.status === 'Enrolled' || !s.status ? 'active' : ''}`}>
-                                  {s.status || 'Enrolled'}
-                                </span>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
+              {/* Published Notices Section */}
+              <div className="dashboard-columns notices-single-col">
                 {/* Notices Manager Preview */}
                 <div className="dashboard-card">
                   <div className="card-header">

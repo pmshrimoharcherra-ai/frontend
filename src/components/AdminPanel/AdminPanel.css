@@ -498,6 +498,10 @@
   gap: 24px;
 }
 
+.dashboard-columns.notices-single-col {
+  grid-template-columns: 1fr;
+}
+
 .dashboard-card {
   background: #ffffff;
   border-radius: 16px;
