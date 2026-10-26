@@ -1,0 +1,412 @@
+/* ==========================================================================
+   Teacher-In-Charge Section Styling - PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.desk-section {
+  position: relative;
+  width: 100%;
+  background-image: url('/Pastel%20Education%20Campus%20Banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 60px 48px;
+  overflow: hidden;
+}
+
+.desk-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* --------------------------------------------------------------------------
+   Main Two-Column Content Area
+   -------------------------------------------------------------------------- */
+.desk-main-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Left Column: Portrait & Side Slogan
+   -------------------------------------------------------------------------- */
+.desk-left-col {
+  flex: 0 0 46%;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.side-slogan {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.35;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.side-slogan-line {
+  width: 32px;
+  height: 3px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+.portrait-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.portrait-bg-shape {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle, #fed7aa 0%, #fdba74 100%);
+  top: 5%;
+  z-index: 1;
+  opacity: 0.85;
+  filter: blur(1px);
+}
+
+.portrait-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Right Column: Desk Message & Details
+   -------------------------------------------------------------------------- */
+.desk-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 680px;
+}
+
+.desk-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.desk-eyebrow-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.desk-eyebrow {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.desk-title {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 900;
+  color: #0b1528;
+  letter-spacing: -0.5px;
+  margin: 4px 0 6px 0;
+  line-height: 1.1;
+}
+
+.desk-title-underline {
+  width: 46px;
+  height: 3.5px;
+  background-color: #ea580c;
+  border-radius: 2px;
+}
+
+/* Slogan & Paperplane at Top Right */
+.top-right-accent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.plane-icon {
+  opacity: 0.85;
+}
+
+.brighter-slogan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.25;
+}
+
+.brighter-line {
+  width: 28px;
+  height: 2.5px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* Quote Box */
+.quote-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 4px;
+}
+
+.quote-icon {
+  color: #ea580c;
+  transform: rotate(180deg);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.quote-text {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  font-style: italic;
+  color: #0b1528;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Message Paragraph */
+.desk-paragraph {
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: #475569;
+  margin: 0;
+}
+
+/* Signature Block */
+.signature-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+}
+
+.sig-dash {
+  width: 28px;
+  height: 3px;
+  background-color: #ea580c;
+  border-radius: 2px;
+}
+
+.sig-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.sig-name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sig-role {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ea580c;
+  margin: 2px 0 0 0;
+}
+
+.sig-school {
+  font-size: 12px;
+  color: #64748b;
+  margin: 1px 0 0 0;
+}
+
+/* Read More Button */
+.desk-action {
+  margin-top: 4px;
+}
+
+.desk-readmore-btn {
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+  transition: all 0.25s ease;
+}
+
+.desk-readmore-btn:hover {
+  background: linear-gradient(135deg, #c2410c 0%, #d97706 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+}
+
+.btn-arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.desk-readmore-btn:hover .btn-arrow-icon {
+  transform: translateX(4px);
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Floating 4 Pillars Card
+   -------------------------------------------------------------------------- */
+.desk-pillars-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 36px;
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.pillar-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.pillar-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pillar-orange {
+  background-color: #ffedd5;
+  color: #ea580c;
+}
+
+.pillar-green {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.pillar-blue {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.pillar-purple {
+  background-color: #f3e8ff;
+  color: #9333ea;
+}
+
+.pillar-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pillar-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.pillar-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.pillar-divider {
+  width: 1px;
+  height: 38px;
+  background-color: #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .desk-main-content {
+    flex-direction: column;
+    gap: 32px;
+  }
+  .desk-left-col {
+    flex: 1;
+    width: 100%;
+    justify-content: center;
+  }
+  .desk-right-col {
+    max-width: 100%;
+  }
+  .desk-pillars-card {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 24px;
+  }
+  .pillar-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .desk-section {
+    padding: 40px 20px;
+  }
+  .desk-left-col {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .desk-title {
+    font-size: 32px;
+  }
+  .quote-text {
+    font-size: 18px;
+  }
+  .top-right-accent {
+    display: none;
+  }
+  .desk-pillars-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

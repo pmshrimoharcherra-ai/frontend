@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Hero Section Styling - PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 840px;
+  background-image: url('/Sunny%20School%20Entrance%20Framed%20by%20Lush%20Greenery.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 14, 26, 0.8) 0%,
+    rgba(8, 14, 26, 0.6) 38%,
+    rgba(8, 14, 26, 0.18) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Content Container
+   -------------------------------------------------------------------------- */
+.hero-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 60px 48px 30px 48px;
+}
+
+.hero-content {
+  max-width: 660px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* Eyebrow / Tag */
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrow-accent-bar {
+  width: 24px;
+  height: 3px;
+  background-color: #f59e0b;
+  border-radius: 2px;
+}
+
+.eyebrow-text {
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Hero Typography */
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-family: var(--font-heading);
+  line-height: 1.12;
+}
+
+.title-white {
+  font-size: 56px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.title-highlight {
+  font-size: 52px;
+  font-weight: 800;
+  color: #f59e0b;
+  letter-spacing: -0.5px;
+}
+
+.title-location {
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 6px;
+  letter-spacing: -0.2px;
+}
+
+/* Tagline Pill Badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.badge-icon {
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* Paragraph */
+.hero-description {
+  color: #e2e8f0;
+  font-size: 16px;
+  line-height: 1.65;
+  font-weight: 400;
+  margin: 0;
+  max-width: 560px;
+}
+
+/* Action Buttons */
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary {
+  background-color: #f5a623;
+  color: #1a1a1a;
+  font-weight: 700;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 166, 35, 0.45);
+}
+
+.btn-primary:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.btn-secondary {
+  background: rgba(17, 24, 39, 0.65);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   Floating Bottom Stats Card
+   -------------------------------------------------------------------------- */
+.hero-stats-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 48px 36px 48px;
+}
+
+.stats-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 22px 36px;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.stat-item-wide {
+  flex: 1.25;
+}
+
+/* Icon Box */
+.stat-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-blue {
+  color: #3b82f6;
+}
+
+.icon-green {
+  color: #10b981;
+}
+
+.icon-orange {
+  color: #f97316;
+}
+
+.icon-red {
+  color: #ef4444;
+}
+
+.icon-purple {
+  color: #8b5cf6;
+}
+
+.icon-emerald {
+  color: #16a34a;
+}
+
+/* Stat Typography */
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.15;
+  font-family: var(--font-heading);
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.stat-label-top {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 1px;
+}
+
+.stat-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.text-red {
+  color: #dc2626;
+}
+
+.text-purple {
+  color: #7c3aed;
+}
+
+.text-emerald {
+  color: #16a34a;
+}
+
+.stat-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* Vertical Dividers */
+.stat-divider {
+  width: 1px;
+  height: 42px;
+  background-color: #f1f5f9;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1280px) {
+  .hero-container {
+    padding: 50px 32px 30px 32px;
+  }
+  .hero-stats-wrapper {
+    padding: 0 32px 30px 32px;
+  }
+  .stats-card {
+    padding: 18px 24px;
+    gap: 12px;
+  }
+  .stat-value {
+    font-size: 20px;
+  }
+  .stat-title {
+    font-size: 14.5px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero-section {
+    min-height: auto;
+  }
+  .title-white {
+    font-size: 46px;
+  }
+  .title-highlight {
+    font-size: 42px;
+  }
+  .title-location {
+    font-size: 28px;
+  }
+  .stats-card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .stat-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-container {
+    padding: 40px 20px 24px 20px;
+  }
+  .hero-stats-wrapper {
+    padding: 0 20px 24px 20px;
+  }
+  .title-white {
+    font-size: 38px;
+  }
+  .title-highlight {
+    font-size: 34px;
+  }
+  .title-location {
+    font-size: 22px;
+  }
+  .hero-badge {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+  .hero-description {
+    font-size: 14.5px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn {
+    width: 100%;
+  }
+  .stats-card {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 18px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .title-white {
+    font-size: 32px;
+  }
+  .title-highlight {
+    font-size: 28px;
+  }
+  .title-location {
+    font-size: 18px;
+  }
+}

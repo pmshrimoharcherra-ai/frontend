@@ -1,0 +1,269 @@
+/* ==========================================================================
+   About Page - Overview Section Styling
+   ========================================================================== */
+
+.about-overview-section {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  background-image: url('/Sunny%20School%20Courtyard%20Banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  padding: 60px 48px;
+  overflow: hidden;
+}
+
+.about-overview-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+  width: 100%;
+}
+
+/* Left Spacer so the school courtyard photo in the banner image is fully visible */
+.about-overview-left-spacer {
+  flex: 0 0 44%;
+  min-height: 440px;
+}
+
+/* --------------------------------------------------------------------------
+   Right Content Area
+   -------------------------------------------------------------------------- */
+.about-overview-right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 680px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Eyebrow */
+.overview-eyebrow-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.overview-eyebrow {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.overview-eyebrow-line {
+  width: 44px;
+  height: 3px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* Main Heading */
+.overview-main-heading {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.heading-navy {
+  color: #0b1528;
+}
+
+.heading-orange {
+  color: #ea580c;
+}
+
+/* Paragraphs */
+.overview-paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.overview-paragraphs p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #475569;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4 Feature Cards Row
+   -------------------------------------------------------------------------- */
+.overview-cards-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  margin: 6px 0;
+  justify-content: space-between;
+}
+
+.overview-feature-card {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 10px 14px 10px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.overview-feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.icon-navy {
+  background-color: #0b1528;
+  color: #ffffff;
+}
+
+.icon-orange {
+  background-color: #ea580c;
+  color: #ffffff;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.3;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.card-bottom-line {
+  width: 22px;
+  height: 2.5px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Read More Button
+   -------------------------------------------------------------------------- */
+.overview-action-wrap {
+  margin-top: 4px;
+}
+
+.overview-readmore-btn {
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+  transition: all 0.25s ease;
+}
+
+.overview-readmore-btn:hover {
+  background: linear-gradient(135deg, #c2410c 0%, #d97706 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+}
+
+.btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.overview-readmore-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .overview-main-heading {
+    font-size: 36px;
+  }
+  .about-overview-left-spacer {
+    flex: 0 0 38%;
+  }
+  .overview-cards-row {
+    gap: 8px;
+  }
+  .overview-feature-card {
+    padding: 12px 6px;
+  }
+}
+
+@media (max-width: 992px) {
+  .about-overview-section {
+    padding: 40px 24px;
+    min-height: auto;
+  }
+  .about-overview-container {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .about-overview-left-spacer {
+    display: none;
+  }
+  .about-overview-right-content {
+    max-width: 100%;
+  }
+  .overview-cards-row {
+    flex-wrap: wrap;
+  }
+  .overview-feature-card {
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+
+@media (max-width: 640px) {
+  .overview-main-heading {
+    font-size: 30px;
+  }
+  .overview-feature-card {
+    flex: 1 1 100%;
+  }
+}

@@ -1,0 +1,356 @@
+/* ==========================================================================
+   Footer Section Styling - PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.site-footer {
+  position: relative;
+  width: 100%;
+  background-image: url('/Navy%20and%20Gold%20School%20Horizon.png');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-color: #061122;
+  color: #cbd5e1;
+  padding-top: 110px;
+  overflow: hidden;
+}
+
+.footer-main-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 48px 48px 48px;
+}
+
+/* 4-Column Grid */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1.1fr 1.1fr;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+/* --------------------------------------------------------------------------
+   Column 1: Brand & Intro
+   -------------------------------------------------------------------------- */
+.brand-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-logo-img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.footer-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand-title {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+}
+
+.brand-pm-text,
+.brand-shri-text {
+  color: #f59e0b;
+}
+
+.footer-school-name {
+  font-family: var(--font-heading);
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  margin: 2px 0 1px 0;
+  line-height: 1.2;
+}
+
+.footer-location {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.footer-brand-line {
+  width: 42px;
+  height: 3px;
+  background-color: #f59e0b;
+  border-radius: 2px;
+  margin: 12px 0 14px 0;
+}
+
+.footer-about-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  max-width: 320px;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Columns 2 & 3: Quick Links & Important Links
+   -------------------------------------------------------------------------- */
+.footer-heading {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.footer-heading-line {
+  width: 28px;
+  height: 3px;
+  background-color: #f59e0b;
+  border-radius: 2px;
+  margin: 8px 0 16px 0;
+}
+
+.footer-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.footer-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.link-chevron {
+  color: #f59e0b;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.footer-nav-link:hover {
+  color: #f59e0b;
+  transform: translateX(3px);
+}
+
+.footer-nav-link:hover .link-chevron {
+  transform: translateX(2px);
+}
+
+/* --------------------------------------------------------------------------
+   Column 4: Contact Us & Follow Us
+   -------------------------------------------------------------------------- */
+.footer-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.contact-icon-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  color: #0b1528;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.contact-info {
+  font-size: 13px;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+.contact-info a {
+  color: #e2e8f0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contact-info a:hover {
+  color: #f59e0b;
+}
+
+/* Socials */
+.footer-social-block {
+  margin-top: 14px;
+}
+
+.follow-heading {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+}
+
+.social-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.social-pill:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.fb-btn {
+  background-color: #1877f2;
+}
+
+.yt-btn {
+  background-color: #ff0000;
+}
+
+.ig-btn {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+}
+
+.x-btn {
+  background-color: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Copyright Strip
+   -------------------------------------------------------------------------- */
+.footer-bottom-strip {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 18px 48px;
+  background: rgba(4, 9, 18, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.bottom-strip-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.copyright-text {
+  margin: 0;
+}
+
+.legal-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.legal-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.legal-links a:hover {
+  color: #f59e0b;
+}
+
+.legal-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.designed-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+}
+
+.heart-icon {
+  color: #ea580c;
+  fill: #ea580c;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1180px) {
+  .footer-grid {
+    grid-template-columns: 1.2fr 1fr 1fr 1.2fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 992px) {
+  .site-footer {
+    padding-top: 80px;
+  }
+  .footer-main-container {
+    padding: 0 24px 36px 24px;
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .footer-bottom-strip {
+    padding: 16px 24px;
+  }
+  .bottom-strip-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .footer-bottom-strip {
+    padding: 14px 16px;
+  }
+}

@@ -1,0 +1,1296 @@
+/* ==========================================================================
+   TEACHER DASHBOARD STYLES (PM SHRI Moharcherra Faculty Portal)
+   ========================================================================== */
+
+.teacher-dashboard-wrapper,
+.teacher-portal-layout {
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #f8fafc;
+  font-family: var(--font-primary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  color: #1e293b;
+  display: flex;
+  width: 100%;
+  position: relative;
+}
+
+.teacher-content-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f8fafc;
+}
+
+/* ── Top Header / Navbar ── */
+.teacher-top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.teacher-navbar-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.teacher-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.teacher-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teacher-mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.teacher-mobile-menu-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.teacher-desktop-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.teacher-desktop-sidebar-toggle:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.teacher-breadcrumb-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.breadcrumb-root {
+  color: #ea580c;
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.breadcrumb-sep {
+  color: #cbd5e1;
+}
+
+.breadcrumb-current {
+  color: #334155;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.teacher-school-crest {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+  flex-shrink: 0;
+}
+
+.teacher-portal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-portal-title span:first-child {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.02em;
+}
+
+.teacher-live-indicator {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  border: 1px solid #bbf7d0;
+}
+
+.teacher-portal-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin: 1px 0 0;
+}
+
+.teacher-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.teacher-nav-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.teacher-nav-pill-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.teacher-date-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.calendar-mini-icon {
+  color: #ea580c;
+}
+
+/* ==========================================================================
+   EXACT TEACHER BADGE (Matches Image 1 Screenshot)
+   [TEACHER (orange pill)] Joydeb Debnath [Logout icon in circle]
+   ========================================================================== */
+.teacher-header-pill.user-logged-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 4px 6px 4px 6px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.teacher-header-pill .user-logged-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-header-pill .user-logged-role {
+  background: #ea580c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+}
+
+.teacher-header-pill .user-logged-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  padding-right: 4px;
+}
+
+.teacher-header-pill .logout-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.teacher-header-pill .logout-icon-btn:hover {
+  background: #fca5a5;
+  color: #991b1b;
+  transform: scale(1.08);
+}
+
+/* ── Main Container ── */
+.teacher-dashboard-main {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  flex: 1;
+}
+
+/* ── Welcome Banner ── */
+.teacher-welcome-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 16px;
+  padding: 26px 30px;
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.teacher-welcome-banner::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -40px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.welcome-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.welcome-avatar {
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+}
+
+.welcome-text-col {
+  flex: 1;
+}
+
+.welcome-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.welcome-title-row h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.welcome-teacher-id {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.welcome-status-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #cbd5e1;
+  margin: 6px 0 14px;
+  line-height: 1.5;
+  max-width: 900px;
+}
+
+.welcome-meta-chips {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: #e2e8f0;
+}
+
+.meta-chip strong {
+  color: #ffffff;
+}
+
+.meta-chip.active-class-chip {
+  background: rgba(234, 88, 12, 0.2);
+  border-color: rgba(234, 88, 12, 0.4);
+  color: #fed7aa;
+}
+
+.meta-chip.active-class-chip strong {
+  color: #ffedd5;
+}
+
+/* ── Unassigned Alert ── */
+.unassigned-class-alert {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 20px 24px;
+  border-radius: 14px;
+}
+
+.unassigned-class-alert h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.unassigned-class-alert p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #b45309;
+}
+
+/* ── Stats Grid ── */
+.attendance-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.stat-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-wrap.icon-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.stat-icon-wrap.icon-green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.stat-icon-wrap.icon-red {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.stat-icon-wrap.icon-amber {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.stat-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.stat-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-val.text-green { color: #059669; }
+.stat-val.text-red { color: #dc2626; }
+.stat-val.text-amber { color: #ea580c; }
+
+.stat-unit, .stat-sub-text {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ── Attendance Register Card ── */
+.attendance-register-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fafafa;
+}
+
+.register-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.register-header-icon {
+  width: 40px;
+  height: 40px;
+  background: #fff7ed;
+  color: #ea580c;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.register-header-left h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.register-header-left p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+/* Save Attendance Button */
+.save-attendance-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+}
+
+.save-attendance-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+}
+
+.save-attendance-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Save Success Banner */
+.save-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ecfdf5;
+  border-bottom: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 12px 24px;
+  font-size: 13.5px;
+  font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Register Toolbar ── */
+.register-toolbar {
+  padding: 14px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #ffffff;
+}
+
+.toolbar-left-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-picker-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.date-picker-group:hover,
+.date-picker-group:focus-within {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.date-picker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.date-picker-icon {
+  color: #ea580c;
+  flex-shrink: 0;
+  display: block;
+}
+
+.attendance-date-input {
+  border: none;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+}
+
+.attendance-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+  margin-left: 6px;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.attendance-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: #f1f5f9;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-mark-all {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.btn-mark-all:hover {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.btn-mark-absent {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-mark-absent:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.toolbar-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.register-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: 220px;
+  transition: all 0.2s ease;
+}
+
+.register-search-box:focus-within {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.register-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.clear-search-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.clear-search-btn:hover {
+  color: #475569;
+}
+
+/* Gender Filter Pills */
+.gender-filter-pills {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.gender-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gender-pill.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Table & List View ── */
+.register-table-wrapper {
+  overflow-x: auto;
+  min-height: 300px;
+}
+
+.teacher-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.teacher-roster-table th {
+  background: #f8fafc;
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.roster-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.roster-row:hover {
+  background: #f8fafc;
+}
+
+.roster-row.status-absent {
+  background: rgba(254, 242, 242, 0.4);
+}
+
+.roster-row.status-late {
+  background: rgba(255, 251, 235, 0.4);
+}
+
+.teacher-roster-table td {
+  padding: 12px 18px;
+  vertical-align: middle;
+}
+
+.roster-roll-pill {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.roster-student-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.roster-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-boy {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.avatar-girl {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.roster-student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-name {
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.student-enr-mini {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.student-id-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  display: inline-block;
+}
+
+.gender-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.gender-boy {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.gender-girl {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.overall-pct-pill {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+/* Attendance Toggle Button Group */
+.attendance-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 9999px;
+}
+
+.att-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #64748b;
+}
+
+.att-toggle-btn:hover {
+  color: #1e293b;
+}
+
+/* Present Active */
+.att-toggle-btn.btn-present.active {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+}
+
+/* Absent Active */
+.att-toggle-btn.btn-absent.active {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
+/* Late Active */
+.att-toggle-btn.btn-late.active {
+  background: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+}
+
+/* ── States (Loading, Empty, Error) ── */
+.register-loading-state,
+.register-empty-state,
+.register-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.retry-btn {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Register Footer ── */
+.register-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fafafa;
+}
+
+.register-footer-info {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.register-footer-info strong {
+  color: #0f172a;
+}
+
+.save-attendance-btn.bottom-save {
+  padding: 9px 18px;
+  font-size: 13px;
+}
+
+/* ── Tab Pane Animations ── */
+.tab-pane-fade-in {
+  animation: fadeInTab 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Dashboard Quick Navigation Cards ── */
+.dashboard-quick-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.quick-action-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.quick-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.quick-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-card-icon.icon-att {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.quick-card-icon.icon-exam {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.quick-card-header h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.quick-card-header p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.quick-card-body {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+
+.quick-card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.quick-card-action-btn:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+/* ── Teacher Auth Screen ── */
+.teacher-auth-required-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 80vh;
+}
+
+.auth-required-card {
+  max-width: 480px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 36px 30px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.auth-card-icon {
+  width: 64px;
+  height: 64px;
+  background: #fff7ed;
+  color: #ea580c;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.auth-required-card h3 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px;
+}
+
+.auth-required-card p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.auth-required-card code {
+  background: #f1f5f9;
+  color: #ea580c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.auth-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Responsive Queries ── */
+@media (max-width: 1024px) {
+  .teacher-desktop-sidebar-toggle {
+    display: none !important;
+  }
+  .teacher-mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .attendance-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-quick-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-navbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .teacher-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .attendance-stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .register-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .register-search-box {
+    width: 100%;
+  }
+}

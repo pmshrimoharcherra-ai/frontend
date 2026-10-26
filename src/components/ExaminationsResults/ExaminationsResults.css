@@ -1,0 +1,12 @@
+/* ==========================================================================
+   Examinations & Results Page Styling
+   PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.exam-results-page {
+  width: 100%;
+  background-color: #ffffff;
+  color: #1e293b;
+  overflow-x: hidden;
+  min-height: 60vh;
+}

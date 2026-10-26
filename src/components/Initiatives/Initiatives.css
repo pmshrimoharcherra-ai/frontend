@@ -1,0 +1,504 @@
+/* ==========================================================================
+   PM SHRI AT OUR SCHOOL - Initiatives Section Styling
+   ========================================================================== */
+
+.initiatives-section {
+  position: relative;
+  width: 100%;
+  background-image: url('/Airy%20PM%20SHRI%20School%20Banner%20Background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 60px 48px 70px 48px;
+  overflow: hidden;
+}
+
+.initiatives-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* --------------------------------------------------------------------------
+   Left Intro & Overview Column
+   -------------------------------------------------------------------------- */
+.initiatives-left {
+  flex: 0 0 34%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Eyebrow */
+.initiatives-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.eyebrow-dash {
+  width: 22px;
+  height: 3px;
+  background-color: #ea580c;
+  border-radius: 2px;
+}
+
+.eyebrow-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Main Heading */
+.initiatives-main-title {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 800;
+  color: #0b1528;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  margin: 6px 0 14px 0;
+}
+
+.highlight-orange {
+  color: #ea580c;
+}
+
+/* Subheading */
+.initiatives-subheading {
+  font-family: var(--font-primary);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+
+/* Description */
+.initiatives-paragraph {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+/* CTA Button */
+.initiatives-cta-btn {
+  background-color: #0b1528;
+  color: #ffffff;
+  padding: 13px 26px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 14.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(11, 21, 40, 0.25);
+  transition: all 0.25s ease;
+}
+
+.initiatives-cta-btn:hover {
+  background-color: #1e293b;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(11, 21, 40, 0.35);
+}
+
+.cta-arrow {
+  transition: transform 0.2s ease;
+}
+
+.initiatives-cta-btn:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Mini Metrics Row */
+.initiatives-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.mini-stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.stat-icon-orange {
+  color: #ea580c;
+}
+
+.stat-icon-purple {
+  color: #7c3aed;
+}
+
+.stat-icon-green {
+  color: #16a34a;
+}
+
+.stat-icon-red {
+  color: #dc2626;
+}
+
+.mini-stat-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mini-stat-num {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.mini-stat-lbl {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Right 4x2 Cards Grid
+   -------------------------------------------------------------------------- */
+.initiatives-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.initiatives-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.initiative-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.initiative-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Top Content Area */
+.card-top-content {
+  padding: 16px 14px 14px 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 185px;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.card-header-icons {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.card-badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.card-watermark-icon {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.card-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #475569;
+  margin-bottom: 8px;
+  flex-grow: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.card-arrow-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  align-self: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.initiative-card:hover .card-arrow-btn {
+  transform: translateX(3px);
+}
+
+/* Bottom Photo Area */
+.card-image-wrap {
+  width: 100%;
+  height: 118px;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.initiative-card:hover .card-photo {
+  transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   Theme Colors for 8 Initiatives Cards
+   -------------------------------------------------------------------------- */
+
+/* 1. Blue (ICT) */
+.theme-blue .card-top-content {
+  background-color: #ebf3fe;
+}
+.theme-blue .card-badge-icon {
+  background-color: #2563eb;
+}
+.theme-blue .card-watermark-icon {
+  color: #2563eb;
+}
+.theme-blue .card-arrow-btn {
+  color: #2563eb;
+}
+
+/* 2. Purple (STEM) */
+.theme-purple .card-top-content {
+  background-color: #f3eefc;
+}
+.theme-purple .card-badge-icon {
+  background-color: #7c3aed;
+}
+.theme-purple .card-watermark-icon {
+  color: #7c3aed;
+}
+.theme-purple .card-arrow-btn {
+  color: #7c3aed;
+}
+
+/* 3. Orange (Skill & Vocational) */
+.theme-orange .card-top-content {
+  background-color: #fef0e6;
+}
+.theme-orange .card-badge-icon {
+  background-color: #ea580c;
+}
+.theme-orange .card-watermark-icon {
+  color: #ea580c;
+}
+.theme-orange .card-arrow-btn {
+  color: #ea580c;
+}
+
+/* 4. Green (Campus) */
+.theme-green .card-top-content {
+  background-color: #edf9f0;
+}
+.theme-green .card-badge-icon {
+  background-color: #16a34a;
+}
+.theme-green .card-watermark-icon {
+  color: #16a34a;
+}
+.theme-green .card-arrow-btn {
+  color: #16a34a;
+}
+
+/* 5. Red (Sports & Wellness) */
+.theme-red .card-top-content {
+  background-color: #fdeded;
+}
+.theme-red .card-badge-icon {
+  background-color: #dc2626;
+}
+.theme-red .card-watermark-icon {
+  color: #dc2626;
+}
+.theme-red .card-arrow-btn {
+  color: #dc2626;
+}
+
+/* 6. Amber (Arts & Culture) */
+.theme-amber .card-top-content {
+  background-color: #fef7e7;
+}
+.theme-amber .card-badge-icon {
+  background-color: #d97706;
+}
+.theme-amber .card-watermark-icon {
+  color: #d97706;
+}
+.theme-amber .card-arrow-btn {
+  color: #d97706;
+}
+
+/* 7. Teal (Inclusive Education) */
+.theme-teal .card-top-content {
+  background-color: #e6f7f6;
+}
+.theme-teal .card-badge-icon {
+  background-color: #0d9488;
+}
+.theme-teal .card-watermark-icon {
+  color: #0d9488;
+}
+.theme-teal .card-arrow-btn {
+  color: #0d9488;
+}
+
+/* 8. Pink (Experiential Learning) */
+.theme-pink .card-top-content {
+  background-color: #fceef4;
+}
+.theme-pink .card-badge-icon {
+  background-color: #db2777;
+}
+.theme-pink .card-watermark-icon {
+  color: #db2777;
+}
+.theme-pink .card-arrow-btn {
+  color: #db2777;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1280px) {
+  .initiatives-container {
+    gap: 24px;
+  }
+  .initiatives-main-title {
+    font-size: 38px;
+  }
+  .initiatives-grid {
+    gap: 10px;
+  }
+  .card-top-content {
+    padding: 12px 10px;
+    min-height: 175px;
+  }
+  .card-title {
+    font-size: 13.5px;
+  }
+  .card-desc {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .initiatives-container {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .initiatives-left {
+    flex: 1;
+    max-width: 100%;
+  }
+  .initiatives-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .initiatives-section {
+    padding: 40px 20px;
+  }
+  .initiatives-main-title {
+    font-size: 32px;
+  }
+  .initiatives-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .initiatives-stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .initiatives-grid {
+    grid-template-columns: 1fr;
+  }
+  .initiatives-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,1010 @@
+/* ==========================================================================
+   Admissions Page Styling
+   PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.admissions-page {
+  width: 100%;
+  background-color: #fdfbf7;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+.adm-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 36px;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Common Section Headings
+   -------------------------------------------------------------------------- */
+.adm-section-head {
+  margin-bottom: 40px;
+}
+
+.adm-section-head.text-center {
+  text-align: center;
+}
+
+.adm-section-head-flex {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.adm-section-tag {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  color: #ea580c;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.adm-section-title {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 800;
+  color: #0b1528;
+  line-height: 1.2;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.4px;
+}
+
+.adm-section-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+.adm-section-head.text-center .adm-section-subtitle {
+  margin: 0 auto;
+}
+
+/* Toast */
+.admission-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #0b1528;
+  color: #ffffff;
+  padding: 14px 22px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-left: 4px solid #ea580c;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Quick Nav Bar
+   -------------------------------------------------------------------------- */
+.adm-quick-nav-section {
+  margin-top: -36px;
+  position: relative;
+  z-index: 5;
+}
+
+.adm-quick-nav-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  border: 1.5px solid #f1ece1;
+  box-shadow: 0 8px 30px rgba(11, 21, 40, 0.06);
+  padding: 16px 20px;
+}
+
+.adm-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.adm-quick-col {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adm-quick-col:hover {
+  background-color: #faf7f2;
+  transform: translateY(-2px);
+}
+
+.adm-quick-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.icon-bg-orange {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.icon-bg-navy {
+  background: linear-gradient(135deg, #0b1e36 0%, #172554 100%);
+}
+
+.adm-quick-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-quick-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-quick-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.adm-quick-arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ea580c;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.adm-quick-col:hover .adm-quick-arrow {
+  background-color: #ea580c;
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   3. Admission Process & Steps
+   -------------------------------------------------------------------------- */
+.adm-process-section {
+  padding: 80px 0;
+  background-color: #fdfbf7;
+}
+
+.adm-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.adm-step-card {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 18px;
+  border: 1.5px solid #f1ece1;
+  padding: 32px 24px;
+  box-shadow: 0 6px 20px rgba(11, 21, 40, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.adm-step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(11, 21, 40, 0.08);
+}
+
+.step-num-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+}
+
+.step-card-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 8px 0;
+}
+
+.step-card-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.step-connector-arrow {
+  position: absolute;
+  top: 42px;
+  right: -16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1.5px solid #f1ece1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ea580c;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   4. Eligibility Criteria Table
+   -------------------------------------------------------------------------- */
+.adm-eligibility-section {
+  padding: 80px 0;
+  background-color: #ffffff;
+}
+
+.session-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #059669;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 9999px;
+}
+
+.dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.eligibility-table-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  border: 1.5px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(11, 21, 40, 0.04);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.eligibility-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.eligibility-data-table th {
+  background-color: #0b1528;
+  color: #ffffff;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.eligibility-data-table td {
+  padding: 14px 18px;
+  font-size: 13.5px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pill-open {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.pill-restricted {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+/* --------------------------------------------------------------------------
+   5. PM SHRI Benefits Grid
+   -------------------------------------------------------------------------- */
+.adm-benefits-section {
+  padding: 80px 0;
+  background-color: #fdfbf7;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.benefit-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  border: 1.5px solid #f1ece1;
+  padding: 28px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(11, 21, 40, 0.07);
+}
+
+.benefit-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.benefit-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 6px 0;
+}
+
+.benefit-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   6. Checklist & Online Application Grid
+   -------------------------------------------------------------------------- */
+.adm-apply-section {
+  padding: 80px 0;
+  background-color: #ffffff;
+}
+
+.apply-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 36px;
+  align-items: start;
+}
+
+.docs-checklist-card,
+.online-form-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  padding: 36px;
+  box-shadow: 0 8px 30px rgba(11, 21, 40, 0.05);
+}
+
+.card-title-lg {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 6px 0;
+}
+
+.card-sub-p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.doc-check-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.check-icon-col {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.text-emerald {
+  color: #059669;
+}
+
+.doc-info-col {
+  flex: 1;
+}
+
+.doc-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.doc-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0b1528;
+}
+
+.badge-mandatory {
+  font-size: 10.5px;
+  font-weight: 800;
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-optional {
+  font-size: 10.5px;
+  font-weight: 700;
+  background-color: #f1f5f9;
+  color: #64748b;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.doc-desc-p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.docs-note-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: #c2410c;
+  font-weight: 600;
+}
+
+/* Form */
+.adm-reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.form-field input.has-error,
+.form-field textarea.has-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.field-err {
+  font-size: 11.5px;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.btn-submit-application {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-submit-application:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.4);
+}
+
+/* Success Box */
+.form-success-box {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.success-icon-wrap {
+  color: #059669;
+  margin-bottom: 12px;
+}
+
+.success-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 6px 0;
+}
+
+.success-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.ref-id-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  color: #ea580c;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.success-summary-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.success-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-print-slip {
+  background-color: #0b1528;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-reset-form {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   7. Downloads Section
+   -------------------------------------------------------------------------- */
+.adm-downloads-section {
+  padding: 80px 0;
+  background-color: #fdfbf7;
+}
+
+.adm-downloads-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.adm-download-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #f1ece1;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.adm-download-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 21, 40, 0.06);
+}
+
+.doc-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #fff7ed;
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.doc-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  color: #0b1528;
+  margin: 0 0 3px 0;
+}
+
+.doc-sub-text {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0 0 4px 0;
+}
+
+.doc-meta-info {
+  font-size: 11.5px;
+  color: #94a3b8;
+  display: flex;
+  gap: 6px;
+}
+
+.btn-download-doc-pill {
+  background-color: #0b1528;
+  color: #ffffff;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-download-doc-pill:hover {
+  background-color: #ea580c;
+}
+
+/* --------------------------------------------------------------------------
+   8. FAQs & Helpdesk
+   -------------------------------------------------------------------------- */
+.adm-faqs-section {
+  padding: 80px 0;
+  background-color: #ffffff;
+}
+
+.faqs-layout-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.accordion-item {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.accordion-item.open {
+  border-color: #fed7aa;
+  background-color: #fffbf6;
+}
+
+.accordion-header-btn {
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  text-align: left;
+}
+
+.faq-question-text {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: #0b1528;
+}
+
+.faq-chevron {
+  color: #ea580c;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.faq-chevron.rotate {
+  transform: rotate(180deg);
+}
+
+.accordion-body-text {
+  padding: 0 20px 18px 20px;
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.accordion-body-text p {
+  margin: 0;
+}
+
+/* Helpdesk */
+.helpdesk-side-card {
+  background: linear-gradient(180deg, #0b1528 0%, #172554 100%);
+  border-radius: 20px;
+  color: #ffffff;
+  padding: 36px;
+  box-shadow: 0 10px 30px rgba(11, 21, 40, 0.15);
+}
+
+.helpdesk-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  background-color: #ea580c;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.helpdesk-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+}
+
+.helpdesk-sub {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.helpdesk-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.contact-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-icon.bg-orange { background-color: #ea580c; color: #ffffff; }
+.contact-icon.bg-navy { background-color: #1e3a5f; color: #ffffff; }
+.contact-icon.bg-emerald { background-color: #059669; color: #ffffff; }
+.contact-icon.bg-blue { background-color: #0284c7; color: #ffffff; }
+
+.contact-row strong {
+  display: block;
+  font-size: 13px;
+  color: #f97316;
+  margin-bottom: 2px;
+}
+
+.contact-row p {
+  font-size: 13px;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Waves */
+.adm-bottom-waves {
+  width: 100%;
+  line-height: 0;
+  margin-top: -10px;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .adm-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .adm-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .step-connector-arrow {
+    display: none;
+  }
+  .apply-split-grid {
+    grid-template-columns: 1fr;
+  }
+  .faqs-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .benefits-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .adm-downloads-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .adm-container {
+    padding: 0 18px;
+  }
+  .adm-quick-grid {
+    grid-template-columns: 1fr;
+  }
+  .adm-steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-row-2,
+  .form-row-3 {
+    grid-template-columns: 1fr;
+  }
+  .adm-section-title {
+    font-size: 26px;
+  }
+  .docs-checklist-card,
+  .online-form-card {
+    padding: 22px;
+  }
+  .helpdesk-side-card {
+    padding: 24px;
+  }
+}

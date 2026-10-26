@@ -1,0 +1,212 @@
+/* ==========================================================================
+   Admissions Page - Hero Section Styling
+   PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.admission-hero-section {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 128px);
+  min-height: clamp(620px, 80vh, 800px);
+  background-image: url('/Modern%20School%20Banner%20with%20Airy%20Waves.png');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  padding: 60px 52px 90px 52px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* Gradient readability mask */
+.admission-hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.92) 36%,
+    rgba(255, 255, 255, 0.45) 54%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admission-hero-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  position: relative;
+  z-index: 2;
+}
+
+.admission-hero-content {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admission-eyebrow-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.admission-eyebrow {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  color: #0b1528;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.admission-eyebrow-line {
+  width: 36px;
+  height: 3.5px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.admission-hero-title {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.6px;
+  margin: 0;
+}
+
+.title-navy {
+  color: #0b1528;
+}
+
+.title-orange {
+  color: #ea580c;
+}
+
+.admission-hero-subtitle {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e3a5f;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.admission-hero-desc {
+  font-size: 15px;
+  line-height: 1.62;
+  color: #475569;
+  margin: 0;
+  max-width: 510px;
+  font-weight: 500;
+}
+
+/* Breadcrumbs */
+.admission-breadcrumb-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-home-icon {
+  color: #0f284e;
+  flex-shrink: 0;
+}
+
+.breadcrumb-link {
+  color: #0f284e;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumb-link:hover {
+  color: #ea580c;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: #94a3b8;
+  font-weight: 500;
+  user-select: none;
+}
+
+.breadcrumb-current {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.admission-hero-spacer {
+  flex: 0 0 46%;
+  min-height: 480px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admission-hero-title {
+    font-size: 40px;
+  }
+  .admission-hero-subtitle {
+    font-size: 18px;
+  }
+  .admission-hero-spacer {
+    flex: 0 0 40%;
+  }
+}
+
+@media (max-width: 992px) {
+  .admission-hero-section {
+    padding: 44px 28px 65px 28px;
+    min-height: auto;
+  }
+  .admission-hero-section::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.92) 70%,
+      rgba(255, 255, 255, 0.85) 100%
+    );
+  }
+  .admission-hero-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .admission-hero-spacer {
+    display: none;
+  }
+  .admission-hero-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .admission-hero-section {
+    padding: 32px 20px 50px 20px;
+  }
+  .admission-hero-title {
+    font-size: 30px;
+  }
+  .admission-hero-subtitle {
+    font-size: 16px;
+  }
+  .admission-hero-desc {
+    font-size: 14px;
+  }
+}

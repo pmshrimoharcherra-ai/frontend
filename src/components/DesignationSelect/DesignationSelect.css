@@ -1,0 +1,424 @@
+/* ==========================================================================
+   DESIGNATION SELECT - MODERN CUSTOM DROPDOWN
+   ========================================================================== */
+
+.desig-select-container {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+/* ── Trigger Button ── */
+.desig-select-trigger {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.desig-select-trigger:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+/* Active / Focus styling based on accent */
+.desig-select-container.accent-orange .desig-select-trigger.is-active,
+.desig-select-container.accent-orange .desig-select-trigger:focus {
+  background: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.14);
+}
+
+.desig-select-container.accent-emerald .desig-select-trigger.is-active,
+.desig-select-container.accent-emerald .desig-select-trigger:focus {
+  background: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+}
+
+.desig-select-trigger.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+/* Trigger Content */
+.desig-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.desig-selected-pill-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.desig-selected-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desig-selected-title.custom-text {
+  color: #475569;
+  font-weight: 500;
+  font-size: 12.5px;
+}
+
+.desig-trigger-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.desig-placeholder-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.desig-trigger-chevron {
+  color: #64748b;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.desig-trigger-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.desig-select-container.accent-orange .desig-trigger-chevron.is-open {
+  color: #ea580c;
+}
+
+.desig-select-container.accent-emerald .desig-trigger-chevron.is-open {
+  color: #10b981;
+}
+
+/* ── Floating Dropdown Menu ── */
+.desig-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px -8px rgba(15, 23, 42, 0.2), 0 6px 16px -4px rgba(15, 23, 42, 0.08);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  animation: desigMenuDropdown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+}
+
+@keyframes desigMenuDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Menu Header */
+.desig-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.desig-menu-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.desig-menu-label svg {
+  color: #ea580c;
+}
+
+.desig-select-container.accent-emerald .desig-menu-label svg {
+  color: #10b981;
+}
+
+.desig-menu-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* Menu Items List */
+.desig-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+/* Custom Scrollbar */
+.desig-menu-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.desig-menu-list::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.desig-menu-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.desig-menu-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Menu Item Row ── */
+.desig-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  gap: 10px;
+}
+
+.desig-menu-item:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.desig-item-left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1;
+  min-width: 0;
+}
+
+.desig-badge-cluster {
+  flex-shrink: 0;
+}
+
+.desig-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.desig-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.desig-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.25;
+}
+
+.desig-item-scope {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.desig-leadership-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Right Status / Icons */
+.desig-item-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.desig-item-hint-icon {
+  color: #94a3b8;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.desig-menu-item:hover .desig-item-hint-icon {
+  opacity: 0.85;
+  transform: translateX(-1px);
+}
+
+.desig-item-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Selected State ── */
+.desig-menu-item.is-selected {
+  background: #f8fafc;
+}
+
+.desig-select-container.accent-orange .desig-menu-item.is-selected {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.desig-select-container.accent-orange .desig-item-check {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.desig-select-container.accent-emerald .desig-menu-item.is-selected {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.desig-select-container.accent-emerald .desig-item-check {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* ── BADGE COLOR THEMES ── */
+.desig-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-family: inherit;
+  flex-shrink: 0;
+  min-width: 42px;
+  text-align: center;
+}
+
+/* UGT - Under Graduate Teacher */
+.desig-badge.desig-ugt {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+/* TGT - Trained Graduate Teacher */
+.desig-badge.desig-tgt {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+/* PGT - Post Graduate Teacher */
+.desig-badge.desig-pgt {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+/* GT - Graduate Teacher */
+.desig-badge.desig-gt {
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+/* HM - Headmaster / Headmistress */
+.desig-badge.desig-hm {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08);
+}
+
+/* TIC - Teacher-In-Charge */
+.desig-badge.desig-tic {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08);
+}
+
+/* AHM - Assistant Headmaster */
+.desig-badge.desig-ahm {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  box-shadow: 0 1px 2px rgba(190, 18, 60, 0.08);
+}
+
+/* Custom / Legacy Badge */
+.desig-badge.desig-custom {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.desig-menu-item.is-custom-item {
+  border-bottom: 1px dashed #e2e8f0;
+  margin-bottom: 2px;
+  padding-bottom: 9px;
+}

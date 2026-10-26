@@ -1,0 +1,233 @@
+/* ==========================================================================
+   CUSTOM GENDER SELECT DROPDOWN COMPONENT STYLES
+   ========================================================================== */
+
+.custom-gender-select-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Trigger Button */
+.gender-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  min-height: 42px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  user-select: none;
+}
+
+.gender-select-trigger:hover:not(:disabled) {
+  border-color: #94a3b8;
+  background: #ffffff;
+}
+
+.gender-select-trigger.active,
+.gender-select-trigger:focus {
+  border-color: #ea580c;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.gender-select-trigger.boy {
+  border-left: 3.5px solid #2563eb;
+}
+
+.gender-select-trigger.girl {
+  border-left: 3.5px solid #db2777;
+}
+
+.trigger-value-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trigger-icon-pill {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.trigger-icon-pill.boy {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.trigger-icon-pill.girl {
+  background: #fdf2f8;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
+}
+
+.trigger-text-val {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.trigger-chevron {
+  color: #64748b;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.trigger-chevron.open {
+  transform: rotate(180deg);
+  color: #ea580c;
+}
+
+/* Floating Dropdown Menu */
+.gender-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 35px -4px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: genderMenuSlide 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes genderMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Menu Option Items */
+.gender-menu-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.gender-menu-option:hover {
+  background: #f8fafc;
+}
+
+.gender-menu-option.boy:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.gender-menu-option.girl:hover {
+  background: #fdf2f8;
+  border-color: #fbcfe8;
+}
+
+.gender-menu-option.selected.boy {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.gender-menu-option.selected.girl {
+  background: #fdf2f8;
+  border-color: #f472b6;
+}
+
+.option-content-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-icon-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-icon-avatar.boy {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.option-icon-avatar.girl {
+  background: #fce7f3;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
+}
+
+.option-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.option-primary-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.gender-menu-option.selected.boy .option-primary-title {
+  color: #1d4ed8;
+}
+
+.gender-menu-option.selected.girl .option-primary-title {
+  color: #be185d;
+}
+
+.option-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.option-check-wrap {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-check-wrap.boy {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.option-check-wrap.girl {
+  background: #db2777;
+  color: #ffffff;
+}

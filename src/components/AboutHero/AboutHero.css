@@ -1,0 +1,193 @@
+/* ==========================================================================
+   About Us Page - Hero Section Styling
+   ========================================================================== */
+
+.about-hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  background-image: url('/PM%20SHRI%20School%20Banner%20with%20Wave%20Accents.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  padding: 50px 48px 80px 48px;
+  overflow: hidden;
+}
+
+.about-hero-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Left Content Area */
+.about-hero-content {
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Eyebrow */
+.about-eyebrow-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.about-eyebrow {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.about-eyebrow-line {
+  width: 38px;
+  height: 3px;
+  background-color: #ea580c;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* Page Title */
+.about-hero-title {
+  font-family: var(--font-heading);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.title-dark {
+  color: #0b1528;
+}
+
+.title-orange {
+  color: #ea580c;
+}
+
+/* Subtitle */
+.about-hero-subtitle {
+  font-family: var(--font-primary);
+  font-size: 18.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 2px 0 0 0;
+  line-height: 1.35;
+}
+
+/* Description */
+.about-hero-desc {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #475569;
+  margin: 0;
+  max-width: 480px;
+}
+
+/* Breadcrumb Capsule */
+.about-breadcrumb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1.5px solid #ea580c;
+  padding: 7px 20px;
+  border-radius: 9999px;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.12);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.about-breadcrumb-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.18);
+}
+
+.breadcrumb-home-icon {
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+.breadcrumb-link {
+  color: #ea580c;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+  color: #c2410c;
+  text-decoration: underline;
+}
+
+.breadcrumb-divider {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.breadcrumb-current {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+/* Spacer for the right school building graphic */
+.about-hero-spacer {
+  flex: 0 0 45%;
+  min-height: 380px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .about-hero-title {
+    font-size: 44px;
+  }
+  .about-hero-spacer {
+    flex: 0 0 38%;
+  }
+}
+
+@media (max-width: 992px) {
+  .about-hero-section {
+    padding: 40px 24px 60px 24px;
+    min-height: auto;
+  }
+  .about-hero-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .about-hero-spacer {
+    display: none;
+  }
+  .about-hero-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-hero-title {
+    font-size: 34px;
+  }
+  .about-hero-subtitle {
+    font-size: 16px;
+  }
+  .about-hero-desc {
+    font-size: 13.5px;
+  }
+}

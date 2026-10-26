@@ -1,0 +1,711 @@
+/* ==========================================================================
+   STUDENT FULL DETAILS MODAL STYLING
+   ========================================================================== */
+
+.student-details-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  animation: detailsFadeIn 0.22s ease-out;
+}
+
+@keyframes detailsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.student-details-card {
+  background: #ffffff;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: detailsCardSlide 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes detailsCardSlide {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header Banner */
+.details-header-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  padding: 24px 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.details-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+}
+
+.details-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
+  flex-shrink: 0;
+}
+
+.details-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.details-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.details-roll-badge {
+  background: #f59e0b;
+  color: #0f172a;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.details-class-badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 9999px;
+}
+
+.details-gender-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
+.details-gender-badge.boy {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(147, 197, 253, 0.4);
+}
+
+.details-gender-badge.girl {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.4);
+}
+
+.gender-boy-text {
+  color: #1d4ed8;
+}
+
+.gender-girl-text {
+  color: #be185d;
+}
+
+.details-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.details-status-badge.enrolled {
+  background: #059669;
+  color: #ffffff;
+}
+
+.details-status-badge.transferred {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.details-status-badge.leave {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.details-student-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.details-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.details-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.details-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #f87171;
+  transform: rotate(90deg);
+}
+
+/* Body Scroll Area */
+.details-body-scroll {
+  padding: 22px 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #f8fafc;
+}
+
+/* Transferred Notice */
+.transferred-notice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.transferred-notice-card .notice-icon {
+  flex-shrink: 0;
+  color: #dc2626;
+  margin-top: 1px;
+}
+
+.transferred-notice-card strong {
+  display: block;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+}
+
+.transferred-notice-card p {
+  margin: 0;
+  color: #b91c1c;
+  line-height: 1.4;
+}
+
+/* Section Cards */
+.details-section-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s ease;
+}
+
+.details-section-card:hover {
+  border-color: #cbd5e1;
+}
+
+.details-section-card.highlight-card {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.05);
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-icon-wrap.user-theme {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.section-icon-wrap.shield-theme {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.section-icon-wrap.academic-theme {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.section-icon-wrap.phone-theme {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section-header-row h3 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.confidential-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #c2410c;
+  background: #ffedd5;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+}
+
+/* Grid Layout */
+.details-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.detail-item-box {
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 11px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item-box.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detail-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-val-text {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-mono {
+  font-family: 'SF Mono', Consolas, Monaco, monospace;
+}
+
+.text-muted {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.field-icon {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+/* Aadhaar & ID presentation */
+.aadhaar-item-box {
+  background: #fff7ed;
+  border-color: #ffedd5;
+}
+
+.aadhaar-row {
+  justify-content: space-between;
+}
+
+.aadhaar-number-display {
+  font-family: 'SF Mono', Consolas, Monaco, monospace;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #9a3412;
+  letter-spacing: 1.2px;
+}
+
+.erp-id-display {
+  font-family: 'SF Mono', Consolas, Monaco, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  background: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.copy-field-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.copy-field-btn:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+}
+
+.copy-mini-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.copy-mini-btn:hover {
+  color: #ea580c;
+  background: #f1f5f9;
+}
+
+.copied-icon {
+  color: #059669;
+}
+
+.roll-pill-val {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-radius: 7px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* Attendance in details */
+.att-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.att-pill-badge-lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 4px 11px;
+  border-radius: 8px;
+}
+
+.view-register-btn {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  text-decoration: underline;
+}
+
+.view-register-btn:hover {
+  color: #1d4ed8;
+}
+
+/* Contact Details */
+.contact-row {
+  justify-content: space-between;
+}
+
+.phone-call-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  text-decoration: none;
+  background: #ffffff;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.phone-call-link:hover {
+  color: #ea580c;
+  border-color: #ea580c;
+  background: #fff7ed;
+}
+
+.phone-call-link svg {
+  color: #ea580c;
+}
+
+/* Modal Footer */
+.details-modal-footer {
+  padding: 16px 28px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-left-actions,
+.footer-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-btn-secondary {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footer-btn-secondary:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.footer-btn-attendance {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footer-btn-attendance:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.footer-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 9px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+.footer-btn-primary:hover {
+  opacity: 0.94;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
+}
+
+/* ==========================================================================
+   RESPONSIVE BEHAVIOR
+   ========================================================================== */
+@media (max-width: 640px) {
+  .details-header-banner {
+    padding: 18px 20px;
+  }
+
+  .details-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .details-student-name {
+    font-size: 18px;
+  }
+
+  .details-body-scroll {
+    padding: 16px;
+  }
+
+  .details-info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .details-modal-footer {
+    padding: 14px 18px;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .footer-left-actions,
+  .footer-right-actions {
+    width: 100%;
+    display: flex;
+    justify-content: stretch;
+  }
+
+  .footer-btn-secondary,
+  .footer-btn-attendance,
+  .footer-btn-primary {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Enrollment Details inside View Student Modal */
+.details-enr-badge {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  font-family: 'SF Mono', Consolas, Monaco, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.enr-box-highlight {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.enr-val-text {
+  font-size: 13.5px;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  letter-spacing: 0.3px;
+}
+
+.enr-yr-pill {
+  font-size: 12.5px;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 3px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,0 +1,649 @@
+/* ==========================================================================
+   Header & Navigation Styling - PM SHRI Moharcherra H.S. School
+   ========================================================================== */
+
+.site-header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   Top Utility Info Bar
+   -------------------------------------------------------------------------- */
+.top-bar {
+  background-color: #0d1522;
+  color: #d1d5db;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.top-bar-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 6px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.motto-text {
+  letter-spacing: 0.3px;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.top-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.top-contact-item:hover {
+  color: #f59e0b;
+}
+
+.top-icon {
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.top-contact-item:hover .top-icon {
+  color: #f59e0b;
+}
+
+.top-divider {
+  width: 1px;
+  height: 14px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.top-social-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: 6px;
+}
+
+.social-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.social-icon-btn:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Main Navigation Bar
+   -------------------------------------------------------------------------- */
+.main-navbar {
+  background-color: #ffffff;
+  position: relative;
+}
+
+.navbar-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 10px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo & Brand */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-logo-img {
+  height: 54px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.brand-title {
+  font-family: var(--font-heading);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+}
+
+.brand-pm {
+  color: #f59e0b;
+}
+
+.brand-shri {
+  color: #dc2626;
+}
+
+.brand-school {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-top: 2px;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+
+.brand-location {
+  font-family: var(--font-primary);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.2;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+/* Nav Menu */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 10px;
+  color: #374151;
+  font-size: 14.5px;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: #f59e0b;
+}
+
+.chevron-icon {
+  transition: transform 0.25s ease;
+  color: #64748b;
+}
+
+.nav-item:hover .chevron-icon {
+  transform: rotate(180deg);
+  color: #f59e0b;
+}
+
+/* Active State (Home) */
+.nav-item.active .nav-link,
+.nav-link.active-link {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.nav-item.active .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 10px;
+  right: 10px;
+  height: 2.5px;
+  background-color: #f59e0b;
+  border-radius: 4px;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 14px 35px -4px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  list-style: none;
+  padding: 8px 0;
+  margin-top: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1100;
+}
+
+.nav-item:hover .dropdown-menu,
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  padding: 0;
+}
+
+.dropdown-link {
+  display: block;
+  padding: 9px 20px;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-link:hover {
+  background-color: #fffbeb;
+  color: #b45309;
+  padding-left: 23px;
+}
+
+/* Login Action Button */
+.nav-action-wrapper {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.nav-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-family: var(--font-primary, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.25);
+  letter-spacing: 0.2px;
+}
+
+.nav-login-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.38);
+}
+
+.nav-login-btn:active {
+  transform: translateY(0);
+}
+
+.login-icon {
+  stroke-width: 2.2;
+}
+
+/* User Logged State */
+.user-logged-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 6px 4px 12px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.user-logged-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-logged-role {
+  background: #ea580c;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+}
+
+.user-logged-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.nav-admin-portal-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+  margin-left: 2px;
+}
+
+.nav-admin-portal-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  transform: translateY(-1px);
+}
+
+.logout-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-icon-btn:hover {
+  background: #fca5a5;
+  color: #991b1b;
+  transform: scale(1.05);
+}
+
+/* Mobile Actions */
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-family: var(--font-primary, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+}
+
+.mobile-login-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+.hamburger-btn {
+  background: transparent;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Mobile Drawer Login Footer */
+.mobile-drawer-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.mobile-drawer-login-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-family: var(--font-primary, sans-serif);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.25);
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-login-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+.mobile-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-family: var(--font-primary, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-drawer-user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.mobile-drawer-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-drawer-role {
+  background: #ea580c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.mobile-drawer-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.mobile-drawer-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-nav-drawer {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 1180px) {
+  .nav-links {
+    gap: 4px;
+  }
+  .nav-link {
+    font-size: 13.5px;
+    padding: 8px 7px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .top-bar-container {
+    padding: 6px 20px;
+  }
+  .navbar-container {
+    padding: 8px 20px;
+  }
+  .nav-menu {
+    display: none;
+  }
+  .mobile-actions {
+    display: flex;
+  }
+
+  .mobile-nav-drawer {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-in-out;
+    background-color: #ffffff;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .mobile-nav-drawer.open {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .mobile-nav-list {
+    list-style: none;
+    padding: 12px 20px;
+  }
+
+  .mobile-nav-item {
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+  }
+
+  .mobile-nav-header.active a {
+    color: #f59e0b;
+    font-weight: 600;
+  }
+
+  .mobile-chevron {
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-chevron.rotated {
+    transform: rotate(180deg);
+    color: #f59e0b;
+  }
+
+  .mobile-sub-list {
+    list-style: none;
+    padding: 0 0 12px 14px;
+  }
+
+  .mobile-sub-item {
+    padding: 6px 0;
+  }
+
+  .mobile-sub-item a {
+    font-size: 14px;
+    color: #64748b;
+  }
+}
+
+@media (max-width: 640px) {
+  .top-bar-left {
+    display: none;
+  }
+  .top-bar-container {
+    justify-content: center;
+  }
+  .top-bar-right {
+    gap: 12px;
+    font-size: 11.5px;
+  }
+  .brand-logo-img {
+    height: 44px;
+  }
+  .brand-title {
+    font-size: 17px;
+  }
+  .brand-school {
+    font-size: 12px;
+  }
+  .brand-location {
+    font-size: 10.5px;
+  }
+}
