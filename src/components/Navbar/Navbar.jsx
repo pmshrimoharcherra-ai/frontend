@@ -132,7 +132,8 @@ const Navbar = ({
   ];
 
   return (
-    <header className={`site-header ${isScrolled ? 'scrolled-floating' : ''}`}>
+    <>
+      <header className={`site-header ${isScrolled ? 'scrolled-floating' : ''}`}>
       {/* Top Utility Info Bar */}
       <div className="top-bar">
         <div className="top-bar-container">
@@ -420,6 +421,8 @@ const Navbar = ({
         </div>
       </nav>
     </header>
+    <div className="navbar-spacer" aria-hidden="true" />
+  </>
   );
 };
 
