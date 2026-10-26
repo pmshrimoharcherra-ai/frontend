@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Navbar.css';
 import { 
   Mail, 
@@ -40,6 +40,21 @@ const Navbar = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleDropdown = (index) => {
     if (activeDropdown === index) {
@@ -117,7 +132,7 @@ const Navbar = ({
   ];
 
   return (
-    <header className="site-header">
+    <header className={`site-header ${isScrolled ? 'scrolled-floating' : ''}`}>
       {/* Top Utility Info Bar */}
       <div className="top-bar">
         <div className="top-bar-container">
