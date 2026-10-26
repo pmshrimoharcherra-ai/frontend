@@ -222,6 +222,32 @@
   align-items: center;
   gap: 14px;
   flex: 1;
+  padding: 6px 10px;
+  border-radius: 14px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.stat-item.clickable-stat {
+  cursor: pointer;
+}
+
+.stat-item.clickable-stat:hover {
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+}
+
+.stat-item.clickable-stat:hover .stat-icon-box {
+  transform: scale(1.12);
+}
+
+.stat-item.clickable-stat:active {
+  transform: translateY(0);
+}
+
+.stat-item.clickable-stat:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
 }
 
 .stat-item-wide {
@@ -234,6 +260,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .icon-blue {

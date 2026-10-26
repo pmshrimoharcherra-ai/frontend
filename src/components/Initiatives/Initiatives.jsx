@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
+import { INITIAL_TEACHERS } from '../../data/teachersData';
 import './Initiatives.css';
 import { 
   Monitor, 
@@ -9,15 +11,50 @@ import {
   Palette, 
   UserCheck, 
   BookOpen, 
-  ArrowRight,
-  User,
-  Users,
-  Trophy,
-  Wrench,
-  Atom
+  ArrowRight, 
+  User, 
+  Users, 
+  Trophy, 
+  Wrench, 
+  Atom 
 } from 'lucide-react';
 
 const Initiatives = () => {
+  const [studentCount, setStudentCount] = useState(494);
+  const [teacherCount, setTeacherCount] = useState(INITIAL_TEACHERS.length || 19);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMetrics = async () => {
+      try {
+        const [studentsRes, teachersRes] = await Promise.allSettled([
+          fetch(`${API_BASE_URL}/api/students`),
+          fetch(`${API_BASE_URL}/api/teachers`)
+        ]);
+
+        if (studentsRes.status === 'fulfilled' && studentsRes.value.ok) {
+          const sData = await studentsRes.value.json();
+          if (sData.success && (sData.count || Array.isArray(sData.students))) {
+            const count = sData.count ?? sData.students.length;
+            if (isMounted && count > 0) setStudentCount(count);
+          }
+        }
+
+        if (teachersRes.status === 'fulfilled' && teachersRes.value.ok) {
+          const tData = await teachersRes.value.json();
+          if (tData.success && (tData.count || Array.isArray(tData.teachers))) {
+            const count = tData.count ?? tData.teachers.length;
+            if (isMounted && count > 0) setTeacherCount(count);
+          }
+        }
+      } catch (err) {
+        console.warn('Initiatives stats fetch error:', err);
+      }
+    };
+
+    fetchMetrics();
+    return () => { isMounted = false; };
+  }, []);
   const initiativesData = [
     {
       id: 1,
@@ -128,7 +165,7 @@ const Initiatives = () => {
                 <User size={20} />
               </div>
               <div className="mini-stat-text">
-                <span className="mini-stat-num">800+</span>
+                <span className="mini-stat-num">{studentCount}+</span>
                 <span className="mini-stat-lbl">Students</span>
               </div>
             </div>
@@ -138,7 +175,7 @@ const Initiatives = () => {
                 <Users size={20} />
               </div>
               <div className="mini-stat-text">
-                <span className="mini-stat-num">35+</span>
+                <span className="mini-stat-num">{teacherCount}+</span>
                 <span className="mini-stat-lbl">Teachers</span>
               </div>
             </div>
