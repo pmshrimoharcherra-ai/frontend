@@ -178,18 +178,27 @@ const NoticePage = ({ onNavigate = () => {} }) => {
             {/* Quick Hero Highlights */}
             <div className="notice-hero-stats">
               <div className="hero-stat-card">
-                <span className="stat-count">{notices.length}</span>
-                <span className="stat-label">Published Notices</span>
+                <FileText size={28} className="stat-card-icon text-orange" />
+                <div className="stat-card-text">
+                  <span className="stat-count">{notices.length}</span>
+                  <span className="stat-label">Published Notices</span>
+                </div>
               </div>
               <div className="hero-stat-card">
-                <span className="stat-count text-orange">
-                  {notices.filter((n) => n.pinned).length}
-                </span>
-                <span className="stat-label">Important / Pinned</span>
+                <Pin size={28} className="stat-card-icon text-orange" />
+                <div className="stat-card-text">
+                  <span className="stat-count">
+                    {notices.filter((n) => n.pinned).length}
+                  </span>
+                  <span className="stat-label">Important / Pinned</span>
+                </div>
               </div>
               <div className="hero-stat-card">
-                <span className="stat-count text-green">PDF</span>
-                <span className="stat-label">Official Document</span>
+                <FileCheck size={28} className="stat-card-icon text-green" />
+                <div className="stat-card-text">
+                  <span className="stat-count text-green">PDF</span>
+                  <span className="stat-label">Official Document</span>
+                </div>
               </div>
             </div>
           </div>

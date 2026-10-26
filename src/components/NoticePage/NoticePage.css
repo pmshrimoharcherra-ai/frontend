@@ -14,38 +14,66 @@
 /* ── 01. Hero Section ── */
 .notice-hero-section {
   position: relative;
-  background: linear-gradient(135deg, #091322 0%, #0f172a 50%, #1e293b 100%);
+  background-color: #060d1b;
+  background-image: url('/PM%20SHRI%20Moharcherra%20School%20Exterior.png');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
   color: #ffffff;
-  padding: 68px 24px 60px;
+  padding: 85px 32px 75px;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
   overflow: hidden;
-}
-
-.notice-hero-section::before {
-  content: '';
-  position: absolute;
-  top: -120px;
-  right: -100px;
-  width: 480px;
-  height: 480px;
-  background: radial-gradient(circle, rgba(234, 88, 12, 0.22) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
 }
 
 .notice-hero-overlay {
   position: absolute;
   inset: 0;
-  background-image: 
-    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
-  background-position: 0 0, 14px 14px;
+  background: linear-gradient(
+    90deg,
+    rgba(6, 13, 27, 0.98) 0%,
+    rgba(6, 13, 27, 0.94) 34%,
+    rgba(6, 13, 27, 0.82) 48%,
+    rgba(6, 13, 27, 0.35) 68%,
+    rgba(6, 13, 27, 0.08) 100%
+  );
+  z-index: 1;
+}
+
+/* Dot pattern overlay on left side */
+.notice-hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
   pointer-events: none;
-  opacity: 0.6;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+/* Subtle glowing accent curve at bottom left */
+.notice-hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -180px;
+  left: -140px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+  box-shadow: 0 0 120px rgba(234, 88, 12, 0.18);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .notice-hero-container {
-  max-width: 1200px;
+  max-width: 1360px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
   z-index: 2;
@@ -55,6 +83,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  max-width: 720px;
 }
 
 .notice-eyebrow-wrap {
@@ -169,24 +198,52 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .hero-stat-card {
   display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(11, 20, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 12px 22px;
+  border-radius: 14px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.hero-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(249, 115, 22, 0.45);
+  background: rgba(15, 25, 45, 0.85);
+}
+
+.stat-card-icon {
+  flex-shrink: 0;
+}
+
+.stat-card-icon.text-orange {
+  color: #f97316;
+}
+
+.stat-card-icon.text-green {
+  color: #10b981;
+}
+
+.stat-card-text {
+  display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 12px 20px;
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  min-width: 140px;
 }
 
 .stat-count {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.1;
+  font-family: var(--font-heading, inherit);
 }
 
 .stat-count.text-orange {
@@ -198,11 +255,11 @@
 }
 
 .stat-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   margin-top: 2px;
 }
 
@@ -869,7 +926,24 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .notice-hero-section {
-    padding: 48px 16px 40px;
+    padding: 55px 18px 45px;
+    background-position: center top;
+  }
+  .notice-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 13, 27, 0.94) 0%,
+      rgba(6, 13, 27, 0.88) 60%,
+      rgba(6, 13, 27, 0.96) 100%
+    );
+  }
+  .notice-hero-stats {
+    gap: 10px;
+  }
+  .hero-stat-card {
+    padding: 10px 16px;
+    flex: 1 1 calc(50% - 10px);
+    min-width: 130px;
   }
   .notice-hero-title {
     font-size: 32px;
