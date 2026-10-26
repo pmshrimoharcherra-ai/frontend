@@ -20,7 +20,7 @@ import {
 
 const API_NOTICES = `${API_BASE_URL}/api/notices`;
 
-const AdminNotices = () => {
+const AdminNotices = ({ initialOpenModal = false }) => {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,7 +29,13 @@ const AdminNotices = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal & Form State
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(initialOpenModal);
+
+  useEffect(() => {
+    if (initialOpenModal) {
+      setShowCreateModal(true);
+    }
+  }, [initialOpenModal]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');

@@ -53,25 +53,33 @@ export const SCHOOL_CLASSES = [
 
 const API_BASE = `${API_BASE_URL}/api/students`;
 
-const AdminStudents = () => {
+const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }) => {
   const { classId: routeClassId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedClassId, setSelectedClassId] = useState(routeClassId || null);
+  const [selectedClassId, setSelectedClassId] = useState(routeClassId || initialSelectedClassId || null);
 
   // Sync selectedClassId with URL parameter routeClassId (e.g. on direct visit, reload, or back/forward)
   useEffect(() => {
     if (routeClassId) {
       setSelectedClassId(routeClassId);
+    } else if (initialSelectedClassId) {
+      setSelectedClassId(initialSelectedClassId);
     } else {
       setSelectedClassId(null);
     }
-  }, [routeClassId]);
+  }, [routeClassId, initialSelectedClassId]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(initialOpenAdd);
+
+  useEffect(() => {
+    if (initialOpenAdd) {
+      setShowAddModal(true);
+    }
+  }, [initialOpenAdd]);
   const [selectedAttendanceStudent, setSelectedAttendanceStudent] = useState(null);
   const [showClassAttendanceModal, setShowClassAttendanceModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);

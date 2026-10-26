@@ -30,7 +30,7 @@ const TeacherDesk = () => {
             <div className="portrait-wrapper">
               <div className="portrait-bg-shape"></div>
               <img 
-                src="/Principal%20at%20Her%20Desk.png" 
+                src="/3b88766c-8b40-43f1-aa5e-865c2877b64f.png" 
                 alt="Rupa Das, Teacher-In-Charge" 
                 className="portrait-img" 
               />

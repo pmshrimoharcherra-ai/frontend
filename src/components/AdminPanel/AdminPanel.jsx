@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/api';
 import './AdminPanel.css';
 import AdminSidebar from '../AdminSidebar/AdminSidebar';
-import AdminStudents from '../AdminStudents/AdminStudents';
+import AdminStudents, { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
 import AdminAcademicCalendar from '../AdminAcademicCalendar/AdminAcademicCalendar';
 import AdminGallery from '../AdminGallery/AdminGallery';
 import AdminTeachers from '../AdminTeachers/AdminTeachers';
@@ -35,7 +35,12 @@ import {
   Mail,
   Filter,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  ArrowRight,
+  ChevronRight,
+  Sparkles,
+  RefreshCw,
+  Clock
 } from 'lucide-react';
 
 const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
@@ -70,6 +75,7 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     }
     navigate(target);
   };
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
@@ -78,10 +84,12 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
       return false;
     }
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedClass, setSelectedClass] = useState('All');
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [showAddNoticeModal, setShowAddNoticeModal] = useState(false);
+
+  // Dynamic deep-linking states for child tabs
+  const [openStudentAddModal, setOpenStudentAddModal] = useState(false);
+  const [selectedClassFromDashboard, setSelectedClassFromDashboard] = useState(null);
+  const [openNoticeCreateModal, setOpenNoticeCreateModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed((prev) => {
@@ -119,121 +127,154 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
 
   // Real Students Data from DB
   const [students, setStudents] = useState([]);
+  const [studentsLoading, setStudentsLoading] = useState(true);
+
+  const loadOverviewStudents = async () => {
+    try {
+      setStudentsLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/students`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.students)) {
+        setStudents(data.students);
+      }
+    } catch (err) {
+      console.error('Error fetching students for overview:', err);
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadOverviewStudents = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/students`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.students)) {
-          setStudents(data.students);
-        }
-      } catch (err) {
-        console.error('Error fetching students for overview:', err);
-      }
-    };
     loadOverviewStudents();
   }, []);
 
   // Real Notices Data from DB for Overview Dashboard
   const [notices, setNotices] = useState([]);
+  const [noticesLoading, setNoticesLoading] = useState(true);
 
-  useEffect(() => {
-    const loadOverviewNotices = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/notices`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.notices)) {
-          setNotices(data.notices);
-        }
-      } catch (err) {
-        console.warn('Error loading notices for overview:', err);
+  const loadOverviewNotices = async () => {
+    try {
+      setNoticesLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/notices`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.notices)) {
+        setNotices(data.notices);
       }
-    };
-    loadOverviewNotices();
-  }, [activeTab]);
-
-  // Official Faculty Data (19 Teachers)
-  const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
-
-  useEffect(() => {
-    const loadTeachers = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/teachers`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.teachers) && data.teachers.length > 0) {
-          setTeachers(data.teachers);
-        }
-      } catch (err) {
-        console.warn('API fetch for teachers failed, using official initial teachers:', err);
-      }
-    };
-    loadTeachers();
-  }, []);
-
-  // Form states for modals
-  const [newStudent, setNewStudent] = useState({ name: '', class: 'Class X-A', roll: '', guardian: '', phone: '' });
-  const [newNotice, setNewNotice] = useState({ title: '', category: 'Academic', audience: 'All Students' });
-
-  // Filter students based on search and selected class
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          s.roll.includes(searchQuery) || 
-                          s.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesClass = selectedClass === 'All' || s.class.startsWith(selectedClass);
-    return matchesSearch && matchesClass;
-  });
-
-  const handleAddStudent = (e) => {
-    e.preventDefault();
-    if (!newStudent.name || !newStudent.roll) return;
-    const studentEntry = {
-      id: `PMS-2026-${String(students.length + 1).padStart(3, '0')}`,
-      name: newStudent.name,
-      class: newStudent.class,
-      roll: newStudent.roll,
-      guardian: newStudent.guardian || 'Guardian',
-      phone: newStudent.phone || '+91 98765 00000',
-      attendance: '100%',
-      status: 'Enrolled'
-    };
-    setStudents([studentEntry, ...students]);
-    setNewStudent({ name: '', class: 'Class X-A', roll: '', guardian: '', phone: '' });
-    setShowAddStudentModal(false);
-  };
-
-  const handleDeleteStudent = (id) => {
-    if (window.confirm('Are you sure you want to remove this student record?')) {
-      setStudents(students.filter(s => s.id !== id));
+    } catch (err) {
+      console.warn('Error loading notices for overview:', err);
+    } finally {
+      setNoticesLoading(false);
     }
   };
 
-  const handleAddNotice = (e) => {
-    e.preventDefault();
-    if (!newNotice.title) return;
-    const noticeEntry = {
-      id: Date.now(),
-      title: newNotice.title,
-      category: newNotice.category,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-      audience: newNotice.audience,
-      pinned: false
-    };
-    setNotices([noticeEntry, ...notices]);
-    setNewNotice({ title: '', category: 'Academic', audience: 'All Students' });
-    setShowAddNoticeModal(false);
+  useEffect(() => {
+    loadOverviewNotices();
+  }, [activeTab]);
+
+  // Official Faculty Data
+  const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
+
+  const loadTeachers = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/teachers`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.teachers) && data.teachers.length > 0) {
+        setTeachers(data.teachers);
+      }
+    } catch (err) {
+      console.warn('API fetch for teachers failed, using official initial teachers:', err);
+    }
   };
 
-  const handleDeleteNotice = (id) => {
-    setNotices(notices.filter(n => n.id !== id));
+  useEffect(() => {
+    loadTeachers();
+  }, []);
+
+  // Refresh entire overview data
+  const handleRefreshOverview = async () => {
+    setIsRefreshing(true);
+    await Promise.all([loadOverviewStudents(), loadOverviewNotices(), loadTeachers()]);
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  // --- Dynamic Dashboard Metrics & Analytics ---
+  const totalStudents = students.length;
+  const totalTeachers = teachers.length;
+
+  // Active Teachers
+  const activeTeachersCount = useMemo(() => {
+    return teachers.filter(t => !t.status || t.status.toLowerCase() === 'active').length;
+  }, [teachers]);
+
+  // Dynamic Average Attendance calculation
+  const avgAttendance = useMemo(() => {
+    if (!students || students.length === 0) return '94.8';
+    const parsed = students.map((s) => {
+      const val = parseFloat(s.attendance);
+      return isNaN(val) ? 92 : val;
+    });
+    const sum = parsed.reduce((a, b) => a + b, 0);
+    return (sum / parsed.length).toFixed(1);
+  }, [students]);
+
+  // Dynamic Students Present Today
+  const presentStudentsToday = useMemo(() => {
+    if (!students || students.length === 0) return 0;
+    return Math.round((students.length * parseFloat(avgAttendance)) / 100);
+  }, [students, avgAttendance]);
+
+  // Dynamic Pinned Notices Count
+  const pinnedNoticesCount = useMemo(() => {
+    return notices.filter((n) => n.pinned).length;
+  }, [notices]);
+
+  // Class-wise count breakdown
+  const classStats = useMemo(() => {
+    const counts = {};
+    students.forEach((s) => {
+      const cid = s.classId || s.class;
+      if (cid) counts[cid] = (counts[cid] || 0) + 1;
+    });
+    return counts;
+  }, [students]);
+
+  // Recent Student Admissions (sorted by createdAt desc, fallback to index)
+  const recentStudents = useMemo(() => {
+    return [...students]
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 6);
+  }, [students]);
+
+  // Quick Action Handlers
+  const handleNewAdmissionClick = () => {
+    setSelectedClassFromDashboard(null);
+    setOpenStudentAddModal(true);
+    setActiveTab('students');
+  };
+
+  const handlePostNoticeClick = () => {
+    setOpenNoticeCreateModal(true);
+    setActiveTab('notices');
+  };
+
+  const handleOpenClassView = (classId) => {
+    setSelectedClassFromDashboard(classId);
+    setOpenStudentAddModal(false);
+    setActiveTab('students');
   };
 
   return (
     <div className="admin-layout">
-      {/* Separate Admin Sidebar Component */}
+      {/* Admin Sidebar Navigation */}
       <AdminSidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          // Reset deep link flags when navigating via sidebar
+          setOpenStudentAddModal(false);
+          setSelectedClassFromDashboard(null);
+          setOpenNoticeCreateModal(false);
+          setActiveTab(tab);
+        }}
         sidebarCollapsed={sidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
         mobileSidebarOpen={mobileSidebarOpen}
@@ -277,6 +318,17 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
           </div>
 
           <div className="topbar-right">
+            <button 
+              type="button" 
+              className={`topbar-refresh-btn ${isRefreshing ? 'spinning' : ''}`}
+              onClick={handleRefreshOverview}
+              title="Refresh Live Data"
+              aria-label="Refresh Data"
+            >
+              <RefreshCw size={16} />
+              <span>Refresh</span>
+            </button>
+
             <div className="admin-profile-badge">
               <div className="avatar-circle">
                 <ShieldCheck size={18} />
@@ -307,61 +359,146 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
                   </p>
                 </div>
                 <div className="quick-banner-actions">
-                  <button className="action-btn-primary" onClick={() => setActiveTab('students')}>
+                  <button className="action-btn-primary" onClick={handleNewAdmissionClick}>
                     <Plus size={16} />
-                    <span>New Admission</span>
+                    <span>+ New Admission</span>
                   </button>
-                  <button className="action-btn-secondary" onClick={() => setShowAddNoticeModal(true)}>
+                  <button className="action-btn-secondary" onClick={handlePostNoticeClick}>
                     <Bell size={16} />
                     <span>Post Notice</span>
                   </button>
                 </div>
               </div>
 
-              {/* Stat Cards Grid */}
+              {/* Dynamic Stat Cards Grid */}
               <div className="stats-grid">
-                <div className="stat-card">
+                {/* Total Enrolled Students Card */}
+                <div 
+                  className="stat-card clickable-stat-card" 
+                  onClick={() => {
+                    setSelectedClassFromDashboard(null);
+                    setOpenStudentAddModal(false);
+                    setActiveTab('students');
+                  }}
+                  title="Click to view all enrolled students"
+                >
                   <div className="stat-icon-wrapper students">
                     <GraduationCap size={24} />
                   </div>
                   <div className="stat-info">
                     <span className="stat-label">Total Enrolled Students</span>
-                    <h3 className="stat-value">1,248</h3>
-                    <span className="stat-subtext positive">+5.4% from last academic session</span>
+                    <h3 className="stat-value">
+                      {studentsLoading ? '...' : totalStudents.toLocaleString('en-IN')}
+                    </h3>
+                    <span className="stat-subtext positive">
+                      {totalStudents > 0 ? `${totalStudents} Active Students Across Classes` : 'Live Database Sync'}
+                    </span>
                   </div>
                 </div>
 
-                <div className="stat-card" onClick={() => setActiveTab('teachers')} style={{ cursor: 'pointer' }}>
+                {/* Teaching Staff Card */}
+                <div 
+                  className="stat-card clickable-stat-card" 
+                  onClick={() => setActiveTab('teachers')}
+                  title="Click to view teaching staff roster"
+                >
                   <div className="stat-icon-wrapper teachers">
                     <Users size={24} />
                   </div>
                   <div className="stat-info">
                     <span className="stat-label">Teaching Staff</span>
-                    <h3 className="stat-value">{teachers.length}</h3>
-                    <span className="stat-subtext">{teachers.length} Official Teachers Roster</span>
+                    <h3 className="stat-value">{totalTeachers}</h3>
+                    <span className="stat-subtext">
+                      {activeTeachersCount} Official Faculty & Staff Roster
+                    </span>
                   </div>
                 </div>
 
-                <div className="stat-card">
+                {/* Today's Attendance Card */}
+                <div 
+                  className="stat-card clickable-stat-card"
+                  onClick={() => {
+                    setSelectedClassFromDashboard(null);
+                    setOpenStudentAddModal(false);
+                    setActiveTab('students');
+                  }}
+                  title="Click to view student attendance records"
+                >
                   <div className="stat-icon-wrapper attendance">
                     <TrendingUp size={24} />
                   </div>
                   <div className="stat-info">
                     <span className="stat-label">Today's Attendance</span>
-                    <h3 className="stat-value">95.8%</h3>
-                    <span className="stat-subtext positive">1,196 Students Present Today</span>
+                    <h3 className="stat-value">{avgAttendance}%</h3>
+                    <span className="stat-subtext positive">
+                      {presentStudentsToday.toLocaleString('en-IN')} Students Present Today
+                    </span>
                   </div>
                 </div>
 
-                <div className="stat-card">
+                {/* Active School Notices Card */}
+                <div 
+                  className="stat-card clickable-stat-card" 
+                  onClick={() => {
+                    setOpenNoticeCreateModal(false);
+                    setActiveTab('notices');
+                  }}
+                  title="Click to manage official notices"
+                >
                   <div className="stat-icon-wrapper notices">
                     <FileText size={24} />
                   </div>
                   <div className="stat-info">
                     <span className="stat-label">Active School Notices</span>
-                    <h3 className="stat-value">{notices.length}</h3>
-                    <span className="stat-subtext">2 Pinned on Public Website</span>
+                    <h3 className="stat-value">
+                      {noticesLoading ? '...' : notices.length}
+                    </h3>
+                    <span className="stat-subtext">
+                      {pinnedNoticesCount} Pinned on Public Website
+                    </span>
                   </div>
+                </div>
+              </div>
+
+              {/* Dynamic Class-wise Distribution Breakdown */}
+              <div className="dashboard-section-card class-distribution-section">
+                <div className="section-card-header">
+                  <div>
+                    <h4>Class-Wise Student Distribution</h4>
+                    <p>Real-time strength breakdown across primary, elementary, secondary, and higher secondary wings</p>
+                  </div>
+                  <button 
+                    className="card-link-btn"
+                    onClick={() => {
+                      setSelectedClassFromDashboard(null);
+                      setOpenStudentAddModal(false);
+                      setActiveTab('students');
+                    }}
+                  >
+                    Manage Classes <ChevronRight size={14} />
+                  </button>
+                </div>
+                <div className="classes-pills-grid">
+                  {(SCHOOL_CLASSES || []).map((cls) => {
+                    const count = classStats[cls.id] || 0;
+                    return (
+                      <div 
+                        key={cls.id} 
+                        className="class-badge-item"
+                        onClick={() => handleOpenClassView(cls.id)}
+                        title={`Click to view students in ${cls.name}`}
+                      >
+                        <div className="class-badge-top">
+                          <span className="class-name-text">{cls.name}</span>
+                          <span className="class-wing-pill">{cls.wing.split(' ')[0]}</span>
+                        </div>
+                        <div className="class-badge-bottom">
+                          <span className="class-count-number">{count}</span>
+                          <span className="class-count-label">Students</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -374,8 +511,15 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
                       <h4>Recent Student Admissions</h4>
                       <p>Latest enrollments for the 2026-27 batch</p>
                     </div>
-                    <button className="card-link-btn" onClick={() => setActiveTab('students')}>
-                      View All Students
+                    <button 
+                      className="card-link-btn" 
+                      onClick={() => {
+                        setSelectedClassFromDashboard(null);
+                        setOpenStudentAddModal(false);
+                        setActiveTab('students');
+                      }}
+                    >
+                      View All Students <ArrowRight size={14} />
                     </button>
                   </div>
                   <div className="table-responsive">
@@ -390,15 +534,42 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {students.slice(0, 5).map((s) => (
-                          <tr key={s.id}>
-                            <td className="code-font">{s.id}</td>
-                            <td className="bold-font">{s.name}</td>
-                            <td><span className="class-pill">{s.className || s.class || 'Class VI'}</span></td>
-                            <td>{s.roll}</td>
-                            <td><span className="status-pill active">{s.status}</span></td>
+                        {recentStudents.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="empty-table-cell">
+                              {studentsLoading ? 'Loading student records...' : 'No enrolled students found.'}
+                            </td>
                           </tr>
-                        ))}
+                        ) : (
+                          recentStudents.map((s) => (
+                            <tr 
+                              key={s._id || s.id || s.studentId} 
+                              className="clickable-row"
+                              onClick={() => {
+                                if (s.classId) {
+                                  handleOpenClassView(s.classId);
+                                } else {
+                                  setActiveTab('students');
+                                }
+                              }}
+                              title="Click to view in Students Manager"
+                            >
+                              <td className="code-font">{s.studentId || s.id}</td>
+                              <td className="bold-font">{s.name}</td>
+                              <td>
+                                <span className="class-pill">
+                                  {s.className || s.classId || s.class || 'Class X'}
+                                </span>
+                              </td>
+                              <td>{s.roll || '-'}</td>
+                              <td>
+                                <span className={`status-pill ${s.status === 'Enrolled' || !s.status ? 'active' : ''}`}>
+                                  {s.status || 'Enrolled'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -409,26 +580,59 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
                   <div className="card-header">
                     <div>
                       <h4>Published Notices</h4>
-                      <p>Announcements active on the school website</p>
+                      <p>Official announcements on the school website</p>
                     </div>
-                    <button className="card-link-btn" onClick={() => setActiveTab('notices')}>
-                      Manage Notices
+                    <button 
+                      className="card-link-btn" 
+                      onClick={() => {
+                        setOpenNoticeCreateModal(false);
+                        setActiveTab('notices');
+                      }}
+                    >
+                      Manage Notices <ArrowRight size={14} />
                     </button>
                   </div>
                   <div className="notices-list">
-                    {notices.map((n) => (
-                      <div key={n._id || n.id} className="notice-mini-item">
-                        <div className="notice-meta">
-                          <span className="notice-badge">{n.category || 'General'}</span>
-                          <span className="notice-date">{n.publishDate || n.date}</span>
-                        </div>
-                        <h5 className="notice-title">{n.title}</h5>
-                        <div className="notice-footer">
-                          <span className="notice-audience">Audience: {n.audience || 'All Students'}</span>
-                          {n.pinned && <span className="pinned-tag">Pinned</span>}
-                        </div>
+                    {notices.length === 0 ? (
+                      <div className="empty-notices-box">
+                        <FileText size={32} className="empty-icon" />
+                        <p>{noticesLoading ? 'Loading notices...' : 'No notices published yet.'}</p>
+                        <button className="action-btn-primary small-btn" onClick={handlePostNoticeClick}>
+                          <Plus size={14} /> Post First Notice
+                        </button>
                       </div>
-                    ))}
+                    ) : (
+                      notices.slice(0, 5).map((n) => (
+                        <div key={n._id || n.id} className="notice-mini-item">
+                          <div className="notice-meta">
+                            <span className="notice-badge">{n.category || 'General'}</span>
+                            <span className="notice-date">
+                              {n.publishDate || (n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Today')}
+                            </span>
+                          </div>
+                          <h5 className="notice-title">{n.title}</h5>
+                          <div className="notice-footer">
+                            <span className="notice-audience">
+                              Audience: {n.audience || 'All Students & Guardians'}
+                            </span>
+                            {n.pinned && <span className="pinned-tag">Pinned</span>}
+                            {(n.pdfUrl || n._id) && (
+                              <a
+                                href={`${API_BASE_URL}/api/notices/${n._id}/download`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="notice-download-link"
+                                onClick={(e) => e.stopPropagation()}
+                                title="Download Notice PDF"
+                              >
+                                <Download size={13} />
+                                <span>PDF</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -437,7 +641,10 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
 
           {/* TAB 2: STUDENTS MANAGEMENT (CLASS 1 - 12) */}
           {activeTab === 'students' && (
-            <AdminStudents />
+            <AdminStudents 
+              initialOpenAdd={openStudentAddModal}
+              initialSelectedClassId={selectedClassFromDashboard}
+            />
           )}
 
           {/* TAB 3: TEACHERS & STAFF */}
@@ -466,7 +673,9 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
 
           {/* TAB 6: NOTICES & CIRCULARS */}
           {activeTab === 'notices' && (
-            <AdminNotices />
+            <AdminNotices 
+              initialOpenModal={openNoticeCreateModal}
+            />
           )}
         </div>
       </div>
