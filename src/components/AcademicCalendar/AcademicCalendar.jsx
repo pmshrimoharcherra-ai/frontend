@@ -489,44 +489,6 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
         </div>
 
         {/* ==================================================================
-            05 — Academic Year at a Glance (Timeline)
-            ================================================================== */}
-        <section className="cal-card cal-timeline-card">
-          <GraduationCap size={160} className="cal-timeline-watermark" />
-
-          <div className="cal-card-header">
-            <div className="cal-icon-badge">
-              <FileSpreadsheet size={22} />
-            </div>
-            <div className="cal-card-header-text">
-              <h3>Academic Year at a Glance</h3>
-              <p>Key milestones and major events throughout the academic session.</p>
-            </div>
-          </div>
-
-          <div className="cal-timeline-wrapper">
-            {/* Connecting Track Line */}
-            <div className="cal-timeline-track"></div>
-
-            {/* Milestones Horizontal Row */}
-            <div className="cal-milestones-grid">
-              {timelineMilestones.map((m) => (
-                <div key={m.id} className="cal-milestone-node">
-                  <div className="cal-node-circle">
-                    {renderMilestoneIcon(m.iconName)}
-                  </div>
-                  <div className="cal-node-content">
-                    <span className="cal-node-month">{m.month}</span>
-                    <h5 className="cal-node-title">{m.title}</h5>
-                    <p className="cal-node-desc">{m.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ==================================================================
             06 & 07 — Two Column Grid: Examinations & Assessments & Holidays
             ================================================================== */}
         <div className="cal-two-col-grid">
