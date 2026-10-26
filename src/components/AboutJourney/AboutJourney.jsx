@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config/api';
+import { INITIAL_TEACHERS } from '../../data/teachersData';
 import './AboutJourney.css';
 import { 
   Building2, 
@@ -9,10 +12,77 @@ import {
   GraduationCap, 
   Users, 
   Award, 
-  ArrowRight 
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 
 const AboutJourney = () => {
+  const navigate = useNavigate();
+  const [studentCount, setStudentCount] = useState(494);
+  const [teacherCount, setTeacherCount] = useState(INITIAL_TEACHERS.length || 19);
+
+  // Dynamic calculation of school legacy years (established 1952)
+  const establishmentYear = 1952;
+  const currentYear = new Date().getFullYear();
+  const legacyYears = currentYear - establishmentYear;
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchJourneyMetrics = async () => {
+      try {
+        const [studentsRes, teachersRes] = await Promise.allSettled([
+          fetch(`${API_BASE_URL}/api/students`),
+          fetch(`${API_BASE_URL}/api/teachers`)
+        ]);
+
+        if (studentsRes.status === 'fulfilled' && studentsRes.value.ok) {
+          const sData = await studentsRes.value.json();
+          if (sData.success && (sData.count || Array.isArray(sData.students))) {
+            const count = sData.count ?? sData.students.length;
+            if (isMounted && count > 0) setStudentCount(count);
+          }
+        }
+
+        if (teachersRes.status === 'fulfilled' && teachersRes.value.ok) {
+          const tData = await teachersRes.value.json();
+          if (tData.success && (tData.count || Array.isArray(tData.teachers))) {
+            const count = tData.count ?? tData.teachers.length;
+            if (isMounted && count > 0) setTeacherCount(count);
+          }
+        }
+      } catch (err) {
+        console.warn('Error loading journey metrics:', err);
+      }
+    };
+
+    fetchJourneyMetrics();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleStatClick = (type) => {
+    switch (type) {
+      case 'students':
+        navigate('/admissions');
+        break;
+      case 'teachers':
+        const teacherSection = document.getElementById('teacher-desk');
+        if (teacherSection) {
+          teacherSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          navigate('/about');
+        }
+        break;
+      case 'legacy':
+        navigate('/about');
+        break;
+      case 'achievements':
+        navigate('/gallery');
+        break;
+      default:
+        break;
+    }
+  };
+
   const milestones = [
     {
       id: 1,
@@ -98,7 +168,7 @@ const AboutJourney = () => {
             <div className="timeline-track-line"></div>
             <div className="timeline-steps">
               {milestones.map((step) => (
-                <div key={step.id} className={`timeline-step ${step.colorClass}`}>
+                <div key={step.id} className={`timeline-step ${step.colorClass} interactive-step`}>
                   <div className="step-icon-circle">
                     {step.icon}
                   </div>
@@ -112,48 +182,76 @@ const AboutJourney = () => {
             </div>
           </div>
 
-          {/* Stats Bar Cards */}
+          {/* Dynamic Stats Bar Cards */}
           <div className="journey-stats-row">
-            {/* Stat 1 */}
-            <div className="journey-stat-card stat-blue">
+            {/* Stat 1: Students */}
+            <div 
+              className="journey-stat-card stat-blue clickable-journey-stat"
+              onClick={() => handleStatClick('students')}
+              title="Click to view Admissions & Enrolled Students"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleStatClick('students')}
+            >
               <div className="stat-card-icon">
                 <GraduationCap size={22} />
               </div>
               <div className="stat-card-info">
-                <span className="stat-number">1000+</span>
+                <span className="stat-number">{studentCount}+</span>
                 <span className="stat-text">Students</span>
               </div>
             </div>
 
-            {/* Stat 2 */}
-            <div className="journey-stat-card stat-orange">
+            {/* Stat 2: Dedicated Teachers */}
+            <div 
+              className="journey-stat-card stat-orange clickable-journey-stat"
+              onClick={() => handleStatClick('teachers')}
+              title="Click to view Faculty & Staff"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleStatClick('teachers')}
+            >
               <div className="stat-card-icon">
                 <Users size={22} />
               </div>
               <div className="stat-card-info">
-                <span className="stat-number">50+</span>
+                <span className="stat-number">{teacherCount}+</span>
                 <span className="stat-text">Dedicated Teachers</span>
               </div>
             </div>
 
-            {/* Stat 3 */}
-            <div className="journey-stat-card stat-green">
+            {/* Stat 3: Years of Legacy */}
+            <div 
+              className="journey-stat-card stat-green clickable-journey-stat"
+              onClick={() => handleStatClick('legacy')}
+              title="Click to read School History & Heritage"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleStatClick('legacy')}
+            >
               <div className="stat-card-icon">
                 <BookOpen size={22} />
               </div>
               <div className="stat-card-info">
-                <span className="stat-number">70+</span>
+                <span className="stat-number">{legacyYears}+</span>
                 <span className="stat-text">Years of Legacy</span>
               </div>
             </div>
 
-            {/* Stat 4 */}
-            <div className="journey-stat-card stat-purple">
+            {/* Stat 4: Achievements */}
+            <div 
+              className="journey-stat-card stat-purple clickable-journey-stat"
+              onClick={() => handleStatClick('achievements')}
+              title="Click to view School Gallery & Achievements"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleStatClick('achievements')}
+            >
               <div className="stat-card-icon">
                 <Award size={22} />
               </div>
               <div className="stat-card-info">
-                <span className="stat-number">Numerous</span>
+                <span className="stat-number">50+</span>
                 <span className="stat-text">Achievements</span>
               </div>
             </div>
@@ -161,10 +259,14 @@ const AboutJourney = () => {
 
           {/* CTA Action Button */}
           <div className="journey-cta-wrap">
-            <a href="#explore" className="journey-cta-btn">
+            <button 
+              type="button" 
+              className="journey-cta-btn"
+              onClick={() => navigate('/about')}
+            >
               <span>Explore Our School</span>
               <ArrowRight size={17} className="journey-arrow" />
-            </a>
+            </button>
           </div>
         </div>
       </div>
