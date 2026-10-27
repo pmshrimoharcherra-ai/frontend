@@ -12,9 +12,9 @@ export const CLASS_CURRICULUM = {
   'class-5': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
 
   // Elementary Wing (Class VI - VIII)
-  'class-6': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
-  'class-7': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
-  'class-8': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
+  'class-6': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
+  'class-7': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
+  'class-8': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
 
   // Secondary Wing (Class IX & X)
   'class-9': [
@@ -42,7 +42,7 @@ export const CLASS_CURRICULUM = {
     'Bengali',
     'IT/ITeS',
     'Political Science',
-    'Psychology',
+    'Philosophy',
     'History',
     'Education',
     'Physical Education'
@@ -52,7 +52,7 @@ export const CLASS_CURRICULUM = {
     'Bengali',
     'IT/ITeS',
     'Political Science',
-    'Psychology',
+    'Philosophy',
     'History',
     'Education',
     'Physical Education'
@@ -67,7 +67,7 @@ export const CLASS_CURRICULUM = {
     'Chemistry',
     'Biology',
     'Mathematics',
-    'Psychology',
+    'Philosophy',
     'Physical Education'
   ],
   'class-12-sci': [
@@ -78,7 +78,7 @@ export const CLASS_CURRICULUM = {
     'Chemistry',
     'Biology',
     'Mathematics',
-    'Psychology',
+    'Philosophy',
     'Physical Education'
   ]
 };
@@ -88,6 +88,7 @@ export const getSubjectsForClass = (classId) => {
   return CLASS_CURRICULUM[classId] || [
     'English',
     'Bengali',
+    'Sanskrit',
     'Mathematics',
     'Science',
     'Social Science',

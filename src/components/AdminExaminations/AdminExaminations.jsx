@@ -104,6 +104,8 @@ const AdminExaminations = () => {
       if (lowerSubj.includes('bio') && tSubj.includes('bio')) return true;
       if (lowerSubj.includes('science') && (tSubj.includes('science') || tSubj.includes('bio') || tSubj.includes('physics'))) return true;
       if (lowerSubj.includes('bengali') && tSubj.includes('bengali')) return true;
+      if (lowerSubj.includes('sanskrit') && tSubj.includes('sanskrit')) return true;
+      if (lowerSubj.includes('philosoph') && tSubj.includes('philosoph')) return true;
       if (lowerSubj.includes('english') && tSubj.includes('english')) return true;
       if (lowerSubj.includes('kokborok') && tSubj.includes('kokborok')) return true;
       if (lowerSubj.includes('it') && (tSubj.includes('computer') || tSubj.includes('ict'))) return true;
