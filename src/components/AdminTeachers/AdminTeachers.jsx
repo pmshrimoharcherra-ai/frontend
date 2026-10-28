@@ -127,18 +127,44 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
     );
   };
 
-  // Dynamic faculty statistics
-  const headCount = useMemo(() => {
+  // Dynamic faculty statistics according to Tripura School Cadre:
+  // TIC/HM/AHM, PGT, UGT, GT, TGT
+  const ticHmAhmCount = useMemo(() => {
     return teachers.filter((t) => checkIsHead(t.role)).length;
   }, [teachers]);
 
   const pgtCount = useMemo(() => {
-    return teachers.filter((t) => t.role?.includes('PGT') || t.role?.includes('Senior')).length;
+    return teachers.filter((t) => {
+      if (checkIsHead(t.role)) return false;
+      const r = (t.role || '').toUpperCase();
+      return r.includes('PGT') || r.includes('SENIOR');
+    }).length;
+  }, [teachers]);
+
+  const ugtCount = useMemo(() => {
+    return teachers.filter((t) => {
+      if (checkIsHead(t.role)) return false;
+      const r = (t.role || '').toUpperCase();
+      return r.includes('UGT') || r.includes('UNDER GRADUATE');
+    }).length;
+  }, [teachers]);
+
+  const gtCount = useMemo(() => {
+    return teachers.filter((t) => {
+      if (checkIsHead(t.role)) return false;
+      const r = (t.role || '').toUpperCase();
+      if (r.includes('PGT') || r.includes('TGT') || r.includes('UGT')) return false;
+      return r === 'GT' || r.includes('GRADUATE') || /\bGT\b/.test(r);
+    }).length;
   }, [teachers]);
 
   const tgtCount = useMemo(() => {
-    return Math.max(0, teachers.length - headCount - pgtCount);
-  }, [teachers, headCount, pgtCount]);
+    return teachers.filter((t) => {
+      if (checkIsHead(t.role)) return false;
+      const r = (t.role || '').toUpperCase();
+      return r.includes('TGT') || r.includes('TRAINED GRADUATE');
+    }).length;
+  }, [teachers]);
 
   // Filtered teachers list
   const filteredTeachers = useMemo(() => {
@@ -176,15 +202,23 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
             <span className="stat-pill-num">{teachers.length}</span>
           </div>
           <div className="stat-pill-item">
-            <span className="stat-pill-label">Head of School</span>
-            <span className="stat-pill-num">{headCount}</span>
+            <span className="stat-pill-label">TIC/HM/AHM</span>
+            <span className="stat-pill-num">{ticHmAhmCount}</span>
           </div>
           <div className="stat-pill-item">
-            <span className="stat-pill-label">PGT & Senior</span>
+            <span className="stat-pill-label">PGT</span>
             <span className="stat-pill-num">{pgtCount}</span>
           </div>
           <div className="stat-pill-item">
-            <span className="stat-pill-label">TGT & General</span>
+            <span className="stat-pill-label">UGT</span>
+            <span className="stat-pill-num">{ugtCount}</span>
+          </div>
+          <div className="stat-pill-item">
+            <span className="stat-pill-label">GT</span>
+            <span className="stat-pill-num">{gtCount}</span>
+          </div>
+          <div className="stat-pill-item">
+            <span className="stat-pill-label">TGT</span>
             <span className="stat-pill-num">{tgtCount}</span>
           </div>
         </div>

@@ -80,6 +80,18 @@
   color: #ffffff;
 }
 
+.exam-action-btn.report-card-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+.exam-action-btn.report-card-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
+}
+
 .exam-action-btn.export:hover {
   background: #1e293b;
   transform: translateY(-1px);
@@ -641,6 +653,13 @@
   display: inline-block;
 }
 
+.identifier-badge.badge-pending {
+  color: #94a3b8;
+  background: #f1f5f9;
+  font-weight: 500;
+  border-style: dashed;
+}
+
 .subject-score-cell {
   font-size: 13.5px;
   font-weight: 700;
@@ -809,16 +828,16 @@
   color: #0f172a;
 }
 
-/* ── Print Media Optimization ── */
+/* ── Print Media Optimization (For regular marksheet printing) ── */
 @media print {
-  body * {
+  body:not(.prc-modal-active) * {
     visibility: hidden;
   }
-  .admin-marksheet-card,
-  .admin-marksheet-card * {
+  body:not(.prc-modal-active) .admin-marksheet-card,
+  body:not(.prc-modal-active) .admin-marksheet-card * {
     visibility: visible;
   }
-  .admin-marksheet-card {
+  body:not(.prc-modal-active) .admin-marksheet-card {
     position: absolute;
     left: 0;
     top: 0;
@@ -842,3 +861,105 @@
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   SECONDARY UNIFIED SCIENCE STYLES (Class IX & X: LS 30 + Phy 25 + Chem 25)
+   ========================================================================== */
+
+.science-combined-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.science-parts-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.part-mini {
+  font-size: 9.5px;
+  font-family: monospace;
+  font-weight: 700;
+  padding: 1px 3px;
+  border-radius: 3px;
+  line-height: 1.1;
+}
+
+.part-mini.ls {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.part-mini.phy {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.part-mini.chem {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.faculty-sub-card.science-combined {
+  background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+  border-color: #86efac;
+}
+
+.faculty-sub-card.science-combined.selected {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.science-teacher-subtext {
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.3;
+}
+
+.part-score-pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.part-score-pill small {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.part-score-pill.ls {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.part-score-pill.phy {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.part-score-pill.chem {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.score-science-comb {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+

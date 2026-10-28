@@ -97,6 +97,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     guardian: '',
     father: '',
     mother: '',
+    caste: '',
     aadhaar: '',
     penNumber: '',
     apaarId: '',
@@ -130,7 +131,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
   // Current selected class object
   const currentClass = SCHOOL_CLASSES.find(c => c.id === selectedClassId);
-  const isClass8 = currentClass?.id === 'class-8';
+  const isClass8 = currentClass ? ['class-6', 'class-7', 'class-8'].includes(currentClass.id) : false;
   const isEnrollmentClass = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(currentClass?.id);
   const isClass1to8 = currentClass ? ['class-1', 'class-2', 'class-3', 'class-4', 'class-5', 'class-6', 'class-7', 'class-8'].includes(currentClass.id) : false;
   const showStudentId = false;
@@ -239,6 +240,9 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             (s.father || '').toLowerCase().includes(q) ||
                             (s.mother || '').toLowerCase().includes(q) ||
                             (s.aadhaar || '').toLowerCase().includes(q) ||
+                            (s.caste || '').toLowerCase().includes(q) ||
+                            (s.admissionNo || '').toLowerCase().includes(q) ||
+                            (s.address || '').toLowerCase().includes(q) ||
                             (s.penNumber || '').toLowerCase().includes(q) ||
                             (s.apaarId || '').toLowerCase().includes(q) ||
                             (s.dob || '').toLowerCase().includes(q) ||
@@ -429,7 +433,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 className="attendance-sheet-btn-secondary" 
                 onClick={fetchStudents}
                 disabled={loading}
-                title="Refresh student records from MongoDB Atlas"
+                title="Refresh student records"
               >
                 <RefreshCw size={15} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
                 <span>{loading ? 'Syncing...' : 'Sync DB'}</span>
@@ -725,10 +729,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   {loading && students.length === 0 ? (
                     <tr>
                       <td colSpan={isClass8 || showStudentId ? 8 : 7} className="no-students-found">
-                        <div className="empty-state-wrap">
-                          <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', color: '#ff6b00', margin: '0 auto 12px' }} />
-                          <h4>Connecting to MongoDB Atlas...</h4>
-                          <p>Fetching enrolled records for {currentClass.name} from the database.</p>
+                        <div className="empty-state-wrap" style={{ padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                          <Loader2 size={36} style={{ animation: 'spin 1s linear infinite', color: '#ff6b00' }} />
                         </div>
                       </td>
                     </tr>
@@ -753,6 +755,11 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                               <span className={`student-gender-pill ${st.gender?.toLowerCase() === 'girl' ? 'girl' : 'boy'}`}>
                                 {st.gender === 'Girl' ? 'Girl' : 'Boy'}
                               </span>
+                              {st.caste && (
+                                <span className="student-caste-pill font-mono" style={{ fontSize: '10.5px', padding: '1px 6px', borderRadius: '4px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontWeight: 600 }}>
+                                  {st.caste}
+                                </span>
+                              )}
                             </div>
                             <span className="view-profile-hint">View Profile →</span>
                           </div>
@@ -849,10 +856,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             {/* 2. MOBILE RESPONSIVE STUDENT CARDS (max-width: 768px) */}
             <div className="mobile-students-card-view">
               {loading && students.length === 0 ? (
-                <div className="mobile-empty-state">
-                  <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', color: '#ff6b00', margin: '0 auto 8px' }} />
-                  <h4>Loading Database...</h4>
-                  <p>Fetching student records from MongoDB Atlas.</p>
+                <div className="mobile-empty-state" style={{ padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <Loader2 size={36} style={{ animation: 'spin 1s linear infinite', color: '#ff6b00' }} />
                 </div>
               ) : displayedStudents.length > 0 ? (
                 displayedStudents.map((st) => (
@@ -1074,7 +1079,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 </div>
               )}
 
-              {newStudent.classId === 'class-8' ? (
+              {['class-6', 'class-7', 'class-8'].includes(newStudent.classId) ? (
                 <>
                   <div className="form-row-grid-2">
                     <div className="form-group-item">
@@ -1098,6 +1103,19 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   </div>
                   <div className="form-row-grid-2">
                     <div className="form-group-item">
+                      <label>Caste / Category (Optional)</label>
+                      <select
+                        value={newStudent.caste || ''}
+                        onChange={(e) => setNewStudent({ ...newStudent, caste: e.target.value })}
+                      >
+                        <option value="">Select Caste / Category</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                        <option value="OBC">OBC</option>
+                        <option value="UR">UR</option>
+                      </select>
+                    </div>
+                    <div className="form-group-item">
                       <label>Aadhaar Number (Optional)</label>
                       <input 
                         type="text" 
@@ -1106,56 +1124,56 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                         onChange={(e) => setNewStudent({ ...newStudent, aadhaar: e.target.value })}
                       />
                     </div>
-                    <div className="form-group-item">
-                      <label htmlFor="add-student-dob">Date of Birth / DOB (Optional)</label>
-                      <div 
-                        className="dob-input-wrapper"
-                        onClick={() => {
+                  </div>
+                  <div className="form-group-item">
+                    <label htmlFor="add-student-dob">Date of Birth / DOB (Optional)</label>
+                    <div 
+                      className="dob-input-wrapper"
+                      onClick={() => {
+                        try {
+                          addDobPickerRef.current?.showPicker?.();
+                        } catch (err) {
+                          addDobPickerRef.current?.focus();
+                        }
+                      }}
+                    >
+                      <input 
+                        id="add-student-dob"
+                        type="text" 
+                        placeholder="DD/MM/YYYY e.g. 04/09/2012"
+                        value={newStudent.dob}
+                        onChange={(e) => setNewStudent({ ...newStudent, dob: e.target.value })}
+                        className="dob-text-input"
+                      />
+                      <input
+                        type="date"
+                        ref={addDobPickerRef}
+                        value={formatToIsoDate(newStudent.dob)}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            setNewStudent({ ...newStudent, dob: formatToDisplayDate(e.target.value) });
+                          }
+                        }}
+                        className="dob-native-picker"
+                        tabIndex={-1}
+                        aria-hidden="true"
+                      />
+                      <button
+                        type="button"
+                        className="dob-picker-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           try {
                             addDobPickerRef.current?.showPicker?.();
                           } catch (err) {
                             addDobPickerRef.current?.focus();
                           }
                         }}
+                        title="Choose Date of Birth from calendar"
+                        aria-label="Choose Date of Birth from calendar"
                       >
-                        <input 
-                          id="add-student-dob"
-                          type="text" 
-                          placeholder="DD/MM/YYYY e.g. 04/09/2012"
-                          value={newStudent.dob}
-                          onChange={(e) => setNewStudent({ ...newStudent, dob: e.target.value })}
-                          className="dob-text-input"
-                        />
-                        <input
-                          type="date"
-                          ref={addDobPickerRef}
-                          value={formatToIsoDate(newStudent.dob)}
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              setNewStudent({ ...newStudent, dob: formatToDisplayDate(e.target.value) });
-                            }
-                          }}
-                          className="dob-native-picker"
-                          tabIndex={-1}
-                          aria-hidden="true"
-                        />
-                        <button
-                          type="button"
-                          className="dob-picker-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            try {
-                              addDobPickerRef.current?.showPicker?.();
-                            } catch (err) {
-                              addDobPickerRef.current?.focus();
-                            }
-                          }}
-                          title="Choose Date of Birth from calendar"
-                          aria-label="Choose Date of Birth from calendar"
-                        >
-                          <Calendar size={16} />
-                        </button>
-                      </div>
+                        <Calendar size={16} />
+                      </button>
                     </div>
                   </div>
                 </>

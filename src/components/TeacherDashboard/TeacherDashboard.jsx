@@ -93,6 +93,10 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   }, [location.pathname]);
 
   const handleTabChange = (tab) => {
+    if (tab === 'attendance' && !assignedClassId) {
+      navigate('/teacher/dashboard');
+      return;
+    }
     setActiveTab(tab);
     if (tab === 'dashboard') navigate('/teacher/dashboard');
     else if (tab === 'attendance') navigate('/teacher/attendance');
@@ -134,10 +138,10 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   // If user data in props doesn't have assignedClassId, try to pull fresh teacher info
   const [teacherData, setTeacherData] = useState(activeUser || {});
   const [assignedClassId, setAssignedClassId] = useState(
-    activeUser?.assignedClassId || 'class-9'
+    activeUser?.assignedClassId || ''
   );
   const [assignedClassName, setAssignedClassName] = useState(
-    activeUser?.assignedClassName || 'Class IX'
+    activeUser?.assignedClassName || ''
   );
 
   // Student list state for attendance
@@ -177,9 +181,22 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
         const data = await res.json();
         if (data.success && data.teacher) {
           setTeacherData(data.teacher);
-          if (data.teacher.assignedClassId) {
-            setAssignedClassId(data.teacher.assignedClassId);
-            setAssignedClassName(data.teacher.assignedClassName || 'Class IX');
+          const classId = data.teacher.assignedClassId || '';
+          const className = data.teacher.assignedClassName || '';
+          setAssignedClassId(classId);
+          setAssignedClassName(className);
+
+          // Keep localStorage synchronized so cached stale assignments do not persist
+          try {
+            const currentStored = localStorage.getItem('pmshri_user');
+            if (currentStored) {
+              const parsed = JSON.parse(currentStored);
+              parsed.assignedClassId = classId;
+              parsed.assignedClassName = className;
+              localStorage.setItem('pmshri_user', JSON.stringify(parsed));
+            }
+          } catch (e) {
+            console.warn('Could not update stored user:', e);
           }
         }
       } catch (err) {
@@ -232,6 +249,13 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
       setLoading(false);
     }
   }, [assignedClassId]);
+
+  // If a non-class teacher lands on /teacher/attendance directly, redirect immediately to dashboard
+  useEffect(() => {
+    if (!assignedClassId && location.pathname.includes('/attendance')) {
+      navigate('/teacher/dashboard', { replace: true });
+    }
+  }, [assignedClassId, location.pathname, navigate]);
 
   // Toggle single student status
   const handleToggleStatus = (studentId, status) => {
@@ -373,7 +397,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     if (assignedClassId && !list.some((a) => a.classId === assignedClassId)) {
       list.unshift({
         classId: assignedClassId,
-        className: assignedClassName || 'Class IX',
+        className: assignedClassName || 'Class Teacher',
         subject: teacherData?.subject || 'Primary Subject'
       });
     }
@@ -432,6 +456,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
         mobileSidebarOpen={mobileSidebarOpen}
         setMobileSidebarOpen={setMobileSidebarOpen}
         teacherName={teacherName}
+        assignedClassId={assignedClassId}
         assignedClassName={assignedClassName}
         primarySubject={teacherSubject}
         onLogout={onLogout}
@@ -549,7 +574,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                     <p className="welcome-subtitle">
                       {assignedClassId ? (
                         <>
-                          You are the <strong>Class Teacher</strong> of <strong>{assignedClassName || 'Class IX'}</strong>. You manage daily roll call, verify attendance records and submit class registers for this class.
+                          You are the <strong>Class Teacher</strong> of <strong>{assignedClassName}</strong>. You manage daily roll call, verify attendance records and submit class registers for this class.
                         </>
                       ) : (
                         <>Welcome to the Faculty Portal. You are currently not assigned as a Class Teacher for attendance.</>
@@ -600,90 +625,123 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
               </div>
 
               {/* Statistics Grid */}
-              <div className="attendance-stat-grid">
-                <div className="stat-card stat-total">
-                  <div className="stat-icon-wrap icon-blue">
-                    <Users size={22} />
-                  </div>
-                  <div className="stat-data">
-                    <span className="stat-label">Total Enrolled</span>
-                    <div className="stat-val-row">
-                      <span className="stat-val">{stats.total}</span>
-                      <span className="stat-unit">Students</span>
+              {assignedClassId ? (
+                <div className="attendance-stat-grid">
+                  <div className="stat-card stat-total">
+                    <div className="stat-icon-wrap icon-blue">
+                      <Users size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Total Enrolled</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val">{stats.total}</span>
+                        <span className="stat-unit">Students</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="stat-card stat-present">
-                  <div className="stat-icon-wrap icon-green">
-                    <UserCheck size={22} />
-                  </div>
-                  <div className="stat-data">
-                    <span className="stat-label">Present Today</span>
-                    <div className="stat-val-row">
-                      <span className="stat-val text-green">{stats.presentCount}</span>
-                      <span className="stat-sub-text">
-                        {stats.total > 0 ? Math.round((stats.presentCount / stats.total) * 100) : 0}% of class
-                      </span>
+                  <div className="stat-card stat-present">
+                    <div className="stat-icon-wrap icon-green">
+                      <UserCheck size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Present Today</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val text-green">{stats.presentCount}</span>
+                        <span className="stat-sub-text">
+                          {stats.total > 0 ? Math.round((stats.presentCount / stats.total) * 100) : 0}% of class
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="stat-card stat-absent">
-                  <div className="stat-icon-wrap icon-red">
-                    <UserX size={22} />
-                  </div>
-                  <div className="stat-data">
-                    <span className="stat-label">Absent Today</span>
-                    <div className="stat-val-row">
-                      <span className="stat-val text-red">{stats.absentCount}</span>
-                      <span className="stat-sub-text">
-                        {stats.total > 0 ? Math.round((stats.absentCount / stats.total) * 100) : 0}% of class
-                      </span>
+                  <div className="stat-card stat-absent">
+                    <div className="stat-icon-wrap icon-red">
+                      <UserX size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Absent Today</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val text-red">{stats.absentCount}</span>
+                        <span className="stat-sub-text">
+                          {stats.total > 0 ? Math.round((stats.absentCount / stats.total) * 100) : 0}% of class
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="stat-card stat-rate">
-                  <div className="stat-icon-wrap icon-amber">
-                    <TrendingUp size={22} />
-                  </div>
-                  <div className="stat-data">
-                    <span className="stat-label">Daily Attendance Rate</span>
-                    <div className="stat-val-row">
-                      <span className="stat-val text-amber">{stats.rate}%</span>
-                      <span className="stat-sub-text">Class Average</span>
+                  <div className="stat-card stat-rate">
+                    <div className="stat-icon-wrap icon-amber">
+                      <TrendingUp size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Daily Attendance Rate</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val text-amber">{stats.rate}%</span>
+                        <span className="stat-sub-text">Class Average</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="attendance-stat-grid">
+                  <div className="stat-card stat-total">
+                    <div className="stat-icon-wrap icon-blue">
+                      <BookOpen size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Teaching Allotments</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val">{teacherData?.teachingAssignments?.length || 0}</span>
+                        <span className="stat-unit">Classes</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="stat-card stat-present">
+                    <div className="stat-icon-wrap icon-green">
+                      <Sparkles size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Primary Subject</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val text-green" style={{ fontSize: '18px' }}>{teacherSubject}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="stat-card stat-absent">
+                    <div className="stat-icon-wrap icon-red">
+                      <Layers size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Department</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val" style={{ fontSize: '16px', color: '#475569' }}>
+                          {teacherData?.department || 'Teaching Faculty'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="stat-card stat-rate">
+                    <div className="stat-icon-wrap icon-amber">
+                      <ShieldCheck size={22} />
+                    </div>
+                    <div className="stat-data">
+                      <span className="stat-label">Faculty Designation</span>
+                      <div className="stat-val-row">
+                        <span className="stat-val text-amber" style={{ fontSize: '18px' }}>
+                          {teacherData?.role || 'Faculty Member'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Quick Navigation Cards */}
               <div className="dashboard-quick-cards-grid">
-                {/* Attendance Quick Card */}
-                <div className="quick-action-card">
-                  <div className="quick-card-header">
-                    <div className="quick-card-icon icon-att">
-                      <CalendarCheck size={22} />
-                    </div>
-                    <div>
-                      <h4>Daily Attendance Register</h4>
-                      <p>Class Teacher: <strong>{assignedClassName}</strong></p>
-                    </div>
-                  </div>
-                  <p className="quick-card-body">
-                    Take student roll call for {assignedClassName}, record Present/Absent/Late records, and update central records in MongoDB.
-                  </p>
-                  <button
-                    type="button"
-                    className="quick-card-action-btn"
-                    onClick={() => handleTabChange('attendance')}
-                  >
-                    <span>Manage Attendance Register</span>
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-
                 {/* Examinations Quick Card */}
                 <div className="quick-action-card">
                   <div className="quick-card-header">
@@ -707,26 +765,64 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                     <ArrowRight size={15} />
                   </button>
                 </div>
+
+                {/* Daily Attendance Register (Only for Assigned Class Teachers) */}
+                {assignedClassId ? (
+                  <div className="quick-action-card">
+                    <div className="quick-card-header">
+                      <div className="quick-card-icon icon-att">
+                        <CalendarCheck size={22} />
+                      </div>
+                      <div>
+                        <h4>Daily Attendance Register</h4>
+                        <p>Class Teacher: <strong>{assignedClassName}</strong></p>
+                      </div>
+                    </div>
+                    <p className="quick-card-body">
+                      Take student roll call for {assignedClassName}, record Present/Absent/Late records, and update central records.
+                    </p>
+                    <button
+                      type="button"
+                      className="quick-card-action-btn"
+                      onClick={() => handleTabChange('attendance')}
+                    >
+                      <span>Manage Attendance Register</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="quick-action-card">
+                    <div className="quick-card-header">
+                      <div className="quick-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
+                        <BookOpen size={22} />
+                      </div>
+                      <div>
+                        <h4>Subject Faculty Allotments</h4>
+                        <p>{teacherSubject} • Teaching Faculty</p>
+                      </div>
+                    </div>
+                    <p className="quick-card-body">
+                      You are allocated as Subject Teacher for {teacherSubject}. All daily student roll-calls are maintained exclusively by designated Class Teachers.
+                    </p>
+                    <button
+                      type="button"
+                      className="quick-card-action-btn"
+                      onClick={() => handleTabChange('examinations')}
+                    >
+                      <span>Evaluate Student Scores</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* =====================================================================
-              TAB 2: ATTENDANCE REGISTER
+              TAB 2: ATTENDANCE REGISTER (Class Teachers Only)
              ===================================================================== */}
-          {activeTab === 'attendance' && (
+          {activeTab === 'attendance' && assignedClassId && (
             <div className="tab-pane-fade-in">
-              {!assignedClassId ? (
-                <div className="unassigned-class-alert">
-                  <AlertCircle size={24} className="alert-icon" />
-                  <div>
-                    <h3>No Class Assigned for Attendance</h3>
-                    <p>
-                      You are not currently assigned as a Class Teacher to take attendance for a specific class. Please contact the administrative office to link your account to a class roster.
-                    </p>
-                  </div>
-                </div>
-              ) : (
                 <div className="attendance-register-card">
                   {/* Card Header & Controls */}
                   <div className="register-header">
@@ -897,8 +993,8 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                           <tr>
                             <th style={{ width: '80px', textAlign: 'center' }}>Roll No.</th>
                             <th>Student Name</th>
-                            <th style={{ width: isAttClassIX ? '160px' : '130px' }}>
-                              {isAttClassIX ? 'Registration Number' : 'Student ID'}
+                            <th style={{ width: '160px' }}>
+                              APAAR ID
                             </th>
                             <th style={{ width: '100px', textAlign: 'center' }}>Gender</th>
                             <th style={{ width: '110px', textAlign: 'center' }}>Overall %</th>
@@ -912,11 +1008,9 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                             const studentKey = st.studentId || st.id;
                             const currentStatus = dailyAttendance[studentKey] || 'present';
                             const isBoy = st.gender === 'Boy' || !st.gender;
-                            const isStClassIX = isAttClassIX || isClassIX(st.classId) || isClassIX(st.className);
-                            const regNumber = st.enrollmentNo || st.registrationNo;
-                            const attDisplayedId = isStClassIX
-                              ? (regNumber && regNumber !== '-' && regNumber !== '—' ? regNumber : (st.studentId || '—'))
-                              : (st.studentId || '—');
+                            const penNumber = st.penNumber || st.pen || (st.enrollmentNo && st.enrollmentNo !== 'Not found' ? st.enrollmentNo : '');
+                            const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
+                            const attDisplayedId = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
                             return (
                               <tr
@@ -940,28 +1034,18 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                                       <span className="student-name font-bold">
                                         {st.name}
                                       </span>
-                                      {isStClassIX && regNumber && regNumber !== '-' && regNumber !== '—' ? (
-                                        <span className="student-enr-mini font-mono">
-                                          Reg: {regNumber}
-                                        </span>
-                                      ) : st.enrollmentNo ? (
-                                        <span className="student-enr-mini font-mono">
-                                          ENR: {st.enrollmentNo}
-                                        </span>
-                                      ) : st.studentId ? (
-                                        <span className="student-enr-mini font-mono">
-                                          {st.studentId}
-                                        </span>
-                                      ) : null}
+                                      <span className="student-enr-mini font-mono" title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}>
+                                        {penNumber ? (penNumber.startsWith('PEN') ? penNumber : `PEN: ${penNumber}`) : (st.studentId || 'PEN: Pending')}
+                                      </span>
                                     </div>
                                   </div>
                                 </td>
 
-                                {/* Registration Number / Student ID */}
+                                {/* APAAR ID */}
                                 <td>
                                   <span
-                                    className="student-id-badge font-mono"
-                                    title={isStClassIX ? `Registration Number: ${attDisplayedId}` : `Student ID: ${attDisplayedId}`}
+                                    className={`student-id-badge font-mono ${!apaarId ? 'badge-pending' : ''}`}
+                                    title={`APAAR ID: ${apaarId || 'Not Generated'}`}
                                   >
                                     {attDisplayedId}
                                   </span>
@@ -1041,7 +1125,6 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                     </button>
                   </div>
                 </div>
-              )}
             </div>
           )}
 

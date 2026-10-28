@@ -157,6 +157,28 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   </span>
                 </div>
               </div>
+
+              {student.caste && (
+                <div className="detail-item-box">
+                  <span className="detail-label">Caste / Category</span>
+                  <div className="detail-value-row">
+                    <span className="detail-val-text font-bold" style={{ color: '#ea580c' }}>
+                      {student.caste}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {student.address && (
+                <div className="detail-item-box">
+                  <span className="detail-label">Address / Village</span>
+                  <div className="detail-value-row">
+                    <span className="detail-val-text">
+                      {student.address}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -267,6 +289,29 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   <span className="roll-pill-val">{student.roll}</span>
                 </div>
               </div>
+
+              {student.admissionNo && (
+                <div className="detail-item-box">
+                  <span className="detail-label">Admission Number</span>
+                  <div className="detail-value-row">
+                    <span className="font-mono font-bold" style={{ color: '#0f766e', fontSize: '13px' }}>
+                      #{student.admissionNo}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {student.admissionDate && (
+                <div className="detail-item-box">
+                  <span className="detail-label">Admission Date</span>
+                  <div className="detail-value-row">
+                    <Calendar size={14} className="field-icon" />
+                    <span className="detail-val-text font-semibold">
+                      {student.admissionDate}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div className="detail-item-box">
                 <span className="detail-label">Overall Attendance Percentage</span>

@@ -22,7 +22,8 @@ const TeacherSidebar = ({
   mobileSidebarOpen = false,
   setMobileSidebarOpen = () => {},
   teacherName = 'Faculty Member',
-  assignedClassName = 'Class IX',
+  assignedClassId = '',
+  assignedClassName = '',
   primarySubject = 'General',
   onLogout = () => {},
   onNavigateHome = () => {}
@@ -34,6 +35,8 @@ const TeacherSidebar = ({
     }
   };
 
+  const isClassTeacher = Boolean(assignedClassId || assignedClassName);
+
   const navItems = [
     {
       id: 'dashboard',
@@ -41,13 +44,17 @@ const TeacherSidebar = ({
       icon: LayoutDashboard,
       badge: null
     },
-    {
-      id: 'attendance',
-      label: 'Attendance',
-      icon: CalendarCheck,
-      badge: assignedClassName ? assignedClassName.split(' (')[0] : null,
-      badgeTitle: 'Assigned Class Register'
-    },
+    ...(isClassTeacher
+      ? [
+          {
+            id: 'attendance',
+            label: 'Attendance',
+            icon: CalendarCheck,
+            badge: assignedClassName ? assignedClassName.split(' (')[0] : null,
+            badgeTitle: 'Assigned Class Register'
+          }
+        ]
+      : []),
     {
       id: 'examinations',
       label: 'Examinations',
@@ -153,7 +160,11 @@ const TeacherSidebar = ({
             <div className="footer-user-meta">
               <span className="footer-user-name">{teacherName}</span>
               <span className="footer-user-role">
-                {assignedClassName ? `Class Teacher • ${assignedClassName}` : 'Faculty Member'}
+                {assignedClassName
+                  ? `Class Teacher • ${assignedClassName}`
+                  : primarySubject && primarySubject !== 'General'
+                  ? `${primarySubject} Faculty`
+                  : 'Faculty Member'}
               </span>
             </div>
           </div>

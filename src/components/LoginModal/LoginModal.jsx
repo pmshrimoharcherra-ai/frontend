@@ -193,11 +193,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               <input
                 id="user-password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder={
-                  selectedRole === 'teacher'
-                    ? 'e.g. JoydebPhysics'
-                    : 'Enter your password'
-                }
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -215,11 +211,6 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {selectedRole === 'teacher' && (
-              <span style={{ fontSize: '11.5px', color: '#ea580c', marginTop: '4px', display: 'block', fontWeight: 500 }}>
-                Default: First Name + Subject (e.g. <strong>JoydebPhysics</strong>)
-              </span>
-            )}
           </div>
 
           <div className="form-meta">

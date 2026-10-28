@@ -9,6 +9,7 @@ import {
   Users
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { getSubjectMaxMarks, isSecondarySciencePart } from '../../data/curriculumData';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -53,10 +54,10 @@ const TeacherExaminations = ({
   // Examinations state
   const [selectedExamTerm, setSelectedExamTerm] = useState(EXAM_TERMS[0]);
   const [examClassId, setExamClassId] = useState(
-    () => teachingList[0]?.classId || activeUser?.assignedClassId || 'class-9'
+    () => teachingList[0]?.classId || activeUser?.assignedClassId || ''
   );
   const [examSubject, setExamSubject] = useState(
-    () => teachingList[0]?.subject || activeUser?.subject || 'Mathematics'
+    () => teachingList[0]?.subject || activeUser?.subject || ''
   );
   const [examStudents, setExamStudents] = useState([]);
   const [examLoading, setExamLoading] = useState(false);
@@ -65,8 +66,15 @@ const TeacherExaminations = ({
   const [marksSaveSuccess, setMarksSaveSuccess] = useState(false);
   const [marksSaveMessage, setMarksSaveMessage] = useState('');
 
-  // Selected exam max marks (40 or 80)
-  const maxMarks = useMemo(() => getExamMaxMarks(selectedExamTerm), [selectedExamTerm]);
+  // Selected exam max marks (handles Secondary Science parts: Life Sci 30/15, Physics 25/12.5, Chemistry 25/12.5)
+  const maxMarks = useMemo(
+    () => getSubjectMaxMarks(examClassId, examSubject, selectedExamTerm),
+    [examClassId, examSubject, selectedExamTerm]
+  );
+  const isSciencePart = useMemo(
+    () => isSecondarySciencePart(examClassId, examSubject),
+    [examClassId, examSubject]
+  );
 
   // Keep exam class & subject in sync if teachingList loads asynchronously
   useEffect(() => {
@@ -107,7 +115,7 @@ const TeacherExaminations = ({
   // Populate marks: fetch from backend first, or generate realistic marks
   useEffect(() => {
     if (examStudents.length === 0) return;
-    const termMax = getExamMaxMarks(selectedExamTerm);
+    const termMax = maxMarks;
 
     const loadExamMarks = async () => {
       try {
@@ -198,6 +206,8 @@ const TeacherExaminations = ({
           roll: st.roll || '',
           name: st.name || '',
           enrollmentNo: st.enrollmentNo || '',
+          penNumber: st.penNumber || '',
+          apaarId: st.apaarId || '',
           marks: Number(score) || 0
         };
       });
@@ -362,6 +372,11 @@ const TeacherExaminations = ({
             <span>
               MAX MARKS: <strong>{maxMarks}</strong>
             </span>
+            {isSciencePart && (
+              <span className="exam-part-badge" style={{ marginLeft: '8px', fontSize: '11px', color: '#ea580c', fontWeight: 600, background: '#fff7ed', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fed7aa' }}>
+                Part of Combined Science (Total {selectedExamTerm.includes('40') ? 40 : 80})
+              </span>
+            )}
           </div>
         </div>
 
@@ -383,8 +398,8 @@ const TeacherExaminations = ({
                 <tr>
                   <th style={{ width: '80px', textAlign: 'center' }}>Roll</th>
                   <th>Student Name</th>
-                  <th style={{ width: isExamClassIX ? '160px' : '130px' }}>
-                    {isExamClassIX ? 'Registration Number' : 'Student ID'}
+                  <th style={{ width: '160px' }}>
+                    APAAR ID
                   </th>
                   <th style={{ width: '130px', textAlign: 'center' }}>
                     {`Marks (${maxMarks})`}
@@ -403,14 +418,9 @@ const TeacherExaminations = ({
                       ? currentMarks.marks
                       : (Number(currentMarks.theory) || 0);
                   const isBoy = st.gender === 'Boy' || !st.gender;
-                  const isStClassIX =
-                    isExamClassIX || isClassIX(st.classId) || isClassIX(st.className);
-                  const regNumber = st.enrollmentNo || st.registrationNo;
-                  const displayedIdentifier = isStClassIX
-                    ? regNumber && regNumber !== '-' && regNumber !== '—'
-                      ? regNumber
-                      : st.studentId || '—'
-                    : st.studentId || '—';
+                  const penNumber = st.penNumber || st.pen || (st.enrollmentNo && st.enrollmentNo !== 'Not found' ? st.enrollmentNo : '');
+                  const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
+                  const displayedIdentifier = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
                   return (
                     <tr key={key} className="roster-row">
@@ -425,12 +435,8 @@ const TeacherExaminations = ({
                           </div>
                           <div className="roster-student-info">
                             <span className="student-name font-bold">{st.name}</span>
-                            <span className="student-enr-mini font-mono">
-                              {isStClassIX && regNumber && regNumber !== '-' && regNumber !== '—' ? (
-                                <>Reg: {regNumber}</>
-                              ) : (
-                                st.studentId
-                              )}
+                            <span className="student-enr-mini font-mono" title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}>
+                              {penNumber ? (penNumber.startsWith('PEN') ? penNumber : `PEN: ${penNumber}`) : (st.studentId || 'PEN: Pending')}
                             </span>
                           </div>
                         </div>
@@ -438,12 +444,8 @@ const TeacherExaminations = ({
 
                       <td>
                         <span
-                          className="student-id-badge font-mono"
-                          title={
-                            isStClassIX
-                              ? `Registration Number: ${displayedIdentifier}`
-                              : `Student ID: ${displayedIdentifier}`
-                          }
+                          className={`student-id-badge font-mono ${!apaarId ? 'badge-pending' : ''}`}
+                          title={`APAAR ID: ${apaarId || 'Not Generated'}`}
                         >
                           {displayedIdentifier}
                         </span>
@@ -452,6 +454,7 @@ const TeacherExaminations = ({
                       <td style={{ textAlign: 'center' }}>
                         <input
                           type="number"
+                          step="0.5"
                           min="0"
                           max={maxMarks}
                           value={score}

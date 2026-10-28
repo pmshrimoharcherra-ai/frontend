@@ -160,11 +160,11 @@ export const INITIAL_TEACHERS = [
     id: 'TP43381101', 
     teacherId: 'TP43381101', 
     name: 'Debamoy Chakraborty', 
-    role: 'Faculty Member', 
-    subject: 'Sanskrit', 
-    password: 'DebamoySanskrit',
-    email: 'debamoy.c@pmshri.ac.in', 
-    phone: '+91 94361 00214',
+    role: 'PGT', 
+    subject: 'Chemistry', 
+    password: 'DebamoyChemistry',
+    email: 'debacha008@gmail.com', 
+    phone: '+91 9436501316',
     status: 'Active Faculty'
   },
   { 

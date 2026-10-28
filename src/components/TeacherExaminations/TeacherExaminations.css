@@ -326,6 +326,13 @@
   font-weight: 600;
 }
 
+.student-id-badge.badge-pending {
+  color: #94a3b8;
+  background: #f1f5f9;
+  font-weight: 500;
+  border-style: dashed;
+}
+
 /* ── States & Footer ── */
 .register-loading-state,
 .register-empty-state {

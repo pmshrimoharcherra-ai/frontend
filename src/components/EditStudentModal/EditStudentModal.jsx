@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  Calendar
+  Calendar,
+  Award
 } from 'lucide-react';
 
 // Helpers for Date of Birth calendar conversions (DD/MM/YYYY <-> YYYY-MM-DD)
@@ -59,6 +60,10 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     father: student.father || '',
     mother: student.mother || '',
     aadhaar: student.aadhaar || '',
+    caste: student.caste || '',
+    admissionNo: student.admissionNo || '',
+    admissionDate: student.admissionDate || '',
+    address: student.address || '',
     penNumber: student.penNumber || '',
     apaarId: student.apaarId || '',
     dob: student.dob || '',
@@ -102,6 +107,10 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       father: formData.father.trim(),
       mother: formData.mother.trim(),
       aadhaar: formData.aadhaar.trim(),
+      caste: formData.caste?.trim() || '',
+      admissionNo: formData.admissionNo?.trim() || '',
+      admissionDate: formData.admissionDate?.trim() || '',
+      address: formData.address?.trim() || '',
       penNumber: formData.penNumber?.trim() || '',
       apaarId: formData.apaarId?.trim() || '',
       dob: formData.dob.trim(),
@@ -119,7 +128,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
 
   const currentClassObj = classes?.find(c => c.id === formData.classId);
   const isClass8 = formData.classId === 'class-8';
-  const hasDetailedFamily = isClass8 || formData.classId === 'class-6';
+  const hasDetailedFamily = ['class-6', 'class-7', 'class-8'].includes(formData.classId) || Boolean(formData.father || formData.mother || formData.caste || formData.admissionNo || formData.penNumber);
   const isEnrollmentClass = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(formData.classId);
   const isClass1to8 = ['class-1', 'class-2', 'class-3', 'class-4', 'class-5', 'class-6', 'class-7', 'class-8'].includes(formData.classId);
   const showStudentId = !isClass1to8 && !isEnrollmentClass;
@@ -362,6 +371,69 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                     placeholder="e.g. 6668 0055 5972"
                   />
                 </div>
+
+                {/* Caste / Category */}
+                <div className="edit-form-field">
+                  <label>
+                    <Award size={14} />
+                    <span>Caste / Category</span>
+                  </label>
+                  <select
+                    value={formData.caste || ''}
+                    onChange={(e) => handleChange('caste', e.target.value)}
+                  >
+                    <option value="">Select Caste / Category</option>
+                    <option value="SC">SC</option>
+                    <option value="ST">ST</option>
+                    <option value="OBC">OBC</option>
+                    <option value="UR">UR</option>
+                    {formData.caste && !['', 'SC', 'ST', 'OBC', 'UR'].includes(formData.caste) && (
+                      <option value={formData.caste}>{formData.caste}</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* Admission Number */}
+                <div className="edit-form-field">
+                  <label>
+                    <Hash size={14} />
+                    <span>Admission Number</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.admissionNo}
+                    onChange={(e) => handleChange('admissionNo', e.target.value)}
+                    placeholder="e.g. 01, 07, 36"
+                  />
+                </div>
+
+                {/* Admission Date */}
+                <div className="edit-form-field">
+                  <label>
+                    <Calendar size={14} />
+                    <span>Admission Date</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.admissionDate}
+                    onChange={(e) => handleChange('admissionDate', e.target.value)}
+                    placeholder="e.g. 02/04/2026"
+                  />
+                </div>
+
+                {/* Address / Location */}
+                <div className="edit-form-field">
+                  <label>
+                    <Users size={14} />
+                    <span>Address / Village</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleChange('address', e.target.value)}
+                    placeholder="e.g. Moharchera"
+                  />
+                </div>
               </>
             ) : (
               /* Guardian Name */
@@ -406,7 +478,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             </div>
 
             {/* Enrollment Status */}
-            <div className={`edit-form-field ${isClass8 ? 'full-width' : ''}`}>
+            <div className={`edit-form-field ${isClass8 || hasDetailedFamily ? 'full-width' : ''}`}>
               <label>
                 <ShieldCheck size={14} />
                 <span>Enrollment Status</span>
