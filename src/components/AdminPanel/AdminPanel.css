@@ -1151,15 +1151,13 @@
   .dashboard-columns {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 860px) {
   .desktop-sidebar-toggle {
-    display: none;
+    display: none !important;
   }
 
   .mobile-sidebar-toggle {
-    display: flex;
+    display: flex !important;
   }
 
   .welcome-banner {

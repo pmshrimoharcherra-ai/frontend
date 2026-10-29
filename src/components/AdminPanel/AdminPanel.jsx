@@ -110,6 +110,22 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Close mobile sidebar drawer on route change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile sidebar drawer when resized to desktop breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setMobileSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Prevent background scrolling when mobile sidebar drawer is open
   useEffect(() => {
     if (mobileSidebarOpen) {

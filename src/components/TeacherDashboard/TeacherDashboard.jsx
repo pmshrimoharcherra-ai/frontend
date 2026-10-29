@@ -135,6 +135,34 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Close mobile sidebar drawer on route change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile sidebar drawer when resized to desktop breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setMobileSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevent background scrolling when mobile sidebar drawer is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileSidebarOpen]);
+
   // If user data in props doesn't have assignedClassId, try to pull fresh teacher info
   const [teacherData, setTeacherData] = useState(activeUser || {});
   const [assignedClassId, setAssignedClassId] = useState(

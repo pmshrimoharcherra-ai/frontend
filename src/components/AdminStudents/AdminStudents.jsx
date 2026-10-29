@@ -143,6 +143,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     if (status === 'Leave') {
       return <span className="enrolled-status-pill status-leave">Leave</span>;
     }
+    if (status === 'Failed') {
+      return <span className="enrolled-status-pill status-failed">Failed</span>;
+    }
+    if (status === 'Alumni') {
+      return <span className="enrolled-status-pill status-alumni">Alumni</span>;
+    }
     return <span className="enrolled-status-pill status-enrolled">{status || 'Enrolled'}</span>;
   };
 

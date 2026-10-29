@@ -491,6 +491,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 <option value="Leave">On Medical / Personal Leave</option>
                 <option value="Transferred">Transferred (TC Issued)</option>
                 <option value="Alumni">Alumni / Graduated</option>
+                <option value="Failed">Failed</option>
               </select>
             </div>
 

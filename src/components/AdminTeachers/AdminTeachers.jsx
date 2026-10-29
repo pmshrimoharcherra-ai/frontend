@@ -50,10 +50,13 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
   };
 
   const handleAddTeacher = (newTeacher) => {
-    setTeachers((prev) => [newTeacher, ...prev]);
-    if (onTeacherCountChange) {
-      onTeacherCountChange(teachers.length + 1);
-    }
+    setTeachers((prev) => {
+      const updated = [newTeacher, ...prev];
+      if (onTeacherCountChange) {
+        onTeacherCountChange(updated.length, updated);
+      }
+      return updated;
+    });
   };
 
   const handleDeleteTeacher = async (teacher) => {
@@ -69,16 +72,17 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
         throw new Error(data.message || 'Failed to delete teacher record');
       }
 
-      setTeachers((prev) =>
-        prev.filter(
+      setTeachers((prev) => {
+        const updated = prev.filter(
           (t) =>
             (t._id ? t._id !== teacher._id : true) &&
             t.teacherId !== teacher.teacherId
-        )
-      );
-      if (onTeacherCountChange) {
-        onTeacherCountChange(Math.max(0, teachers.length - 1));
-      }
+        );
+        if (onTeacherCountChange) {
+          onTeacherCountChange(updated.length, updated);
+        }
+        return updated;
+      });
       setTeacherToDelete(null);
     } catch (err) {
       alert(err.message || 'Error deleting teacher');
@@ -97,7 +101,7 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
         if (data.success && Array.isArray(data.teachers) && data.teachers.length > 0) {
           setTeachers(data.teachers);
           if (onTeacherCountChange) {
-            onTeacherCountChange(data.teachers.length);
+            onTeacherCountChange(data.teachers.length, data.teachers);
           }
         }
       } catch (err) {

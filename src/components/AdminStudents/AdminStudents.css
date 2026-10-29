@@ -1500,6 +1500,20 @@
   font-weight: 700;
 }
 
+.enrolled-status-pill.status-failed {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  font-weight: 700;
+}
+
+.enrolled-status-pill.status-alumni {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
+}
+
 .m-grid-2cols {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -68,7 +68,7 @@ const AdminSidebar = ({
             title={sidebarCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
             aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {sidebarCollapsed ? <ChevronRight size={16} strokeWidth={2.5} /> : <ChevronLeft size={16} strokeWidth={2.5} />}
           </button>
 
           {/* Mobile Drawer Close Button */}
@@ -168,7 +168,10 @@ const AdminSidebar = ({
           <button
             type="button"
             className="view-site-btn"
-            onClick={() => onNavigate('home')}
+            onClick={() => {
+              if (setMobileSidebarOpen) setMobileSidebarOpen(false);
+              onNavigate('home');
+            }}
             title="View Public Site"
             data-tooltip="View Public Site"
           >
@@ -179,7 +182,10 @@ const AdminSidebar = ({
           <button
             type="button"
             className="sidebar-logout-btn"
-            onClick={onLogout}
+            onClick={() => {
+              if (setMobileSidebarOpen) setMobileSidebarOpen(false);
+              onLogout();
+            }}
             title="Sign Out"
             data-tooltip="Sign Out"
           >

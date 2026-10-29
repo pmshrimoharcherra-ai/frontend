@@ -168,6 +168,11 @@
   color: #ffffff;
 }
 
+.details-status-badge.failed {
+  background: #e11d48;
+  color: #ffffff;
+}
+
 .details-student-name {
   font-size: 22px;
   font-weight: 800;

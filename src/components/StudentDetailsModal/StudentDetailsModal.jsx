@@ -33,6 +33,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
   };
 
   const isTransferred = student.status === 'Transferred' || (student.father && student.father.toLowerCase() === 't/c');
+  const isFailed = student.status === 'Failed';
   const isClass8 = student.classId === 'class-8' || currentClass?.id === 'class-8';
   const isClassIXtoXII = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId || currentClass?.id);
   const hasEnrollment = isClassIXtoXII;
@@ -68,8 +69,8 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                     Reg: {student.enrollmentNo}
                   </span>
                 )}
-                <span className={`details-status-badge ${isTransferred ? 'transferred' : (student.status === 'Leave' ? 'leave' : 'enrolled')}`}>
-                  {isTransferred ? 'Transferred (TC Issued)' : (student.status || 'Enrolled')}
+                <span className={`details-status-badge ${isTransferred ? 'transferred' : (isFailed ? 'failed' : (student.status === 'Leave' ? 'leave' : 'enrolled'))}`}>
+                  {isTransferred ? 'Transferred (TC Issued)' : (isFailed ? 'Failed' : (student.status || 'Enrolled'))}
                 </span>
               </div>
               <h2 id="student-details-title" className="details-student-name">
