@@ -60,7 +60,7 @@ const AdminNotices = ({ initialOpenModal = false }) => {
       }
     } catch (err) {
       console.error('Error fetching notices:', err);
-      setError('Could not connect to notices database. Please ensure backend is active.');
+      setError('Server is currently inactive or unavailable. Please try again after some time.');
     } finally {
       setLoading(false);
     }

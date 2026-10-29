@@ -1,0 +1,114 @@
+/* ── Part 1: Top Header & Actions ── */
+.admin-exam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.exam-header-titles {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.exam-crest-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+.exam-header-titles h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.exam-header-titles p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 3px 0 0;
+}
+
+.exam-header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.exam-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.exam-action-btn.export {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.exam-action-btn.export:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.exam-action-btn.report-card-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+.exam-action-btn.report-card-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
+}
+
+.exam-action-btn.print {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.exam-action-btn.print:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.exam-action-btn.weightage-btn {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.exam-action-btn.weightage-btn:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #c2410c;
+  transform: translateY(-1px);
+}

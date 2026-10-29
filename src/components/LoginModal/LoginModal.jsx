@@ -63,10 +63,19 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         })
       });
 
-      const data = await response.json();
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        // Response was not JSON (e.g., 502/503 HTML gateway error or inactive server)
+        throw new Error('Server is currently inactive or unavailable. Please try again after some time.');
+      }
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Login failed. Please check your credentials.');
+      if (!response.ok || !data?.success) {
+        if (response.status >= 500) {
+          throw new Error('Server is currently inactive or unavailable. Please try again after some time.');
+        }
+        throw new Error(data?.message || 'Login failed. Please check your credentials.');
       }
 
       // Save token and user details to localStorage
@@ -86,10 +95,18 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       }, 1200);
 
     } catch (err) {
-      if (err.message.includes('Failed to fetch')) {
-        setError('Cannot connect to backend server. Make sure backend is running on port 5000.');
+      const msg = err?.message || '';
+      if (
+        msg.includes('Failed to fetch') ||
+        msg.includes('NetworkError') ||
+        msg.includes('Load failed') ||
+        msg.includes('inactive or unavailable') ||
+        msg.includes('port 5000') ||
+        err.name === 'TypeError'
+      ) {
+        setError('Server is currently inactive or unavailable. Please try again after some time.');
       } else {
-        setError(err.message);
+        setError(msg || 'Login failed. Please try again.');
       }
     } finally {
       setLoading(false);

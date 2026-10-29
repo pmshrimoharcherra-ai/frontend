@@ -119,7 +119,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       }
     } catch (err) {
       console.error('Error fetching students:', err);
-      setError('Unable to load students from database. Please ensure backend server is running.');
+      setError('Server is currently inactive or unavailable. Please try again after some time.');
     } finally {
       setLoading(false);
     }

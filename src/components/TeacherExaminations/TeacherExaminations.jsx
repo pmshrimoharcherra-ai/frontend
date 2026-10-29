@@ -9,7 +9,7 @@ import {
   Users
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
-import { getSubjectMaxMarks, isSecondarySciencePart } from '../../data/curriculumData';
+import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart } from '../../data/curriculumData';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -73,6 +73,10 @@ const TeacherExaminations = ({
   );
   const isSciencePart = useMemo(
     () => isSecondarySciencePart(examClassId, examSubject),
+    [examClassId, examSubject]
+  );
+  const isSocialSciencePart = useMemo(
+    () => isSecondarySocialSciencePart(examClassId, examSubject),
     [examClassId, examSubject]
   );
 
@@ -374,7 +378,12 @@ const TeacherExaminations = ({
             </span>
             {isSciencePart && (
               <span className="exam-part-badge" style={{ marginLeft: '8px', fontSize: '11px', color: '#ea580c', fontWeight: 600, background: '#fff7ed', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fed7aa' }}>
-                Part of Combined Science (Total {selectedExamTerm.includes('40') ? 40 : 80})
+                Part of Science (Total {selectedExamTerm.includes('40') ? 40 : 80})
+              </span>
+            )}
+            {isSocialSciencePart && (
+              <span className="exam-part-badge" style={{ marginLeft: '8px', fontSize: '11px', color: '#0284c7', fontWeight: 600, background: '#f0f9ff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #bae6fd' }}>
+                Part of Social Science (Total {selectedExamTerm.includes('40') ? 40 : 80})
               </span>
             )}
           </div>

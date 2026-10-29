@@ -1,0 +1,481 @@
+/* ── Part 3: Main Marksheet Card & Table ── */
+
+.admin-marksheet-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.marksheet-card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.card-header-left h4 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.card-header-left p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 3px 0 0;
+}
+
+.gender-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.g-tab {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.g-tab.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Table Container & Styles ── */
+.marksheet-table-container {
+  overflow-x: auto;
+  min-height: 380px;
+}
+
+.marksheet-table-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.marksheet-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.marksheet-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.admin-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-roster-table th {
+  background: #f8fafc;
+  padding: 12px 14px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.header-subj-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.subj-max-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: none;
+}
+
+.marksheet-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.marksheet-row:hover {
+  background: #f8fafc;
+}
+
+.admin-roster-table td {
+  padding: 11px 14px;
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.roll-pill {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.student-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.student-avatar-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-boy {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.avatar-girl {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.student-meta-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.student-name-bold {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-reg-mini {
+  font-size: 10.5px;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.identifier-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  display: inline-block;
+}
+
+.identifier-badge.badge-pending {
+  color: #94a3b8;
+  background: #f1f5f9;
+  font-weight: 500;
+  border-style: dashed;
+}
+
+.subject-score-cell {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.subject-score-cell.score-high {
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.subject-score-cell.score-low {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.score-input-view {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.score-total-pill {
+  display: inline-block;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.grand-total-pill {
+  font-size: 14px;
+  color: #0f172a;
+  background: #f8fafc;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.pct-pill {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Grade badges */
+.exam-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.badge-grade-aplus {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.badge-grade-a {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-grade-bplus {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #7dd3fc;
+}
+
+.badge-grade-b {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-grade-c {
+  background: #fef9c3;
+  color: #a16207;
+  border: 1px solid #fde047;
+}
+
+.badge-grade-d {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.badge-grade-f {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.badge-grade-pending {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+}
+
+/* Status pills */
+.exam-status-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.exam-status-pill.status-pass {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.exam-status-pill.status-fail {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Loading & Empty States */
+.table-loading-state,
+.table-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #64748b;
+  gap: 12px;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+  color: #ea580c;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Marksheet Card Footer ── */
+.marksheet-card-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.marksheet-card-footer strong {
+  color: #0f172a;
+}
+
+/* ── Secondary Combined Science & Social Science Cell Styles ── */
+.science-combined-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.science-parts-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.part-mini {
+  font-size: 9.5px;
+  font-family: monospace;
+  font-weight: 700;
+  padding: 1px 3px;
+  border-radius: 3px;
+  line-height: 1.1;
+}
+
+.part-mini.ls {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.part-mini.phy {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.part-mini.chem {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.part-score-pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.part-score-pill small {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.part-score-pill.ls {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.part-score-pill.phy {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.part-score-pill.chem {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.score-science-comb {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* ── Print Media Optimization (For regular marksheet printing) ── */
+@media print {
+  body:not(.prc-modal-active) * {
+    visibility: hidden;
+  }
+  body:not(.prc-modal-active) .admin-marksheet-card,
+  body:not(.prc-modal-active) .admin-marksheet-card * {
+    visibility: visible;
+  }
+  body:not(.prc-modal-active) .admin-marksheet-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+  }
+}
