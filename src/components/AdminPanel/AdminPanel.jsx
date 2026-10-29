@@ -60,19 +60,16 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
   const activeTab = getTabFromPath(location.pathname);
 
   const setActiveTab = (tab) => {
-    const isUnderAdmin = location.pathname.startsWith('/admin') && !location.pathname.startsWith('/admin/gallery');
-    let target = '/dashboard';
-    if (tab === 'students') target = '/students';
-    else if (tab === 'teachers') target = '/teachers';
-    else if (tab === 'examinations') target = '/admin/examinations';
-    else if (tab === 'calendar') target = '/calendar';
+    const isUnderAdmin = location.pathname.startsWith('/admin');
+    let target = isUnderAdmin ? '/admin/dashboard' : '/dashboard';
+    if (tab === 'students') target = isUnderAdmin ? '/admin/students' : '/students';
+    else if (tab === 'teachers') target = isUnderAdmin ? '/admin/teachers' : '/teachers';
+    else if (tab === 'examinations') target = isUnderAdmin ? '/admin/examinations' : '/examinations';
+    else if (tab === 'calendar') target = isUnderAdmin ? '/admin/calendar' : '/calendar';
     else if (tab === 'gallery') target = '/admin/gallery';
     else if (tab === 'notices') target = '/admin/notices';
-    else if (tab === 'overview') target = '/dashboard';
+    else if (tab === 'overview') target = isUnderAdmin ? '/admin/dashboard' : '/dashboard';
     
-    if (isUnderAdmin && target !== '/admin/gallery') {
-      target = `/admin${target === '/dashboard' ? '/dashboard' : target}`;
-    }
     navigate(target);
   };
 

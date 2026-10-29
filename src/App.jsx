@@ -194,6 +194,11 @@ function App() {
           element={<AdminPanel currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />} 
         />
 
+        {/* Safety redirects for duplicate prefix URLs */}
+        <Route path="/admin/admin/examinations" element={<Navigate to="/admin/examinations" replace />} />
+        <Route path="/admin/admin/notices" element={<Navigate to="/admin/notices" replace />} />
+        <Route path="/admin/admin/*" element={<Navigate to="/dashboard" replace />} />
+
         <Route 
           path="/calendar" 
           element={<AdminPanel currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />} 

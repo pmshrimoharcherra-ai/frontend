@@ -6,7 +6,6 @@ import {
   Check,
   RotateCcw,
   AlertCircle,
-  HelpCircle,
   AlertTriangle,
   CheckCircle2,
   Lock
@@ -164,16 +163,6 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
           </button>
         </div>
 
-        {/* Info Banner with Rule Enforcement Notice */}
-        <div className="weightage-info-banner">
-          <HelpCircle size={18} className="banner-icon" />
-          <p>
-            Admins can dynamically adjust individual component marks (e.g. Life Science, Physics, Chemistry / History, Geography, Economics).
-            <strong> The combined total must strictly sum to 80 Marks for Half-Yearly / Annual and 40 Marks for Periodic Test (PT)</strong>.
-            If marks exceed or fall short of the fixed total, adjust the values until balanced.
-          </p>
-        </div>
-
         {/* Global Feedback Messages */}
         {successMsg && (
           <div className="weightage-alert success">
@@ -255,7 +244,7 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
               <div className="section-totals-group">
                 <span className={`status-pill ${isSci80Valid ? 'valid' : sci80Diff > 0 ? 'overflow' : 'underflow'}`}>
                   {isSci80Valid ? (
-                    <>Annual: <strong>80 / 80M ✓</strong></>
+                    <>Annual: <strong>80 / 80M</strong></>
                   ) : sci80Diff > 0 ? (
                     <>Annual: <strong>{sciTotal80} / 80M (+{sci80Diff})</strong></>
                   ) : (
@@ -264,7 +253,7 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
                 </span>
                 <span className={`status-pill ${isSci40Valid ? 'valid' : sci40Diff > 0 ? 'overflow' : 'underflow'}`}>
                   {isSci40Valid ? (
-                    <>Periodic: <strong>40 / 40M ✓</strong></>
+                    <>Periodic: <strong>40 / 40M</strong></>
                   ) : sci40Diff > 0 ? (
                     <>Periodic: <strong>{sciTotal40} / 40M (+{sci40Diff})</strong></>
                   ) : (
@@ -319,32 +308,6 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr className="scheme-total-row">
-                    <td>
-                      <div className="total-label-wrap">
-                        <strong>Science Combined Total</strong>
-                        <small>Strict Target: Fixed 80M (Annual) & 40M (Periodic)</small>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className={`table-total-badge ${isSci80Valid ? 'valid' : sci80Diff > 0 ? 'overflow' : 'underflow'}`}>
-                        <span className="badge-score">{sciTotal80} / 80 Marks</span>
-                        <span className="badge-hint">
-                          {isSci80Valid ? '✓ Balanced' : sci80Diff > 0 ? `Reduce by ${sci80Diff}M` : `Add ${Math.abs(sci80Diff)}M`}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className={`table-total-badge ${isSci40Valid ? 'valid' : sci40Diff > 0 ? 'overflow' : 'underflow'}`}>
-                        <span className="badge-score">{sciTotal40} / 40 Marks</span>
-                        <span className="badge-hint">
-                          {isSci40Valid ? '✓ Balanced' : sci40Diff > 0 ? `Reduce by ${sci40Diff}M` : `Add ${Math.abs(sci40Diff)}M`}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </div>
@@ -362,7 +325,7 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
               <div className="section-totals-group">
                 <span className={`status-pill ${isSoc80Valid ? 'valid' : soc80Diff > 0 ? 'overflow' : 'underflow'}`}>
                   {isSoc80Valid ? (
-                    <>Annual: <strong>80 / 80M ✓</strong></>
+                    <>Annual: <strong>80 / 80M</strong></>
                   ) : soc80Diff > 0 ? (
                     <>Annual: <strong>{socTotal80} / 80M (+{soc80Diff})</strong></>
                   ) : (
@@ -371,7 +334,7 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
                 </span>
                 <span className={`status-pill ${isSoc40Valid ? 'valid' : soc40Diff > 0 ? 'overflow' : 'underflow'}`}>
                   {isSoc40Valid ? (
-                    <>Periodic: <strong>40 / 40M ✓</strong></>
+                    <>Periodic: <strong>40 / 40M</strong></>
                   ) : soc40Diff > 0 ? (
                     <>Periodic: <strong>{socTotal40} / 40M (+{soc40Diff})</strong></>
                   ) : (
@@ -426,32 +389,6 @@ const SubjectWeightageModal = ({ isOpen, onClose, onSaveSuccess }) => {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr className="scheme-total-row">
-                    <td>
-                      <div className="total-label-wrap">
-                        <strong>Social Science Combined Total</strong>
-                        <small>Strict Target: Fixed 80M (Annual) & 40M (Periodic)</small>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className={`table-total-badge ${isSoc80Valid ? 'valid' : soc80Diff > 0 ? 'overflow' : 'underflow'}`}>
-                        <span className="badge-score">{socTotal80} / 80 Marks</span>
-                        <span className="badge-hint">
-                          {isSoc80Valid ? '✓ Balanced' : soc80Diff > 0 ? `Reduce by ${soc80Diff}M` : `Add ${Math.abs(soc80Diff)}M`}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className={`table-total-badge ${isSoc40Valid ? 'valid' : soc40Diff > 0 ? 'overflow' : 'underflow'}`}>
-                        <span className="badge-score">{socTotal40} / 40 Marks</span>
-                        <span className="badge-hint">
-                          {isSoc40Valid ? '✓ Balanced' : soc40Diff > 0 ? `Reduce by ${soc40Diff}M` : `Add ${Math.abs(soc40Diff)}M`}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </div>

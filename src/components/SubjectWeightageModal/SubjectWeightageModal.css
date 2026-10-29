@@ -329,6 +329,10 @@
   vertical-align: middle;
 }
 
+.scheme-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .scheme-table td strong {
   color: #1e293b;
   display: block;
