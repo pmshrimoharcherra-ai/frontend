@@ -1257,7 +1257,7 @@ const AdminGallery = () => {
             <div className="dialog-header">
               <div>
                 <h4>Upload Photos & Videos</h4>
-                <p>Files will be processed and securely hosted on Cloudinary CDN</p>
+                <p>Files will be processed and securely stored in high resolution</p>
               </div>
               {!uploadProgress && (
                 <button
@@ -1358,6 +1358,22 @@ const AdminGallery = () => {
                 />
               </div>
 
+              {/* Uploading Animation Banner */}
+              {uploadProgress && (
+                <div className="upload-progress-container">
+                  <div className="upload-progress-header">
+                    <div className="upload-spinner-ring"></div>
+                    <div className="upload-progress-info">
+                      <h5>Uploading Media...</h5>
+                      <p>Please wait while your media is being processed and saved</p>
+                    </div>
+                  </div>
+                  <div className="upload-progress-track">
+                    <div className="upload-progress-indeterminate"></div>
+                  </div>
+                </div>
+              )}
+
               <div className="dialog-footer">
                 <button
                   type="button"
@@ -1370,12 +1386,15 @@ const AdminGallery = () => {
                 <button
                   type="submit"
                   disabled={uploadProgress || !uploadData.file}
-                  className="submit-btn"
+                  className={`submit-btn ${uploadProgress ? 'is-uploading' : ''}`}
                 >
                   {uploadProgress ? (
                     <span className="btn-loading-content">
-                      <Loader2 size={16} className="spin-icon" />
-                      Uploading to Cloudinary...
+                      <span className="upload-btn-spinner"></span>
+                      <span>Uploading</span>
+                      <span className="animated-dots">
+                        <span>.</span><span>.</span><span>.</span>
+                      </span>
                     </span>
                   ) : (
                     'Upload to Gallery'

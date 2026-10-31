@@ -1304,6 +1304,137 @@
   transform: none;
 }
 
+.submit-btn.is-uploading {
+  opacity: 1 !important;
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+  cursor: wait;
+}
+
+/* Button Loading Spinner & Animated Dots */
+.upload-btn-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2.2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btnSpinnerRotate 0.75s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes btnSpinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animated-dots {
+  display: inline-flex;
+  margin-left: 2px;
+}
+
+.animated-dots span {
+  animation: dotPulse 1.4s infinite;
+  opacity: 0;
+}
+
+.animated-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.animated-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animated-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* Dedicated Upload Progress Banner */
+.upload-progress-container {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1.5px solid #fed7aa;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.upload-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-spinner-ring {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(234, 88, 12, 0.2);
+  border-top-color: #ea580c;
+  border-radius: 50%;
+  animation: btnSpinnerRotate 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.upload-progress-info h5 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #9a3412;
+  margin: 0 0 2px;
+}
+
+.upload-progress-info p {
+  font-size: 11.5px;
+  color: #c2410c;
+  margin: 0;
+}
+
+.upload-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(234, 88, 12, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.upload-progress-indeterminate {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 35%;
+  background: linear-gradient(90deg, #ea580c, #f97316);
+  border-radius: 10px;
+  animation: indeterminateProgress 1.3s ease-in-out infinite;
+}
+
+@keyframes indeterminateProgress {
+  0% {
+    left: -35%;
+    width: 25%;
+  }
+  50% {
+    left: 35%;
+    width: 45%;
+  }
+  100% {
+    left: 100%;
+    width: 25%;
+  }
+}
+
 /* File Drop Zone */
 .file-drop-zone {
   border: 2px dashed #cbd5e1;
