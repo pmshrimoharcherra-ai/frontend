@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/api';
 import './Gallery.css';
 import {
@@ -25,6 +26,14 @@ import {
 } from 'lucide-react';
 
 const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
+  const { folderSlug, subfolderSlug } = useParams();
+  const navigate = useNavigate();
+
+  // Helper to compute url-friendly slug for any folder
+  const getFolderSlug = (f) => {
+    if (!f) return '';
+    return f.slug || f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  };
   const [folders, setFolders] = useState([]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,13 +70,7 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
         setFolders(safeFolders);
         setItems(safeItems);
 
-        // If an initialFolderSlug was passed, open that folder directly
-        if (initialFolderSlug) {
-          const match = safeFolders.find((f) => f.slug === initialFolderSlug);
-          if (match) {
-            setSelectedFolder(match);
-          }
-        }
+        // Handled dynamically by route sync below
       } catch (err) {
         console.error('Error loading public gallery:', err);
       } finally {
@@ -76,7 +79,52 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
     };
 
     fetchData();
-  }, [initialFolderSlug]);
+  }, []);
+  // Sync selectedFolder with URL route params (/gallery/:folderSlug or /gallery/:folderSlug/:subfolderSlug)
+  useEffect(() => {
+    if (loading || folders.length === 0) return;
+
+    const activeFolderSlug = subfolderSlug ? folderSlug : (folderSlug || initialFolderSlug);
+
+    if (subfolderSlug) {
+      const decodedSub = decodeURIComponent(subfolderSlug).toLowerCase();
+      const decodedParent = activeFolderSlug ? decodeURIComponent(activeFolderSlug).toLowerCase() : '';
+
+      const matchedSub = folders.find((f) => {
+        const sSlug = getFolderSlug(f);
+        const sName = f.name.toLowerCase();
+        const matchesSub = sSlug === decodedSub || sName === decodedSub;
+        if (!matchesSub) return false;
+
+        if (f.parentId && decodedParent) {
+          const parent = folders.find((p) => (p.id || p._id) === f.parentId);
+          if (parent) {
+            const pSlug = getFolderSlug(parent);
+            const pName = parent.name.toLowerCase();
+            return pSlug === decodedParent || pName === decodedParent;
+          }
+        }
+        return true;
+      });
+
+      if (matchedSub) {
+        setSelectedFolder(matchedSub);
+      } else {
+        const fallback = folders.find((f) => getFolderSlug(f) === decodedSub || f.name.toLowerCase() === decodedSub);
+        setSelectedFolder(fallback || null);
+      }
+    } else if (activeFolderSlug) {
+      const decoded = decodeURIComponent(activeFolderSlug).toLowerCase();
+      const matched = folders.find((f) => {
+        const fSlug = getFolderSlug(f);
+        const fName = f.name.toLowerCase();
+        return fSlug === decoded || fName === decoded;
+      });
+      setSelectedFolder(matched || null);
+    } else {
+      setSelectedFolder(null);
+    }
+  }, [folders, loading, folderSlug, subfolderSlug, initialFolderSlug]);
 
   // Root folders only for the main directory
   const rootFolders = useMemo(() => folders.filter((f) => !f.parentId), [folders]);
@@ -155,17 +203,26 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
     return currentFolderItems.filter((i) => i.mediaType === 'video').length;
   }, [currentFolderItems]);
 
-  // Open folder handler
+  // Open folder handler with URL navigation
   const handleOpenFolder = (folder) => {
-    setSelectedFolder(folder);
     setMediaTypeFilter('all');
+    setLightboxIndex(null);
+    const fSlug = getFolderSlug(folder);
+
+    if (folder.parentId) {
+      const parent = folders.find((f) => (f.id || f._id) === folder.parentId);
+      const pSlug = parent ? getFolderSlug(parent) : (folderSlug || 'album');
+      navigate(`/gallery/${pSlug}/${fSlug}`);
+    } else {
+      navigate(`/gallery/${fSlug}`);
+    }
     window.scrollTo({ top: 340, behavior: 'smooth' });
   };
 
-  // Back to all folders handler
+  // Back to all folders handler with URL navigation
   const handleBackToAllFolders = () => {
-    setSelectedFolder(null);
     setLightboxIndex(null);
+    navigate('/gallery');
     window.scrollTo({ top: 340, behavior: 'smooth' });
   };
 

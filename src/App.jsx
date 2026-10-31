@@ -65,8 +65,7 @@ const AboutPage = () => (
 
 // Public Gallery with optional slug parameter
 const GalleryRouteWrapper = ({ onNavigate }) => {
-  const { folderSlug } = useParams();
-  return <Gallery onNavigate={onNavigate} initialFolderSlug={folderSlug || null} />;
+  return <Gallery onNavigate={onNavigate} />;
 };
 
 function App() {
@@ -358,6 +357,21 @@ function App() {
         />
         <Route 
           path="/gallery/:folderSlug" 
+          element={
+            <PublicLayout 
+              onNavigate={handleNavigate} 
+              onLoginClick={() => setLoginModalOpen(true)} 
+              currentUser={currentUser} 
+              onLogout={handleLogout} 
+              currentPage="gallery"
+            >
+              <GalleryRouteWrapper onNavigate={handleNavigate} />
+            </PublicLayout>
+          } 
+        />
+        
+        <Route 
+          path="/gallery/:folderSlug/:subfolderSlug" 
           element={
             <PublicLayout 
               onNavigate={handleNavigate} 
