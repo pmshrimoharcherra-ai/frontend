@@ -606,6 +606,33 @@
   color: #0b1528;
 }
 
+.cal-grid-month-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cal-today-jump-btn {
+  padding: 3px 8px;
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cal-today-jump-btn:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+}
+
 .cal-grid-table {
   width: 100%;
   margin-bottom: 22px;
@@ -647,6 +674,57 @@
   color: #1e293b;
   cursor: default;
   transition: all 0.2s ease;
+}
+
+.cal-cell-number {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+/* Today highlight indicator */
+.cal-grid-cell.is-today {
+  font-weight: 800;
+}
+
+.cal-grid-cell.is-today .cal-cell-number {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.45);
+}
+
+.cal-grid-cell.is-today.other-month {
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.cal-grid-cell.is-today.other-month .cal-cell-number {
+  background: #ffffff;
+  color: #ea580c !important;
+  border: 2px solid #ea580c;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.2);
+}
+
+.cal-today-tag {
+  position: absolute;
+  top: 1px;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #ea580c;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.cal-grid-cell.is-today.other-month .cal-today-tag {
+  color: #ea580c;
 }
 
 .cal-grid-cell.other-month {
@@ -695,6 +773,14 @@
   font-size: 12px;
   font-weight: 600;
   color: #475569;
+}
+
+.cal-legend-today-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2);
 }
 
 .cal-legend-dot {
