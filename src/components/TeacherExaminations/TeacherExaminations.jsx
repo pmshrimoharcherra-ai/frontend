@@ -6,7 +6,11 @@ import {
   Save,
   RefreshCw,
   CheckCircle2,
-  Users
+  Users,
+  Pencil,
+  Lock,
+  Search,
+  X
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart } from '../../data/curriculumData';
@@ -65,6 +69,7 @@ const TeacherExaminations = ({
   const [savingMarks, setSavingMarks] = useState(false);
   const [marksSaveSuccess, setMarksSaveSuccess] = useState(false);
   const [marksSaveMessage, setMarksSaveMessage] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
 
   // Selected exam max marks (handles Secondary Science parts: Life Sci 30/15, Physics 25/12.5, Chemistry 25/12.5)
   const maxMarks = useMemo(
@@ -94,6 +99,29 @@ const TeacherExaminations = ({
   const isExamClassIX = useMemo(() => {
     return isClassIX(examClassId) || (examStudents.length > 0 && isClassIX(examStudents[0]?.classId));
   }, [examClassId, examStudents]);
+
+  // Search filter query
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter students by name, roll, APAAR ID, or enrollment number
+  const filteredStudents = useMemo(() => {
+    if (!searchQuery.trim()) return examStudents;
+    const q = searchQuery.trim().toLowerCase();
+    return examStudents.filter((st) => {
+      const name = (st.name || '').toLowerCase();
+      const roll = String(st.roll || '').toLowerCase();
+      const apaarId = String(st.apaarId || st.penNumber || '').toLowerCase();
+      const enrollmentNo = String(st.enrollmentNo || '').toLowerCase();
+      return (
+        name.includes(q) ||
+        roll === q ||
+        `#${roll}`.includes(q) ||
+        roll.includes(q) ||
+        apaarId.includes(q) ||
+        enrollmentNo.includes(q)
+      );
+    });
+  }, [examStudents, searchQuery]);
 
   // Fetch students for selected class
   useEffect(() => {
@@ -139,6 +167,7 @@ const TeacherExaminations = ({
               };
             });
             setMarksRecords(savedMap);
+            setIsLocked(data.records[0].isLocked !== false);
             return;
           }
         }
@@ -146,6 +175,7 @@ const TeacherExaminations = ({
         console.warn('Could not load saved marks, generating defaults:', err);
       }
 
+      setIsLocked(false);
       // Default realistic generated marks
       setMarksRecords((prev) => {
         const initialMarks = {};
@@ -226,7 +256,8 @@ const TeacherExaminations = ({
         teacherId: activeUser?.teacherId || activeUser?.id || '',
         teacherName: teacherName || activeUser?.name || 'Faculty Member',
         marks: marksArray,
-        academicYear: '2026-2027'
+        academicYear: '2026-2027',
+        isLocked: true
       };
 
       const res = await fetch(`${API_BASE_URL}/api/examinations/save`, {
@@ -236,15 +267,16 @@ const TeacherExaminations = ({
       });
       const data = await res.json();
 
+      setIsLocked(true);
       if (data.success) {
         setMarksSaveSuccess(true);
         setMarksSaveMessage(
-          `Marks successfully recorded, saved to database, and published to Admin Panel for ${examStudents.length} students in ${examSubject} for ${selectedExamTerm}!`
+          `Marks successfully recorded, locked, and published to Admin Panel for ${examStudents.length} students in ${examSubject} for ${selectedExamTerm}!`
         );
       } else {
         setMarksSaveSuccess(true);
         setMarksSaveMessage(
-          `Marks recorded for ${examStudents.length} students in ${examSubject} (${selectedExamTerm})!`
+          `Marks recorded and locked for ${examStudents.length} students in ${examSubject} (${selectedExamTerm})!`
         );
       }
       setTimeout(() => setMarksSaveSuccess(false), 5000);
@@ -276,29 +308,41 @@ const TeacherExaminations = ({
           </div>
 
           <div className="exam-header-actions">
-            <button
-              type="button"
-              className="save-attendance-btn"
-              onClick={handleSaveMarks}
-              disabled={savingMarks || examStudents.length === 0}
-            >
-              {savingMarks ? (
-                <>
-                  <RefreshCw size={15} className="spin-icon" />
-                  <span>Saving...</span>
-                </>
-              ) : marksSaveSuccess ? (
-                <>
-                  <CheckCircle2 size={15} />
-                  <span>Marks Saved!</span>
-                </>
-              ) : (
-                <>
-                  <Save size={15} />
-                  <span>Save Examination Marks</span>
-                </>
-              )}
-            </button>
+            {isLocked ? (
+              <button
+                type="button"
+                className="edit-marks-btn"
+                onClick={() => setIsLocked(false)}
+                title="Unlock marks to edit"
+              >
+                <Pencil size={15} />
+                <span>Edit Marks</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="save-attendance-btn"
+                onClick={handleSaveMarks}
+                disabled={savingMarks || examStudents.length === 0}
+              >
+                {savingMarks ? (
+                  <>
+                    <RefreshCw size={15} className="spin-icon" />
+                    <span>Saving...</span>
+                  </>
+                ) : marksSaveSuccess ? (
+                  <>
+                    <CheckCircle2 size={15} />
+                    <span>Marks Saved & Locked!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={15} />
+                    <span>Save & Lock Marks</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -371,6 +415,32 @@ const TeacherExaminations = ({
             </select>
           </div>
 
+          {/* Search Student Input */}
+          <div className="exam-toolbar-field exam-search-field">
+            <label>Search Student</label>
+            <div className="exam-search-input-wrap">
+              <Search size={15} className="exam-search-icon" />
+              <input
+                type="text"
+                placeholder="Search by name, roll, APAAR ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="exam-search-input"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="exam-search-clear-btn"
+                  onClick={() => setSearchQuery('')}
+                  title="Clear search"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Max Marks Indicator */}
           <div className="exam-max-marks-pill">
             <span>
@@ -419,65 +489,84 @@ const TeacherExaminations = ({
                 </tr>
               </thead>
               <tbody>
-                {examStudents.map((st) => {
-                  const key = st.studentId || st.id;
-                  const currentMarks = marksRecords[key] || {};
-                  const score =
-                    currentMarks.marks !== undefined
-                      ? currentMarks.marks
-                      : (Number(currentMarks.theory) || 0);
-                  const isBoy = st.gender === 'Boy' || !st.gender;
-                  const penNumber = st.penNumber || st.pen || (st.enrollmentNo && st.enrollmentNo !== 'Not found' ? st.enrollmentNo : '');
-                  const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
-                  const displayedIdentifier = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
+                {filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="exam-no-search-results">
+                      <Search size={26} />
+                      <p>No students match "{searchQuery}"</p>
+                      <button
+                        type="button"
+                        className="clear-search-link"
+                        onClick={() => setSearchQuery('')}
+                      >
+                        Clear search filter
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((st) => {
+                    const key = st.studentId || st.id;
+                    const currentMarks = marksRecords[key] || {};
+                    const score =
+                      currentMarks.marks !== undefined
+                        ? currentMarks.marks
+                        : (Number(currentMarks.theory) || 0);
+                    const isBoy = st.gender === 'Boy' || !st.gender;
+                    const penNumber = st.penNumber || st.pen || (st.enrollmentNo && st.enrollmentNo !== 'Not found' ? st.enrollmentNo : '');
+                    const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
+                    const displayedIdentifier = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
-                  return (
-                    <tr key={key} className="roster-row">
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="roster-roll-pill font-mono">#{st.roll || '00'}</span>
-                      </td>
+                    return (
+                      <tr key={key} className="roster-row">
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="roster-roll-pill font-mono">#{st.roll || '00'}</span>
+                        </td>
 
-                      <td>
-                        <div className="roster-student-cell">
-                          <div className={`roster-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}>
-                            {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
+                        <td>
+                          <div className="roster-student-cell">
+                            <div className={`roster-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}>
+                              {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
+                            </div>
+                            <div className="roster-student-info">
+                              <span className="student-name font-bold">{st.name}</span>
+                              <span className="student-enr-mini font-mono" title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}>
+                                {penNumber ? (penNumber.startsWith('PEN') ? penNumber : `PEN: ${penNumber}`) : (st.studentId || 'PEN: Pending')}
+                              </span>
+                            </div>
                           </div>
-                          <div className="roster-student-info">
-                            <span className="student-name font-bold">{st.name}</span>
-                            <span className="student-enr-mini font-mono" title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}>
-                              {penNumber ? (penNumber.startsWith('PEN') ? penNumber : `PEN: ${penNumber}`) : (st.studentId || 'PEN: Pending')}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td>
-                        <span
-                          className={`student-id-badge font-mono ${!apaarId ? 'badge-pending' : ''}`}
-                          title={`APAAR ID: ${apaarId || 'Not Generated'}`}
-                        >
-                          {displayedIdentifier}
-                        </span>
-                      </td>
+                        <td>
+                          <span
+                            className={`student-id-badge font-mono ${!apaarId ? 'badge-pending' : ''}`}
+                            title={`APAAR ID: ${apaarId || 'Not Generated'}`}
+                          >
+                            {displayedIdentifier}
+                          </span>
+                        </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          max={maxMarks}
-                          value={score}
-                          onChange={(e) => handleMarkChange(key, 'marks', e.target.value)}
-                          className="exam-marks-input"
-                        />
-                      </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            max={maxMarks}
+                            value={score}
+                            disabled={isLocked}
+                            readOnly={isLocked}
+                            onChange={(e) => handleMarkChange(key, 'marks', e.target.value)}
+                            className={`exam-marks-input ${isLocked ? 'locked' : ''}`}
+                            title={isLocked ? "Marks are locked. Click 'Edit Marks' to modify." : `Enter marks (0 - ${maxMarks})`}
+                          />
+                        </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="exam-total-score font-bold font-mono">{score}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="exam-total-score font-bold font-mono">{score}</span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           )}
@@ -487,19 +576,37 @@ const TeacherExaminations = ({
         <div className="register-footer">
           <div className="register-footer-info">
             <span>
-              Roster: <strong>{examStudents.length}</strong> students evaluated for{' '}
+              Roster: <strong>{filteredStudents.length}</strong>{filteredStudents.length !== examStudents.length ? ` of ${examStudents.length}` : ''} students evaluated for{' '}
               <strong>{examSubject}</strong> ({selectedExamTerm})
+              {isLocked && (
+                <span className="exam-locked-pill">
+                  <Lock size={12} />
+                  <span>Locked</span>
+                </span>
+              )}
             </span>
           </div>
-          <button
-            type="button"
-            className="save-attendance-btn bottom-save"
-            onClick={handleSaveMarks}
-            disabled={savingMarks || examStudents.length === 0}
-          >
-            <Save size={15} />
-            <span>{savingMarks ? 'Saving...' : 'Save & Lock Marks'}</span>
-          </button>
+          {isLocked ? (
+            <button
+              type="button"
+              className="edit-marks-btn bottom-save"
+              onClick={() => setIsLocked(false)}
+              title="Unlock and edit marks"
+            >
+              <Pencil size={15} />
+              <span>Edit Marks</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="save-attendance-btn bottom-save"
+              onClick={handleSaveMarks}
+              disabled={savingMarks || examStudents.length === 0}
+            >
+              <Save size={15} />
+              <span>{savingMarks ? 'Saving...' : 'Save & Lock Marks'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

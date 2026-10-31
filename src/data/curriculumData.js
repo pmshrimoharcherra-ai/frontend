@@ -139,6 +139,15 @@ export const isCombinedSocialScience = (classId, subject = '') => {
 };
 
 export const getConsolidatedSubjectsForClass = (classId) => {
+  if (classId === 'class-6') {
+    return [
+      'English',
+      'Bengali',
+      'Science',
+      'Social Science',
+      'Mathematics'
+    ];
+  }
   if (classId === 'class-9' || classId === 'class-10') {
     return [
       'English',
@@ -219,7 +228,7 @@ export const CLASS_CURRICULUM = {
   'class-5': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
 
   // Elementary Wing (Class VI - VIII)
-  'class-6': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
+  'class-6': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
   'class-7': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
   'class-8': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
 

@@ -4,6 +4,9 @@ import { API_BASE_URL } from '../../config/api';
 import './TeacherDashboard.css';
 import TeacherSidebar from '../TeacherSidebar/TeacherSidebar';
 import TeacherExaminations from '../TeacherExaminations/TeacherExaminations';
+import TeacherStudents from '../TeacherStudents/TeacherStudents';
+import TeacherMonthlyAttendance from '../TeacherMonthlyAttendance/TeacherMonthlyAttendance';
+import AcademicDatePicker from '../AcademicDatePicker/AcademicDatePicker';
 import {
   Users,
   Calendar,
@@ -79,9 +82,10 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
 
   const activeUser = currentUser || storedUser;
 
-  // Active Tab: 'dashboard' | 'attendance' | 'examinations'
+  // Active Tab: 'dashboard' | 'attendance' | 'students' | 'examinations'
   const getTabFromPath = (path) => {
     if (path.includes('/attendance')) return 'attendance';
+    if (path.includes('/students')) return 'students';
     if (path.includes('/examinations') || path.includes('/exams')) return 'examinations';
     return defaultTab || 'dashboard';
   };
@@ -93,13 +97,14 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   }, [location.pathname]);
 
   const handleTabChange = (tab) => {
-    if (tab === 'attendance' && !assignedClassId) {
+    if ((tab === 'attendance' || tab === 'students') && !assignedClassId) {
       navigate('/teacher/dashboard');
       return;
     }
     setActiveTab(tab);
     if (tab === 'dashboard') navigate('/teacher/dashboard');
     else if (tab === 'attendance') navigate('/teacher/attendance');
+    else if (tab === 'students') navigate('/teacher/students');
     else if (tab === 'examinations') navigate('/teacher/examinations');
   };
 
@@ -180,6 +185,9 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   // Selected date for attendance (defaults to current date YYYY-MM-DD)
   const todayIso = new Date().toISOString().split('T')[0];
   const [attendanceDate, setAttendanceDate] = useState(todayIso);
+
+  // Attendance Mode: 'daily' (Day-by-Day) | 'monthly' (Working Days Entry)
+  const [attendanceViewMode, setAttendanceViewMode] = useState('daily');
 
   // Today's attendance state map: { [studentId]: 'present' | 'absent' | 'late' }
   const [dailyAttendance, setDailyAttendance] = useState({});
@@ -278,12 +286,36 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     }
   }, [assignedClassId]);
 
-  // If a non-class teacher lands on /teacher/attendance directly, redirect immediately to dashboard
+  // If a non-class teacher lands on /teacher/attendance or /teacher/students directly, redirect immediately to dashboard
   useEffect(() => {
-    if (!assignedClassId && location.pathname.includes('/attendance')) {
+    if (!assignedClassId && (location.pathname.includes('/attendance') || location.pathname.includes('/students'))) {
       navigate('/teacher/dashboard', { replace: true });
     }
   }, [assignedClassId, location.pathname, navigate]);
+
+  // Save student updates made from Teacher's Student Roster
+  const handleSaveStudent = async (updatedStudent) => {
+    setStudents((prev) =>
+      prev.map((s) => {
+        const match =
+          (s.id && (s.id === updatedStudent.id || s.id === updatedStudent.studentId)) ||
+          (s.studentId && (s.studentId === updatedStudent.studentId || s.studentId === updatedStudent.id)) ||
+          (s._id && (s._id === updatedStudent._id || s._id === updatedStudent.id));
+        return match ? { ...s, ...updatedStudent } : s;
+      })
+    );
+
+    const targetId = updatedStudent.studentId || updatedStudent.id || updatedStudent._id;
+    const res = await fetch(`${API_STUDENTS}/${targetId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedStudent)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || 'Failed to update student profile.');
+    }
+  };
 
   // Toggle single student status
   const handleToggleStatus = (studentId, status) => {
@@ -367,6 +399,24 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
       alert(`Error saving attendance: ${err.message}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Save Monthly Attendance Batch (Consolidated working days)
+  const handleSaveMonthlyAttendanceBatch = async (updatedStudentsList) => {
+    setStudents((prev) => {
+      const idMap = new Map(updatedStudentsList.map((st) => [st.studentId || st.id, st]));
+      return prev.map((s) => idMap.get(s.studentId || s.id) || s);
+    });
+
+    const res = await fetch(`${API_STUDENTS}/bulk-attendance`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ students: updatedStudentsList })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || 'Failed to update monthly attendance records.');
     }
   };
 
@@ -521,11 +571,12 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
               </button>
 
               <div className="teacher-breadcrumb-group">
-                <span className="breadcrumb-root">FACULTY PORTAL</span>
+                <span className="breadcrumb-root">TEACHER'S PORTAL</span>
                 <span className="breadcrumb-sep">/</span>
                 <span className="breadcrumb-current">
                   {activeTab === 'dashboard' && 'Dashboard Overview'}
-                  {activeTab === 'attendance' && 'Class Attendance Register'}
+                  {activeTab === 'attendance' && (attendanceViewMode === 'monthly' ? `Monthly Attendance Register — ${assignedClassName}` : `Daily Attendance Register — ${assignedClassName}`)}
+                  {activeTab === 'students' && `Student's Database — ${assignedClassName || 'Class'}`}
                   {activeTab === 'examinations' && 'Examinations & Marks Evaluation'}
                 </span>
               </div>
@@ -605,7 +656,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                           You are the <strong>Class Teacher</strong> of <strong>{assignedClassName}</strong>. You manage daily roll call, verify attendance records and submit class registers for this class.
                         </>
                       ) : (
-                        <>Welcome to the Faculty Portal. You are currently not assigned as a Class Teacher for attendance.</>
+                        <>Welcome to the Teacher's Portal. You are currently not assigned as a Class Teacher for attendance.</>
                       )}
                     </p>
                     <div className="welcome-meta-chips">
@@ -794,30 +845,73 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                   </button>
                 </div>
 
-                {/* Daily Attendance Register (Only for Assigned Class Teachers) */}
+                {/* Daily Attendance Register & Student Roster (Only for Assigned Class Teachers) */}
                 {assignedClassId ? (
-                  <div className="quick-action-card">
-                    <div className="quick-card-header">
-                      <div className="quick-card-icon icon-att">
-                        <CalendarCheck size={22} />
+                  <>
+                    <div className="quick-action-card">
+                      <div className="quick-card-header">
+                        <div className="quick-card-icon icon-att">
+                          <CalendarCheck size={22} />
+                        </div>
+                        <div>
+                          <h4>Daily Attendance Register</h4>
+                          <p>Class Teacher: <strong>{assignedClassName}</strong></p>
+                        </div>
                       </div>
-                      <div>
-                        <h4>Daily Attendance Register</h4>
-                        <p>Class Teacher: <strong>{assignedClassName}</strong></p>
+                      <p className="quick-card-body">
+                        Take daily student roll call or enter consolidated monthly attendance (based on Academic Calendar working days) for {assignedClassName}.
+                      </p>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="quick-card-action-btn"
+                          onClick={() => {
+                            setAttendanceViewMode('daily');
+                            handleTabChange('attendance');
+                          }}
+                        >
+                          <span>Daily Register</span>
+                          <ArrowRight size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="quick-card-action-btn"
+                          style={{ background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1' }}
+                          onClick={() => {
+                            setAttendanceViewMode('monthly');
+                            handleTabChange('attendance');
+                          }}
+                        >
+                          <span>Monthly Register</span>
+                          <ArrowRight size={14} />
+                        </button>
                       </div>
                     </div>
-                    <p className="quick-card-body">
-                      Take student roll call for {assignedClassName}, record Present/Absent/Late records, and update central records.
-                    </p>
-                    <button
-                      type="button"
-                      className="quick-card-action-btn"
-                      onClick={() => handleTabChange('attendance')}
-                    >
-                      <span>Manage Attendance Register</span>
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
+
+                    {/* Student's Database Quick Card (Only for Assigned Class Teachers) */}
+                    <div className="quick-action-card">
+                      <div className="quick-card-header">
+                        <div className="quick-card-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                          <Users size={22} />
+                        </div>
+                        <div>
+                          <h4>Student's Database & Profiles</h4>
+                          <p>Class Teacher: <strong>{assignedClassName}</strong></p>
+                        </div>
+                      </div>
+                      <p className="quick-card-body">
+                        View class student lists, inspect roll numbers, APAAR / PEN IDs, and view & update student profile details for {assignedClassName}.
+                      </p>
+                      <button
+                        type="button"
+                        className="quick-card-action-btn"
+                        onClick={() => handleTabChange('students')}
+                      >
+                        <span>Manage Student's Database</span>
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  </>
                 ) : (
                   <div className="quick-action-card">
                     <div className="quick-card-header">
@@ -851,6 +945,39 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
              ===================================================================== */}
           {activeTab === 'attendance' && assignedClassId && (
             <div className="tab-pane-fade-in">
+              {/* Attendance Mode Switcher: Daily vs Monthly */}
+              <div className="att-mode-switcher-container">
+                <div className="att-mode-pills">
+                  <button
+                    type="button"
+                    className={`att-mode-toggle-btn ${attendanceViewMode === 'daily' ? 'active' : ''}`}
+                    onClick={() => setAttendanceViewMode('daily')}
+                  >
+                    <Calendar size={15} />
+                    <span>Daily Register (Day-by-Day)</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`att-mode-toggle-btn ${attendanceViewMode === 'monthly' ? 'active' : ''}`}
+                    onClick={() => setAttendanceViewMode('monthly')}
+                  >
+                    <CalendarCheck size={15} />
+                    <span>Monthly Attendance (By Working Days)</span>
+                  </button>
+                </div>
+              </div>
+
+              {attendanceViewMode === 'monthly' ? (
+                <TeacherMonthlyAttendance
+                  assignedClassId={assignedClassId}
+                  assignedClassName={assignedClassName}
+                  students={students}
+                  loading={loading}
+                  error={error}
+                  onRefresh={() => fetchClassStudents(assignedClassId)}
+                  onSaveMonthlyAttendance={handleSaveMonthlyAttendanceBatch}
+                />
+              ) : (
                 <div className="attendance-register-card">
                   {/* Card Header & Controls */}
                   <div className="register-header">
@@ -903,20 +1030,11 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                   {/* Register Toolbar: Date Picker, Quick Buttons, Search, Filters */}
                   <div className="register-toolbar">
                     <div className="toolbar-left-controls">
-                      {/* Attendance Date Picker */}
-                      <div className="date-picker-group">
-                        <label htmlFor="att-date-picker" className="date-picker-label">
-                          <Calendar size={15} className="date-picker-icon" />
-                          <span>Date:</span>
-                        </label>
-                        <input
-                          id="att-date-picker"
-                          type="date"
-                          value={attendanceDate}
-                          onChange={(e) => setAttendanceDate(e.target.value)}
-                          className="attendance-date-input"
-                        />
-                      </div>
+                      {/* Academic Calendar Date Picker */}
+                      <AcademicDatePicker
+                        value={attendanceDate}
+                        onChange={(newDate) => setAttendanceDate(newDate)}
+                      />
 
                       {/* Quick Action: Mark All Present */}
                       <button
@@ -1153,7 +1271,24 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                     </button>
                   </div>
                 </div>
+              )}
             </div>
+          )}
+
+          {/* =====================================================================
+              TAB: STUDENT'S ROSTER (FOR CLASS TEACHERS)
+             ===================================================================== */}
+          {activeTab === 'students' && assignedClassId && (
+            <TeacherStudents
+              teacher={teacherData}
+              assignedClassId={assignedClassId}
+              assignedClassName={assignedClassName}
+              students={students}
+              loading={loading}
+              error={error}
+              onRefresh={() => fetchClassStudents(assignedClassId)}
+              onSaveStudent={handleSaveStudent}
+            />
           )}
 
           {/* =====================================================================

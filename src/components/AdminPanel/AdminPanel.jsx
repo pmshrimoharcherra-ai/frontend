@@ -318,7 +318,7 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
             </button>
 
             <div className="breadcrumb">
-              <h2>PM SHRI School Admin Portal</h2>
+              <h2>Admin Portal</h2>
               <span className="session-badge">Session: 2026-2027</span>
             </div>
           </div>

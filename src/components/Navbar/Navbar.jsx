@@ -256,6 +256,15 @@ const Navbar = ({
                       Admin Panel
                     </button>
                   )}
+                  {currentUser.role === 'student' && (
+                    <button 
+                      className="nav-admin-portal-btn"
+                      onClick={() => onNavigate('student')}
+                      title="Open Student Portal"
+                    >
+                      Student Portal
+                    </button>
+                  )}
                   {currentUser.role === 'teacher' && (
                     <button 
                       className="nav-admin-portal-btn"

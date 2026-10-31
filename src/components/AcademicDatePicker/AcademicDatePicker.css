@@ -1,0 +1,496 @@
+/* AcademicDatePicker.css - Completely scoped and responsive Academic Calendar Date Picker */
+
+.adp-wrapper {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+/* Trigger Button */
+.adp-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 13px;
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  height: 38px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.adp-trigger-btn:hover,
+.adp-trigger-btn.active {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+  background: #fffbf7;
+}
+
+.adp-trigger-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.adp-calendar-icon {
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+.adp-trigger-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.adp-trigger-date-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: monospace, inherit;
+  letter-spacing: 0.2px;
+}
+
+/* Status Pill in Trigger */
+.adp-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adp-status-pill.working {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.adp-status-pill.holiday {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.adp-status-pill.sunday {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+/* ── Popover Dropdown Card ── */
+.adp-popover-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1050;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+  padding: 14px;
+  box-sizing: border-box;
+  animation: adpFadeIn 0.18s ease-out;
+}
+
+@keyframes adpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header */
+.adp-popover-header {
+  margin-bottom: 10px;
+}
+
+.adp-month-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.adp-nav-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.adp-nav-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.adp-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.adp-select-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.adp-month-dropdown {
+  width: 100%;
+  padding: 5px 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.adp-month-dropdown:focus {
+  border-color: #ea580c;
+  background: #ffffff;
+}
+
+.adp-meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 5px 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.adp-session-badge {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.adp-working-tag {
+  color: #475569;
+}
+
+.adp-working-tag strong {
+  color: #166534;
+}
+
+/* Weekday Column Headers */
+.adp-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  text-align: center;
+  margin-bottom: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.adp-weekday-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  padding: 3px 0;
+}
+
+.adp-weekday-hdr.sunday {
+  color: #dc2626;
+}
+
+/* Days Grid - Strictly Constrained */
+.adp-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Explicitly override any global button styles */
+.adp-day-cell {
+  width: 100% !important;
+  max-width: 38px !important;
+  height: 34px !important;
+  min-height: unset !important;
+  max-height: 34px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 7px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.adp-day-cell.empty {
+  cursor: default !important;
+  pointer-events: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.adp-day-cell.working:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Sunday cell */
+.adp-day-cell.sunday {
+  color: #dc2626 !important;
+  background: #fef2f2 !important;
+}
+
+.adp-day-cell.sunday:hover {
+  background: #fee2e2 !important;
+}
+
+/* Holiday cell */
+.adp-day-cell.holiday {
+  color: #b91c1c !important;
+  background: #fee2e2 !important;
+  font-weight: 700 !important;
+}
+
+.adp-day-cell.holiday:hover {
+  background: #fecaca !important;
+}
+
+.adp-holiday-dot {
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+
+/* Today indicator */
+.adp-day-cell.today {
+  border-color: #ea580c !important;
+  font-weight: 800 !important;
+}
+
+.adp-today-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ea580c;
+}
+
+/* Selected cell */
+.adp-day-cell.selected {
+  background: #ea580c !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.35) !important;
+}
+
+.adp-day-cell.selected .adp-holiday-dot {
+  background: #ffffff;
+}
+
+.adp-day-num {
+  line-height: 1;
+}
+
+/* Legend Strip */
+.adp-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.adp-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.adp-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.adp-legend-dot.working { background: #10b981; }
+.adp-legend-dot.holiday { background: #ef4444; }
+.adp-legend-dot.sunday { background: #dc2626; }
+
+/* Detail Status Banner */
+.adp-detail-banner {
+  margin-top: 8px;
+  padding: 6px 9px;
+  background: #f8fafc;
+  border-radius: 7px;
+  font-size: 11.5px;
+  border: 1px solid #e2e8f0;
+}
+
+.adp-status-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.adp-info-icon {
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+.adp-status-line.ok .adp-info-icon {
+  color: #166534;
+}
+
+.adp-status-line.warn {
+  color: #991b1b;
+}
+
+.adp-status-line.warn .adp-info-icon {
+  color: #dc2626;
+}
+
+.adp-status-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Footer Shortcuts */
+.adp-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.adp-today-shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  color: #ea580c;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 5px;
+  transition: background 0.15s ease;
+}
+
+.adp-today-shortcut-btn:hover {
+  background: #fff7ed;
+}
+
+.adp-close-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.adp-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.adp-mobile-backdrop {
+  display: none;
+}
+
+/* ── Responsive Mobile & Tablet Positioning ── */
+@media (max-width: 640px) {
+  .adp-mobile-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+  }
+
+  .adp-popover-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(330px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1050;
+    animation: adpMobileScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes adpMobileScale {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -46%) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}

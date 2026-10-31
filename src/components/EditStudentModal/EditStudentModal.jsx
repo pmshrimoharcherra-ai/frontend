@@ -14,7 +14,9 @@ import {
   AlertCircle,
   Sparkles,
   Calendar,
-  Award
+  Award,
+  MapPin,
+  Fingerprint
 } from 'lucide-react';
 
 // Helpers for Date of Birth calendar conversions (DD/MM/YYYY <-> YYYY-MM-DD)
@@ -49,13 +51,17 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
 
   const dobPickerRef = useRef(null);
 
+  const defaultYear = (student.classId === 'class-11-arts' || student.classId === 'class-11-sci') 
+    ? '2024' 
+    : (['class-12-arts', 'class-12-sci'].includes(student.classId) ? '2023' : '2026');
+
   const [formData, setFormData] = useState({
     name: student.name || '',
     roll: student.roll || '',
     gender: student.gender ? (student.gender.toLowerCase() === 'girl' ? 'Girl' : 'Boy') : 'Boy',
     classId: student.classId || 'class-1',
     enrollmentNo: student.enrollmentNo || '',
-    enrollmentYear: student.enrollmentYear || '2026',
+    enrollmentYear: student.enrollmentYear || defaultYear,
     guardian: student.guardian || '',
     father: student.father || '',
     mother: student.mother || '',
@@ -90,7 +96,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       setErrorMessage('Student Full Name is required.');
       return;
     }
-    if (!formData.roll.trim()) {
+    if (!String(formData.roll).trim()) {
       setErrorMessage('Roll Number is required.');
       return;
     }
@@ -102,20 +108,20 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       gender: formData.gender || 'Boy',
       classId: formData.classId,
       enrollmentNo: formData.enrollmentNo?.trim() || '',
-      enrollmentYear: formData.enrollmentYear?.trim() || '2026',
-      guardian: formData.guardian.trim() || formData.father.trim() || '',
-      father: formData.father.trim(),
-      mother: formData.mother.trim(),
-      aadhaar: formData.aadhaar.trim(),
+      enrollmentYear: formData.enrollmentYear?.trim() || defaultYear,
+      guardian: formData.guardian?.trim() || formData.father?.trim() || '',
+      father: formData.father?.trim() || '',
+      mother: formData.mother?.trim() || '',
+      aadhaar: formData.aadhaar?.trim() || '',
       caste: formData.caste?.trim() || '',
       admissionNo: formData.admissionNo?.trim() || '',
       admissionDate: formData.admissionDate?.trim() || '',
       address: formData.address?.trim() || '',
       penNumber: formData.penNumber?.trim() || '',
       apaarId: formData.apaarId?.trim() || '',
-      dob: formData.dob.trim(),
-      phone: formData.phone.trim(),
-      status: formData.status,
+      dob: formData.dob?.trim() || '',
+      phone: formData.phone?.trim() || '',
+      status: formData.status || 'Enrolled',
       id: formData.id
     };
 
@@ -126,13 +132,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     }, 450);
   };
 
-  const currentClassObj = classes?.find(c => c.id === formData.classId);
-  const isClass8 = formData.classId === 'class-8';
-  const hasDetailedFamily = ['class-6', 'class-7', 'class-8'].includes(formData.classId) || Boolean(formData.father || formData.mother || formData.caste || formData.admissionNo || formData.penNumber);
-  const isEnrollmentClass = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(formData.classId);
-  const isClass1to8 = ['class-1', 'class-2', 'class-3', 'class-4', 'class-5', 'class-6', 'class-7', 'class-8'].includes(formData.classId);
-  const showStudentId = !isClass1to8 && !isEnrollmentClass;
-  const defaultYear = (formData.classId === 'class-11-arts' || formData.classId === 'class-11-sci') ? '2024' : '2026';
+  const isEnrollmentClass = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(formData.classId) || Boolean(formData.enrollmentNo);
 
   return (
     <div className="edit-student-backdrop" onClick={onClose}>
@@ -151,14 +151,14 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             <div>
               <div className="edit-title-row">
                 <h3>Edit Student Details</h3>
-                {isEnrollmentClass && (
+                {isEnrollmentClass && formData.enrollmentNo && (
                   <span className="edit-student-id-pill enr-pill">
-                    Reg: {formData.enrollmentNo || 'N/A'} (Year: {formData.enrollmentYear || defaultYear})
+                    Reg: {formData.enrollmentNo} (Year: {formData.enrollmentYear || defaultYear})
                   </span>
                 )}
               </div>
               <p className="edit-subtitle">
-                Update academic record, parent contact and enrollment status
+                Update academic record, parentage, government IDs and enrollment status
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
           )}
 
           <div className="edit-form-grid">
-            {/* Full Name */}
+            {/* Section: Academic & Basic Identity */}
             <div className="edit-form-field full-width">
               <label>
                 <User size={14} />
@@ -237,219 +237,17 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
               />
             </div>
 
-            {/* Class 6 & 8 Detailed Parent & Identity Details OR Standard Guardian */}
-            {hasDetailedFamily ? (
-              <>
-                {/* Father's Name */}
-                <div className="edit-form-field">
-                  <label>
-                    <Users size={14} />
-                    <span>Father's Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.father}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      handleChange('father', val);
-                      if (val.trim().toLowerCase() === 't/c') {
-                        handleChange('status', 'Transferred');
-                      }
-                    }}
-                    placeholder="e.g. Pankaj Paul (or t/c)"
-                  />
-                </div>
-
-                {/* Mother's Name */}
-                <div className="edit-form-field">
-                  <label>
-                    <Users size={14} />
-                    <span>Mother's Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.mother}
-                    onChange={(e) => handleChange('mother', e.target.value)}
-                    placeholder="e.g. Shibani Das Paul"
-                  />
-                </div>
-
-                {/* Date of Birth (DOB) */}
-                <div className="edit-form-field">
-                  <label htmlFor="edit-student-dob">
-                    <Calendar size={14} />
-                    <span>Date of Birth (DOB)</span>
-                  </label>
-                  <div 
-                    className="dob-input-wrapper"
-                    onClick={() => {
-                      try {
-                        dobPickerRef.current?.showPicker?.();
-                      } catch (err) {
-                        dobPickerRef.current?.focus();
-                      }
-                    }}
-                  >
-                    <input
-                      id="edit-student-dob"
-                      type="text"
-                      value={formData.dob}
-                      onChange={(e) => handleChange('dob', e.target.value)}
-                      placeholder="DD/MM/YYYY e.g. 20/09/2013"
-                      className="dob-text-input"
-                    />
-                    <input
-                      type="date"
-                      ref={dobPickerRef}
-                      value={formatToIsoDate(formData.dob)}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          handleChange('dob', formatToDisplayDate(e.target.value));
-                        }
-                      }}
-                      className="dob-native-picker"
-                      tabIndex={-1}
-                      aria-hidden="true"
-                    />
-                    <button
-                      type="button"
-                      className="dob-picker-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        try {
-                          dobPickerRef.current?.showPicker?.();
-                        } catch (err) {
-                          dobPickerRef.current?.focus();
-                        }
-                      }}
-                      title="Choose Date of Birth from calendar"
-                      aria-label="Choose Date of Birth from calendar"
-                    >
-                      <Calendar size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* PEN Number */}
-                <div className="edit-form-field">
-                  <label>
-                    <Hash size={14} />
-                    <span>PEN Number (Permanent Education No.)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.penNumber}
-                    onChange={(e) => handleChange('penNumber', e.target.value)}
-                    placeholder="e.g. 21952493321"
-                  />
-                </div>
-
-                {/* APAAR ID */}
-                <div className="edit-form-field">
-                  <label>
-                    <Sparkles size={14} />
-                    <span>APAAR ID</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.apaarId}
-                    onChange={(e) => handleChange('apaarId', e.target.value)}
-                    placeholder="e.g. 12-digit APAAR ID (or leave blank)"
-                  />
-                </div>
-
-                {/* Aadhaar Number */}
-                <div className="edit-form-field">
-                  <label>
-                    <ShieldCheck size={14} />
-                    <span>Aadhaar Number</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.aadhaar}
-                    onChange={(e) => handleChange('aadhaar', e.target.value)}
-                    placeholder="e.g. 6668 0055 5972"
-                  />
-                </div>
-
-                {/* Caste / Category */}
-                <div className="edit-form-field">
-                  <label>
-                    <Award size={14} />
-                    <span>Caste / Category</span>
-                  </label>
-                  <select
-                    value={formData.caste || ''}
-                    onChange={(e) => handleChange('caste', e.target.value)}
-                  >
-                    <option value="">Select Caste / Category</option>
-                    <option value="SC">SC</option>
-                    <option value="ST">ST</option>
-                    <option value="OBC">OBC</option>
-                    <option value="UR">UR</option>
-                    {formData.caste && !['', 'SC', 'ST', 'OBC', 'UR'].includes(formData.caste) && (
-                      <option value={formData.caste}>{formData.caste}</option>
-                    )}
-                  </select>
-                </div>
-
-                {/* Admission Number */}
-                <div className="edit-form-field">
-                  <label>
-                    <Hash size={14} />
-                    <span>Admission Number</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.admissionNo}
-                    onChange={(e) => handleChange('admissionNo', e.target.value)}
-                    placeholder="e.g. 01, 07, 36"
-                  />
-                </div>
-
-                {/* Admission Date */}
-                <div className="edit-form-field">
-                  <label>
-                    <Calendar size={14} />
-                    <span>Admission Date</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.admissionDate}
-                    onChange={(e) => handleChange('admissionDate', e.target.value)}
-                    placeholder="e.g. 02/04/2026"
-                  />
-                </div>
-
-                {/* Address / Location */}
-                <div className="edit-form-field">
-                  <label>
-                    <Users size={14} />
-                    <span>Address / Village</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleChange('address', e.target.value)}
-                    placeholder="e.g. Moharchera"
-                  />
-                </div>
-              </>
-            ) : (
-              /* Guardian Name */
-              <div className="edit-form-field">
-                <label>
-                  <Users size={14} />
-                  <span>Guardian / Parent Name</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.guardian}
-                  onChange={(e) => handleChange('guardian', e.target.value)}
-                  placeholder="e.g. Manik Debbarma (or leave blank)"
-                />
-              </div>
-            )}
+            {/* Student Gender */}
+            <div className="edit-form-field">
+              <label>
+                <User size={14} />
+                <span>Student Gender (Boy/Girl) *</span>
+              </label>
+              <GenderSelect
+                value={formData.gender || 'Boy'}
+                onChange={(val) => handleChange('gender', val)}
+              />
+            </div>
 
             {/* Contact Phone */}
             <div className="edit-form-field">
@@ -465,20 +263,227 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
               />
             </div>
 
-            {/* Student Gender */}
+            {/* Section Divider: Parents & Family */}
+            <div className="edit-section-header full-width">
+              <span>Parentage & Family Information</span>
+            </div>
+
+            {/* Father's Name */}
             <div className="edit-form-field">
               <label>
-                <User size={14} />
-                <span>Student Gender (Boy/Girl) *</span>
+                <Users size={14} />
+                <span>Father's Name</span>
               </label>
-              <GenderSelect
-                value={formData.gender || 'Boy'}
-                onChange={(val) => handleChange('gender', val)}
+              <input
+                type="text"
+                value={formData.father}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  handleChange('father', val);
+                  if (val.trim().toLowerCase() === 't/c') {
+                    handleChange('status', 'Transferred');
+                  }
+                }}
+                placeholder="e.g. Pankaj Paul (or t/c)"
+              />
+            </div>
+
+            {/* Mother's Name */}
+            <div className="edit-form-field">
+              <label>
+                <Users size={14} />
+                <span>Mother's Name</span>
+              </label>
+              <input
+                type="text"
+                value={formData.mother}
+                onChange={(e) => handleChange('mother', e.target.value)}
+                placeholder="e.g. Shibani Das Paul"
+              />
+            </div>
+
+            {/* Guardian Name */}
+            <div className="edit-form-field">
+              <label>
+                <Users size={14} />
+                <span>Guardian / Parent Name</span>
+              </label>
+              <input
+                type="text"
+                value={formData.guardian}
+                onChange={(e) => handleChange('guardian', e.target.value)}
+                placeholder="e.g. Manik Debbarma (or leave blank)"
+              />
+            </div>
+
+            {/* Address / Location */}
+            <div className="edit-form-field">
+              <label>
+                <MapPin size={14} />
+                <span>Address / Village</span>
+              </label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => handleChange('address', e.target.value)}
+                placeholder="e.g. Moharchera"
+              />
+            </div>
+
+            {/* Section Divider: Personal, Category & Identity */}
+            <div className="edit-section-header full-width">
+              <span>Personal, Category & Government Identifiers</span>
+            </div>
+
+            {/* Date of Birth (DOB) */}
+            <div className="edit-form-field">
+              <label htmlFor="edit-student-dob">
+                <Calendar size={14} />
+                <span>Date of Birth (DOB)</span>
+              </label>
+              <div 
+                className="dob-input-wrapper"
+                onClick={() => {
+                  try {
+                    dobPickerRef.current?.showPicker?.();
+                  } catch (err) {
+                    dobPickerRef.current?.focus();
+                  }
+                }}
+              >
+                <input
+                  id="edit-student-dob"
+                  type="text"
+                  value={formData.dob}
+                  onChange={(e) => handleChange('dob', e.target.value)}
+                  placeholder="DD/MM/YYYY e.g. 20/09/2008"
+                  className="dob-text-input"
+                />
+                <input
+                  type="date"
+                  ref={dobPickerRef}
+                  value={formatToIsoDate(formData.dob)}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleChange('dob', formatToDisplayDate(e.target.value));
+                    }
+                  }}
+                  className="dob-native-picker"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  className="dob-picker-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try {
+                      dobPickerRef.current?.showPicker?.();
+                    } catch (err) {
+                      dobPickerRef.current?.focus();
+                    }
+                  }}
+                  title="Choose Date of Birth from calendar"
+                  aria-label="Choose Date of Birth from calendar"
+                >
+                  <Calendar size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Caste / Category */}
+            <div className="edit-form-field">
+              <label>
+                <Award size={14} />
+                <span>Caste / Category</span>
+              </label>
+              <select
+                value={formData.caste || ''}
+                onChange={(e) => handleChange('caste', e.target.value)}
+              >
+                <option value="">Select Caste / Category</option>
+                <option value="SC">SC (Scheduled Caste)</option>
+                <option value="ST">ST (Scheduled Tribe)</option>
+                <option value="OBC">OBC (Other Backward Class)</option>
+                <option value="UR">UR / General</option>
+                {formData.caste && !['', 'SC', 'ST', 'OBC', 'UR', 'UR / General', 'GEN', 'General'].includes(formData.caste) && (
+                  <option value={formData.caste}>{formData.caste}</option>
+                )}
+              </select>
+            </div>
+
+            {/* Aadhaar Number */}
+            <div className="edit-form-field">
+              <label>
+                <Fingerprint size={14} />
+                <span>Aadhaar Number</span>
+              </label>
+              <input
+                type="text"
+                value={formData.aadhaar}
+                onChange={(e) => handleChange('aadhaar', e.target.value)}
+                placeholder="e.g. 6668 0055 5972"
+              />
+            </div>
+
+            {/* PEN Number */}
+            <div className="edit-form-field">
+              <label>
+                <Hash size={14} />
+                <span>PEN Number (Permanent Education No.)</span>
+              </label>
+              <input
+                type="text"
+                value={formData.penNumber}
+                onChange={(e) => handleChange('penNumber', e.target.value)}
+                placeholder="e.g. 21952493321"
+              />
+            </div>
+
+            {/* APAAR ID */}
+            <div className="edit-form-field">
+              <label>
+                <Sparkles size={14} />
+                <span>APAAR ID</span>
+              </label>
+              <input
+                type="text"
+                value={formData.apaarId}
+                onChange={(e) => handleChange('apaarId', e.target.value)}
+                placeholder="e.g. 12-digit APAAR ID"
+              />
+            </div>
+
+            {/* Admission Number */}
+            <div className="edit-form-field">
+              <label>
+                <Hash size={14} />
+                <span>Admission Number</span>
+              </label>
+              <input
+                type="text"
+                value={formData.admissionNo}
+                onChange={(e) => handleChange('admissionNo', e.target.value)}
+                placeholder="e.g. 01, 07, 36"
+              />
+            </div>
+
+            {/* Admission Date */}
+            <div className="edit-form-field">
+              <label>
+                <Calendar size={14} />
+                <span>Admission Date</span>
+              </label>
+              <input
+                type="text"
+                value={formData.admissionDate}
+                onChange={(e) => handleChange('admissionDate', e.target.value)}
+                placeholder="e.g. 02/04/2026"
               />
             </div>
 
             {/* Enrollment Status */}
-            <div className={`edit-form-field ${isClass8 || hasDetailedFamily ? 'full-width' : ''}`}>
+            <div className={`edit-form-field ${isEnrollmentClass ? '' : 'full-width'}`}>
               <label>
                 <ShieldCheck size={14} />
                 <span>Enrollment Status</span>
@@ -495,9 +500,12 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
               </select>
             </div>
 
-            {/* Enrollment No & Year for Class 9 & Class 11; Permanent ID for other secondary/senior classes */}
+            {/* Registration Details for Secondary & Higher Secondary (Class 9, 10, 11, 12) or if enrollmentNo exists */}
             {isEnrollmentClass && (
               <>
+                <div className="edit-section-header full-width">
+                  <span>Board Registration & Enrollment Record</span>
+                </div>
                 <div className="edit-form-field">
                   <label>
                     <Sparkles size={14} />
@@ -507,7 +515,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                     type="text"
                     value={formData.enrollmentNo}
                     onChange={(e) => handleChange('enrollmentNo', e.target.value)}
-                    placeholder="e.g. 321202805425, Not found, or Verify duplicate"
+                    placeholder="e.g. 322202805469"
                   />
                 </div>
                 <div className="edit-form-field">
@@ -517,10 +525,9 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                   </label>
                   <input
                     type="text"
-                    readOnly
-                    value={formData.enrollmentYear || defaultYear}
-                    className="input-readonly"
-                    title={`Enrollment year is fixed to ${defaultYear}`}
+                    value={formData.enrollmentYear}
+                    onChange={(e) => handleChange('enrollmentYear', e.target.value)}
+                    placeholder={`e.g. ${defaultYear}`}
                   />
                 </div>
               </>

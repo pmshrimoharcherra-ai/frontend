@@ -15,6 +15,7 @@ import Gallery from './components/Gallery/Gallery';
 import LoginModal from './components/LoginModal/LoginModal';
 import AdminPanel from './components/AdminPanel/AdminPanel';
 import TeacherDashboard from './components/TeacherDashboard/TeacherDashboard';
+import StudentPortal from './components/StudentPortal/StudentPortal';
 import NoticePage from './components/NoticePage/NoticePage';
 import Footer from './components/Footer/Footer';
 import './App.css';
@@ -85,6 +86,8 @@ function App() {
       } else {
         navigate('/dashboard');
       }
+    } else if (page === 'student' || page === 'student-dashboard' || page === 'student-portal') {
+      navigate('/student/dashboard');
     } else if (page === 'teacher' || page === 'teacher-dashboard') {
       navigate('/teacher/dashboard');
     } else if (page === 'students') {
@@ -114,6 +117,38 @@ function App() {
     <>
       <Routes>
         {/* =========================================================================
+            STUDENT PORTAL ROUTES
+           ========================================================================= */}
+        <Route 
+          path="/student/dashboard" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="dashboard" />} 
+        />
+        <Route 
+          path="/student/examinations" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="examinations" />} 
+        />
+        <Route 
+          path="/student/attendance" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="attendance" />} 
+        />
+        <Route 
+          path="/student/subjects" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="subjects" />} 
+        />
+        <Route 
+          path="/student/calendar" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="calendar" />} 
+        />
+        <Route 
+          path="/student/profile" 
+          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="profile" />} 
+        />
+        <Route 
+          path="/student" 
+          element={<Navigate to="/student/dashboard" replace />} 
+        />
+
+        {/* =========================================================================
             TEACHER DASHBOARD ROUTES
            ========================================================================= */}
         <Route 
@@ -122,6 +157,10 @@ function App() {
         />
         <Route 
           path="/teacher/attendance" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/teacher/students" 
           element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
         />
         <Route 
@@ -373,6 +412,8 @@ function App() {
           setLoginModalOpen(false);
           if (user?.role === 'admin') {
             navigate('/dashboard');
+          } else if (user?.role === 'student') {
+            navigate('/student/dashboard');
           } else if (user?.role === 'teacher') {
             navigate('/teacher/dashboard');
           } else {

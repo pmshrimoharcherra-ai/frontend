@@ -110,6 +110,48 @@
   font-size: 13px;
 }
 
+.edit-marks-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s ease;
+}
+
+.edit-marks-btn:hover {
+  background: #0369a1;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+
+.edit-marks-btn.bottom-save {
+  padding: 8px 18px;
+  font-size: 13px;
+}
+
+.exam-locked-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid #fecaca;
+  vertical-align: middle;
+}
+
 .spin-icon {
   animation: spin 1s linear infinite;
 }
@@ -180,6 +222,106 @@
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
 }
 
+/* ── Search Bar in Toolbar ── */
+.exam-search-field {
+  min-width: 220px;
+  flex: 1;
+  max-width: 320px;
+}
+
+.exam-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.exam-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.exam-search-input {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 7px 30px 7px 32px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.exam-search-input::placeholder {
+  color: #94a3b8;
+  font-size: 12.5px;
+}
+
+.exam-search-input:focus {
+  background: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.exam-search-clear-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+}
+
+.exam-search-clear-btn:hover {
+  color: #0f172a;
+  background: #e2e8f0;
+}
+
+.exam-no-search-results {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #64748b;
+}
+
+.exam-no-search-results svg {
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.exam-no-search-results p {
+  margin: 6px 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.clear-search-link {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #ea580c;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-search-link:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+}
+
 .exam-max-marks-pill {
   margin-left: auto;
   background: #f1f5f9;
@@ -213,6 +355,20 @@
   outline: none;
   border-color: #ea580c;
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.exam-marks-input.locked,
+.exam-marks-input:disabled {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.exam-marks-input.locked:focus {
+  border-color: #e2e8f0;
+  box-shadow: none;
 }
 
 .exam-total-score {
@@ -383,6 +539,11 @@
     width: 100%;
   }
 
+  .exam-search-field {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
   .exam-max-marks-pill {
     margin-left: 0;
     text-align: center;
@@ -392,7 +553,8 @@
     width: 100%;
   }
 
-  .save-attendance-btn {
+  .save-attendance-btn,
+  .edit-marks-btn {
     width: 100%;
     justify-content: center;
   }
@@ -402,7 +564,8 @@
     align-items: stretch;
   }
 
-  .save-attendance-btn.bottom-save {
+  .save-attendance-btn.bottom-save,
+  .edit-marks-btn.bottom-save {
     width: 100%;
     justify-content: center;
   }

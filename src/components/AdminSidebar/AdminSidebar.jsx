@@ -55,7 +55,7 @@ const AdminSidebar = ({
           <div className="brand-main">
             <img src="/logo.png" alt="PM SHRI Logo" className="admin-logo" />
             <div className="brand-text">
-              <h3>PM SHRI ERP</h3>
+              <h3>PM SHRI</h3>
               <span>Moharcherra H.S. School</span>
             </div>
           </div>

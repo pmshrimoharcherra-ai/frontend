@@ -531,6 +531,50 @@
   font-weight: 600;
 }
 
+/* ── Attendance Mode Switcher (Daily vs Monthly) ── */
+.att-mode-switcher-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.att-mode-pills {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.att-mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.att-mode-toggle-btn:hover {
+  color: #0f172a;
+}
+
+.att-mode-toggle-btn.active {
+  background: #ffffff;
+  color: #ea580c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
 /* ── Attendance Register Card ── */
 .attendance-register-card {
   background: #ffffff;

@@ -11,7 +11,8 @@ import {
   LogOut,
   GraduationCap,
   BookOpen,
-  ClipboardList
+  ClipboardList,
+  Users
 } from 'lucide-react';
 
 const TeacherSidebar = ({
@@ -52,6 +53,13 @@ const TeacherSidebar = ({
             icon: CalendarCheck,
             badge: assignedClassName ? assignedClassName.split(' (')[0] : null,
             badgeTitle: 'Assigned Class Register'
+          },
+          {
+            id: 'students',
+            label: "Student's Database",
+            icon: Users,
+            badge: assignedClassName ? assignedClassName.split(' (')[0] : null,
+            badgeTitle: 'Assigned Class Students'
           }
         ]
       : []),
@@ -84,11 +92,9 @@ const TeacherSidebar = ({
         {/* Brand Header */}
         <div className="teacher-sidebar-brand">
           <div className="teacher-brand-main">
-            <div className="teacher-brand-logo">
-              <GraduationCap size={22} className="brand-crest-icon" />
-            </div>
+            <img src="/logo.png" alt="PM SHRI Logo" className="teacher-brand-logo" />
             <div className="teacher-brand-titles">
-              <h3>FACULTY PORTAL</h3>
+              <h3>TEACHER'S PORTAL</h3>
               <span>PM SHRI Moharcherra</span>
             </div>
           </div>

@@ -178,7 +178,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         <form onSubmit={handleSubmit} className="modal-login-form">
           <div className="form-group">
             <label className="form-label" htmlFor="user-id">
-              {selectedRole === 'student' ? 'Student ID / Roll No' : selectedRole === 'teacher' ? 'Teacher ID / Email' : 'Admin Username / Email'}
+              {selectedRole === 'student' ? 'APAAR ID' : selectedRole === 'teacher' ? 'Teacher ID / Email' : 'Admin Username / Email'}
             </label>
             <div className="input-wrapper">
               <User size={18} className="input-icon" />
@@ -187,7 +187,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 type="text"
                 placeholder={
                   selectedRole === 'student' 
-                    ? 'Enter your Student Roll No' 
+                    ? 'Enter 12-digit APAAR ID (e.g. 723387030675)' 
                     : selectedRole === 'teacher' 
                     ? 'Enter Teacher ID (e.g. TR45208338) or Email' 
                     : 'Enter Admin username or email'
@@ -201,16 +201,32 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 className="form-input"
               />
             </div>
+            {selectedRole === 'student' && (
+              <span className="student-login-hint">
+                Students can also use their 11-digit PEN Number if APAAR ID is pending.
+              </span>
+            )}
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="user-password">Password</label>
+            <div className="password-label-row">
+              <label className="form-label" htmlFor="user-password">Password</label>
+              {selectedRole === 'student' && (
+                <span className="password-format-tag">Format: FirstName + Roll + Class</span>
+              )}
+            </div>
             <div className="input-wrapper">
               <Lock size={18} className="input-icon" />
               <input
                 id="user-password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder={
+                  selectedRole === 'student'
+                    ? 'e.g. Kiran01IX (FirstName + Roll + Class)'
+                    : selectedRole === 'teacher'
+                    ? 'e.g. JoydebPhysics'
+                    : 'Enter your password'
+                }
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -228,6 +244,11 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {selectedRole === 'student' && (
+              <span className="student-login-hint student-pass-hint">
+                Example: <strong>Kiran01IX</strong> (for Kiran, Roll 01, Class IX) or <strong>Aditya03X</strong>
+              </span>
+            )}
           </div>
 
           <div className="form-meta">

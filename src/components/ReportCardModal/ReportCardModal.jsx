@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import './ReportCardModal.css';
 import {
@@ -6,12 +6,15 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Download,
   Award,
   Layers,
   Sparkles,
   CheckCircle2,
-  Users
+  Users,
+  Zap,
+  Sliders
 } from 'lucide-react';
 import { buildStudentReportCard } from '../../utils/reportCardCalculator';
 
@@ -29,10 +32,16 @@ const ReportCardModal = ({
   const [activeStudentId, setActiveStudentId] = useState(
     selectedStudentId || students[0]?.studentId || students[0]?.id
   );
-  const [printAllBatch, setPrintAllBatch] = useState(false);
+  const [targetPrintList, setTargetPrintList] = useState(null);
+  const [isPreparingPrint, setIsPreparingPrint] = useState(false);
+  const [preparingCount, setPreparingCount] = useState(0);
+  const [showBatchDropdown, setShowBatchDropdown] = useState(false);
+  const [customStartRoll, setCustomStartRoll] = useState('1');
+  const [customEndRoll, setCustomEndRoll] = useState(String(students.length || 81));
+  const batchMenuRef = useRef(null);
 
   // Sync active student if selectedStudentId changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedStudentId) {
       setActiveStudentId(selectedStudentId);
     } else if (students.length > 0 && !activeStudentId) {
@@ -41,7 +50,7 @@ const ReportCardModal = ({
   }, [selectedStudentId, students]);
 
   // Manage body class for clean print isolation
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       document.body.classList.add('prc-modal-active');
       return () => {
@@ -49,6 +58,32 @@ const ReportCardModal = ({
       };
     }
   }, [isOpen]);
+
+  // Close batch menu when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (batchMenuRef.current && !batchMenuRef.current.contains(e.target)) {
+        setShowBatchDropdown(false);
+      }
+    };
+    if (showBatchDropdown) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }
+  }, [showBatchDropdown]);
+
+  // Clean up batch print state immediately after print dialog is closed or cancelled
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      setIsPreparingPrint(false);
+      setTargetPrintList(null);
+    };
+
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => {
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, []);
 
   const activeStudentIndex = useMemo(() => {
     return students.findIndex(
@@ -73,10 +108,10 @@ const ReportCardModal = ({
     });
   }, [activeStudent, currentClass, subjects, examRecordsByTerm, academicYear, classTeacherName]);
 
-  // Build report cards for ALL students in class for batch printing
-  const allReportCards = useMemo(() => {
-    if (!printAllBatch) return [];
-    return students.map((st) =>
+  // Build report cards for targeted list for batch printing
+  const batchReportCards = useMemo(() => {
+    if (!targetPrintList || targetPrintList.length === 0) return [];
+    return targetPrintList.map((st) =>
       buildStudentReportCard({
         student: st,
         currentClass,
@@ -86,7 +121,26 @@ const ReportCardModal = ({
         classTeacherName
       })
     );
-  }, [printAllBatch, students, currentClass, subjects, examRecordsByTerm, academicYear, classTeacherName]);
+  }, [targetPrintList, currentClass, subjects, examRecordsByTerm, academicYear, classTeacherName]);
+
+  // Calculate batch chunks (e.g. 25 students per batch for ultra-fast rendering & printer safety)
+  const batchChunks = useMemo(() => {
+    if (!students || students.length === 0) return [];
+    const chunkSize = 25;
+    const chunks = [];
+    for (let i = 0; i < students.length; i += chunkSize) {
+      const slice = students.slice(i, i + chunkSize);
+      const startRoll = slice[0]?.roll || String(i + 1).padStart(2, '0');
+      const endRoll = slice[slice.length - 1]?.roll || String(i + slice.length).padStart(2, '0');
+      chunks.push({
+        id: `chunk-${i}`,
+        title: `Roll ${startRoll} – ${endRoll}`,
+        count: slice.length,
+        students: slice
+      });
+    }
+    return chunks;
+  }, [students]);
 
   if (!isOpen || !activeReportCard) return null;
 
@@ -104,11 +158,42 @@ const ReportCardModal = ({
     }
   };
 
-  const handlePrint = (allBatch = false) => {
-    setPrintAllBatch(allBatch);
+  const triggerPrint = (list = null, count = 1) => {
+    setShowBatchDropdown(false);
+    if (!list) {
+      // Single student print
+      setTargetPrintList(null);
+      setTimeout(() => {
+        window.print();
+      }, 150);
+      return;
+    }
+
+    // Batch / full class printing
+    setPreparingCount(count);
+    setIsPreparingPrint(true);
+    setTargetPrintList(list);
+
+    // Give browser brief time to layout elements before invoking print engine
     setTimeout(() => {
       window.print();
-    }, 250);
+      // Fallback cleanup if afterprint is missed
+      setTimeout(() => {
+        setIsPreparingPrint(false);
+      }, 3000);
+    }, 350);
+  };
+
+  const handleCustomRangePrint = () => {
+    const s = parseInt(customStartRoll, 10) || 1;
+    const e = parseInt(customEndRoll, 10) || students.length;
+    const slice = students.filter((st, idx) => {
+      const r = parseInt(st.roll, 10) || (idx + 1);
+      return r >= s && r <= e;
+    });
+    if (slice.length > 0) {
+      triggerPrint(slice, slice.length);
+    }
   };
 
   // Render a single authentic Tripura Progress Report Card sheet
@@ -136,14 +221,18 @@ const ReportCardModal = ({
       <div key={student.studentId || student.id} className={`prc-sheet-container ${isBatch ? 'batch-page' : ''}`}>
         {/* ── Official Document Outer Border ── */}
         <div className="prc-document-border">
-          {/* ── Top Header with 3 Logos ── */}
+          {/* ── Top Header with 3 Logos (Optimized lightweight retina assets) ── */}
           <div className="prc-header-row">
             {/* Left Logo: Tripura State Emblem */}
             <div className="prc-logo-box left">
               <img
-                src="/logos/emblem-tripura.webp"
+                src="/logos/emblem-tripura.png"
                 alt="Emblem of Tripura"
                 className="prc-crest-img"
+                width="72"
+                height="72"
+                loading="eager"
+                decoding="async"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
@@ -157,6 +246,10 @@ const ReportCardModal = ({
                   src="/logos/emblem-india.png"
                   alt="Emblem of India"
                   className="prc-ashoka-img"
+                  width="30"
+                  height="48"
+                  loading="eager"
+                  decoding="async"
                   onError={(e) => {
                     e.target.style.display = 'none';
                   }}
@@ -175,6 +268,10 @@ const ReportCardModal = ({
                 src="/logos/tripura-education-emblem.png"
                 alt="Tripura Education Department"
                 className="prc-crest-img"
+                width="72"
+                height="72"
+                loading="eager"
+                decoding="async"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
@@ -258,145 +355,66 @@ const ReportCardModal = ({
           <div className="prc-scholastic-section">
             <table className="prc-official-table">
               <thead>
-                {/* Header Row 1 */}
-                <tr className="prc-th-row-1">
-                  <th rowSpan="2" className="col-subject-name">
-                    <div className="prc-th-inner">
-                      <span>A. Scholastic Areas</span>
-                      <span className="bn-sub">মেধাভিত্তিক ক্ষেত্র</span>
-                      <div className="divider-line"></div>
-                      <span className="bold-sub">Subject Name</span>
-                      <span className="bn-sub">বিষয়</span>
-                    </div>
-                  </th>
-                  <th colSpan="4" className="col-marks-obtained">
-                    <span>Marks Obtained (প্রাপ্ত নম্বর)</span>
-                  </th>
-                  <th colSpan="6" className="col-overall-assessment">
-                    <span>Overall Assessment (সর্বমোট মূল্যায়ন)</span>
-                  </th>
-                  <th rowSpan="2" className="col-total-marks">
-                    <div className="prc-th-inner">
-                      <span>Total</span>
-                      <span>Marks</span>
-                      <span className="bn-sub">মোট নম্বর</span>
-                      <small>(100)</small>
-                    </div>
-                  </th>
-                  <th rowSpan="2" className="col-final-grade">
-                    <div className="prc-th-inner">
-                      <span>Final</span>
-                      <span>Grade</span>
-                      <span className="bn-sub">চূড়ান্ত গ্রেড</span>
-                    </div>
-                  </th>
-                  <th rowSpan="2" className="col-grand-total">
-                    <div className="prc-th-inner">
-                      <span>Grand</span>
-                      <span>Total</span>
-                      <span className="bn-sub">সর্বমোট নম্বর</span>
-                    </div>
-                  </th>
+                <tr>
+                  <th rowSpan="2" className="col-sl">ক্রমিক নং<br />Sl. No.</th>
+                  <th rowSpan="2" className="col-sub">বিষয় / Subject</th>
+                  <th colSpan="2" className="col-pt1">পর্যায়ক্রমিক মূল্যায়ন - ১<br />Periodic Test - 1</th>
+                  <th colSpan="2" className="col-hy">অর্ধবার্ষিক মূল্যায়ন<br />Half-Yearly Exam</th>
+                  <th colSpan="2" className="col-pt2">পর্যায়ক্রমিক মূল্যায়ন - ২<br />Periodic Test - 2</th>
+                  <th colSpan="2" className="col-ann">বার্ষিক মূল্যায়ন<br />Annual Exam</th>
+                  <th rowSpan="2" className="col-att">উপস্থিতির মূল্যায়ন<br />Attendance<br />(৫ নম্বর)</th>
+                  <th rowSpan="2" className="col-ia">অভ্যন্তরীণ মূল্যায়ন<br />Internal<br />(৫ নম্বর)</th>
+                  <th rowSpan="2" className="col-tot">সর্বমোট প্রাপ্ত নম্বর<br />Total Marks<br />(১০০ নম্বর)</th>
+                  <th rowSpan="2" className="col-grd">প্রাপ্ত গ্রেড<br />Grade</th>
+                  <th rowSpan="2" className="col-ovr">সামগ্রিক ফল<br />Grand Total</th>
                 </tr>
-
-                {/* Header Row 2 */}
-                <tr className="prc-th-row-2">
-                  {/* Marks Obtained Columns */}
-                  <th>
-                    <span>Periodic Test 1</span>
-                    <span className="bn-sub">প্রথম সাময়িক</span>
-                    <small>(40)</small>
-                  </th>
-                  <th>
-                    <span>Half Yearly</span>
-                    <span className="bn-sub">ষাণ্মাসিক</span>
-                    <small>(80)</small>
-                  </th>
-                  <th>
-                    <span>Periodic Test 2</span>
-                    <span className="bn-sub">দ্বিতীয় সাময়িক</span>
-                    <small>(40)</small>
-                  </th>
-                  <th>
-                    <span>Annual Exam</span>
-                    <span className="bn-sub">বার্ষিক</span>
-                    <small>(80)</small>
-                  </th>
-
-                  {/* Weightage Columns */}
-                  <th>
-                    <span>Periodic Test 1</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(05)</small>
-                  </th>
-                  <th>
-                    <span>Periodic Test 2</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(05)</small>
-                  </th>
-                  <th>
-                    <span>Half Yearly</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(30)</small>
-                  </th>
-                  <th>
-                    <span>Annual Exam</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(50)</small>
-                  </th>
-                  <th>
-                    <span>Atten-dance</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(05)</small>
-                  </th>
-                  <th>
-                    <span>Internal Assess.</span>
-                    <span className="wt-lbl">(weightage)</span>
-                    <small>(05)</small>
-                  </th>
+                <tr className="sub-header-row">
+                  <th>লিখিত<br />(৪০)</th>
+                  <th>মান<br />(৫)</th>
+                  <th>লিখিত<br />(৮০)</th>
+                  <th>মান<br />(৩০)</th>
+                  <th>লিখিত<br />(৪০)</th>
+                  <th>মান<br />(৫)</th>
+                  <th>লিখিত<br />(৮০)</th>
+                  <th>মান<br />(৫০)</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row, rIdx) => {
                   return (
-                    <tr key={rIdx} className="prc-data-row">
-                      {/* Subject Name Cell */}
-                      <td className="cell-subject-name font-bold">
-                        <div className="subj-title-wrap">
-                          <span>{row.subject}</span>
-                          <span className="subj-bn-text">
-                            {row.subject === 'Bengali'
-                              ? 'বাংলা / ককবরক / অন্যান্য ভাষা **'
-                              : row.subject === 'English'
-                              ? 'ইংরেজি'
-                              : row.subject === 'Mathematics'
-                              ? 'গণিত'
-                              : row.subject === 'Science'
-                              ? 'বিজ্ঞান'
-                              : row.subject === 'Social Science'
-                              ? 'সমাজ বিজ্ঞান'
-                              : row.subject === 'Sanskrit'
-                              ? 'সংস্কৃত / হিন্দি'
-                              : ''}
-                          </span>
-                        </div>
+                    <tr key={row.subject}>
+                      {/* Sl No */}
+                      <td className="cell-sl font-mono">{rIdx + 1}</td>
+
+                      {/* Subject Name Bilingual */}
+                      <td className="cell-subject">
+                        <span className="sub-en">{row.subjectEn}</span>
+                        {row.subjectBn && <span className="sub-bn">{row.subjectBn}</span>}
                       </td>
 
-                      {/* Raw Exam Marks */}
-                      <td className="cell-num font-mono">{row.rawMarks.pt1}</td>
-                      <td className="cell-num font-mono">{row.rawMarks.halfYearly}</td>
-                      <td className="cell-num font-mono">{row.rawMarks.pt2}</td>
-                      <td className="cell-num font-mono">{row.rawMarks.annual}</td>
+                      {/* PT 1 Raw & Weighted */}
+                      <td className="font-mono">{row.pt1Raw}</td>
+                      <td className="font-mono font-bold col-wt">{row.pt1Wt}</td>
 
-                      {/* Weightages */}
-                      <td className="cell-wt font-mono">{row.weightages.pt1}</td>
-                      <td className="cell-wt font-mono">{row.weightages.pt2}</td>
-                      <td className="cell-wt font-mono">{row.weightages.halfYearly}</td>
-                      <td className="cell-wt font-mono">{row.weightages.annual}</td>
-                      <td className="cell-wt font-mono">0{row.weightages.attendance}</td>
-                      <td className="cell-wt font-mono">0{row.weightages.internal}</td>
+                      {/* Half-Yearly Raw & Weighted */}
+                      <td className="font-mono">{row.hyRaw}</td>
+                      <td className="font-mono font-bold col-wt">{row.hyWt}</td>
 
-                      {/* Subject Total out of 100 */}
+                      {/* PT 2 Raw & Weighted */}
+                      <td className="font-mono">{row.pt2Raw}</td>
+                      <td className="font-mono font-bold col-wt">{row.pt2Wt}</td>
+
+                      {/* Annual Raw & Weighted */}
+                      <td className="font-mono">{row.annRaw}</td>
+                      <td className="font-mono font-bold col-wt">{row.annWt}</td>
+
+                      {/* Attendance (5 Marks) */}
+                      <td className="font-mono font-bold col-wt">{row.attMarks}</td>
+
+                      {/* Internal Assessment (5 Marks) */}
+                      <td className="font-mono font-bold col-wt">{row.iaMarks}</td>
+
+                      {/* Total Marks (100) */}
                       <td className="cell-total font-mono font-bold">{row.totalMarks}</td>
 
                       {/* Subject Grade */}
@@ -526,24 +544,107 @@ const ReportCardModal = ({
           </div>
 
           <div className="toolbar-right-actions">
+            {/* Print Single Active Student */}
             <button
               type="button"
               className="prc-btn print-single"
-              onClick={() => handlePrint(false)}
+              onClick={() => triggerPrint(null, 1)}
+              title="Print only this student's report card"
             >
               <Printer size={15} />
               <span>Print This Card</span>
             </button>
 
-            <button
-              type="button"
-              className="prc-btn print-batch"
-              onClick={() => handlePrint(true)}
-              title="Print all students in this class consecutively"
-            >
-              <Layers size={15} />
-              <span>Print All Class ({students.length})</span>
-            </button>
+            {/* Print All / Batch Dropdown Container */}
+            <div className="batch-dropdown-wrap" ref={batchMenuRef}>
+              <button
+                type="button"
+                className="prc-btn print-batch"
+                onClick={() => triggerPrint(students, students.length)}
+                title="Print all students in this class consecutively"
+              >
+                <Layers size={15} />
+                <span>Print All Class ({students.length})</span>
+              </button>
+
+              <button
+                type="button"
+                className={`prc-btn print-batch-toggle ${showBatchDropdown ? 'active' : ''}`}
+                onClick={() => setShowBatchDropdown(!showBatchDropdown)}
+                title="Print in fast batches of 25 to avoid printer lags"
+              >
+                <ChevronDown size={14} />
+              </button>
+
+              {/* Batch Selector Popover */}
+              {showBatchDropdown && (
+                <div className="batch-menu-popover">
+                  <div className="batch-menu-header">
+                    <Zap size={14} className="zap-icon" />
+                    <strong>Fast Batch Printing</strong>
+                  </div>
+                  <p className="batch-menu-desc">
+                    Printing in batches of 25 renders in ~1-2 seconds and prevents paper jams.
+                  </p>
+
+                  <div className="batch-chunks-list">
+                    {batchChunks.map((chunk) => (
+                      <button
+                        key={chunk.id}
+                        type="button"
+                        className="batch-chunk-btn"
+                        onClick={() => triggerPrint(chunk.students, chunk.count)}
+                      >
+                        <span className="chunk-label">{chunk.title}</span>
+                        <span className="chunk-pill">{chunk.count} cards</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="batch-custom-range">
+                    <div className="custom-range-label">
+                      <Sliders size={12} />
+                      <span>Custom Roll Range:</span>
+                    </div>
+                    <div className="custom-range-inputs">
+                      <input
+                        type="number"
+                        min="1"
+                        max={students.length}
+                        value={customStartRoll}
+                        onChange={(e) => setCustomStartRoll(e.target.value)}
+                        placeholder="1"
+                      />
+                      <span>to</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max={students.length}
+                        value={customEndRoll}
+                        onChange={(e) => setCustomEndRoll(e.target.value)}
+                        placeholder={String(students.length)}
+                      />
+                      <button
+                        type="button"
+                        className="btn-print-custom"
+                        onClick={handleCustomRangePrint}
+                      >
+                        Print
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="batch-full-btn"
+                    onClick={() => triggerPrint(students, students.length)}
+                  >
+                    <Layers size={13} />
+                    <span>Print All {students.length} Students Together</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button type="button" className="prc-close-btn" onClick={onClose} title="Close">
               <X size={18} />
@@ -551,10 +652,21 @@ const ReportCardModal = ({
           </div>
         </div>
 
+        {/* ── Preparing Print Overlay (Friendly user feedback while Chrome renders) ── */}
+        {isPreparingPrint && (
+          <div className="print-preparing-overlay no-print">
+            <div className="print-preparing-card">
+              <div className="print-spinner"></div>
+              <h4>Preparing {preparingCount} Report Cards...</h4>
+              <p>Optimizing layout and opening the browser print preview. Please wait a moment.</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Report Card Body (Visible & Printable) ── */}
         <div className="report-card-viewport">
-          {printAllBatch
-            ? allReportCards.map((c) => renderReportCardSheet(c, true))
+          {targetPrintList && targetPrintList.length > 0
+            ? batchReportCards.map((c) => renderReportCardSheet(c, true))
             : renderReportCardSheet(activeReportCard, false)}
         </div>
       </div>
