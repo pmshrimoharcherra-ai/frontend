@@ -47,6 +47,26 @@ const TeacherMonthlyAttendance = ({
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('ALL'); // 'ALL' | 'Boy' | 'Girl'
+  const [streamFilter, setStreamFilter] = useState('ALL'); // 'ALL' | 'ARTS' | 'SCI'
+
+  // Senior Secondary detection (Class XI and Class XII have unified class teacher for Arts & Science)
+  const isSeniorSecondary = useMemo(() => {
+    const cid = (assignedClassId || '').toLowerCase();
+    const cname = (assignedClassName || '').toLowerCase();
+    return cid.includes('11') || cid.includes('12') || cname.includes('xi') || cname.includes('xii');
+  }, [assignedClassId, assignedClassName]);
+
+  const { artsCount, sciCount } = useMemo(() => {
+    let arts = 0;
+    let sci = 0;
+    students.forEach((s) => {
+      const cid = (s.classId || '').toLowerCase();
+      const cname = (s.className || '').toLowerCase();
+      if (cid.includes('arts') || cname.includes('arts')) arts++;
+      else if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) sci++;
+    });
+    return { artsCount: arts, sciCount: sci };
+  }, [students]);
 
   // Map of studentId/id -> presentDays
   const [attendanceMap, setAttendanceMap] = useState({});
@@ -207,6 +227,14 @@ const TeacherMonthlyAttendance = ({
           if (genderFilter === 'Girl' && g !== 'girl') return false;
         }
 
+        // Stream filter for Senior Secondary
+        if (isSeniorSecondary && streamFilter !== 'ALL') {
+          const cid = (st.classId || '').toLowerCase();
+          const cname = (st.className || '').toLowerCase();
+          if (streamFilter === 'ARTS' && !cid.includes('arts') && !cname.includes('arts')) return false;
+          if (streamFilter === 'SCI' && !cid.includes('sci') && !cname.includes('sci') && !cname.includes('science')) return false;
+        }
+
         // Search query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
@@ -228,7 +256,7 @@ const TeacherMonthlyAttendance = ({
         const rollB = parseInt(b.roll, 10) || 0;
         return rollA - rollB;
       });
-  }, [students, genderFilter, searchQuery]);
+  }, [students, genderFilter, searchQuery, isSeniorSecondary, streamFilter]);
 
   // Overall class metrics for current month
   const monthMetrics = useMemo(() => {
@@ -481,6 +509,37 @@ const TeacherMonthlyAttendance = ({
               <span>Girls</span>
             </button>
           </div>
+
+          {/* Stream Filter Pills for Senior Secondary (XI / XII) */}
+          {isSeniorSecondary && (artsCount > 0 || sciCount > 0) && (
+            <div className="tma-gender-pills tma-stream-pills">
+              <button
+                type="button"
+                className={`tma-pill ${streamFilter === 'ALL' ? 'active' : ''}`}
+                onClick={() => setStreamFilter('ALL')}
+              >
+                All Streams
+              </button>
+              {artsCount > 0 && (
+                <button
+                  type="button"
+                  className={`tma-pill ${streamFilter === 'ARTS' ? 'active' : ''}`}
+                  onClick={() => setStreamFilter('ARTS')}
+                >
+                  Arts ({artsCount})
+                </button>
+              )}
+              {sciCount > 0 && (
+                <button
+                  type="button"
+                  className={`tma-pill ${streamFilter === 'SCI' ? 'active' : ''}`}
+                  onClick={() => setStreamFilter('SCI')}
+                >
+                  Science ({sciCount})
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

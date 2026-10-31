@@ -230,9 +230,11 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                maxLength={4}
                 required
                 value={formData.roll}
-                onChange={(e) => handleChange('roll', e.target.value)}
+                onChange={(e) => handleChange('roll', e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="e.g. 01"
               />
             </div>
@@ -430,13 +432,15 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             <div className="edit-form-field">
               <label>
                 <Hash size={14} />
-                <span>PEN Number (Permanent Education No.)</span>
+                <span>PEN Number (11 Digits)</span>
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                maxLength={11}
                 value={formData.penNumber}
-                onChange={(e) => handleChange('penNumber', e.target.value)}
-                placeholder="e.g. 21952493321"
+                onChange={(e) => handleChange('penNumber', e.target.value.replace(/\D/g, '').slice(0, 11))}
+                placeholder="e.g. 11-digit PEN (21952493321)"
               />
             </div>
 
@@ -444,12 +448,14 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             <div className="edit-form-field">
               <label>
                 <Sparkles size={14} />
-                <span>APAAR ID</span>
+                <span>APAAR ID (12 Digits)</span>
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                maxLength={12}
                 value={formData.apaarId}
-                onChange={(e) => handleChange('apaarId', e.target.value)}
+                onChange={(e) => handleChange('apaarId', e.target.value.replace(/\D/g, '').slice(0, 12))}
                 placeholder="e.g. 12-digit APAAR ID"
               />
             </div>

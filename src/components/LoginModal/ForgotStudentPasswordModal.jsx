@@ -133,10 +133,17 @@ const ForgotStudentPasswordModal = ({ isOpen, onClose, onSelectPassword, onSetId
                   <Hash size={16} className="input-icon" />
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={4}
                     required
                     placeholder="e.g. 01 or 7"
                     value={roll}
-                    onChange={(e) => setRoll(e.target.value)}
+                    onChange={(e) => setRoll(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const text = e.clipboardData.getData('text');
+                      setRoll(text.replace(/\D/g, '').slice(0, 4));
+                    }}
                     className="form-input"
                   />
                 </div>

@@ -16,7 +16,10 @@ import {
   ShieldAlert,
   ArrowUpDown,
   PieChart,
-  Layers
+  Layers,
+  X,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
@@ -37,6 +40,27 @@ const TeacherStudents = ({
   const [genderFilter, setGenderFilter] = useState('all'); // 'all' | 'boy' | 'girl'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'Enrolled' | 'Transferred' | 'Leave' | 'Failed' | 'Alumni'
   const [casteFilter, setCasteFilter] = useState('all'); // 'all' | 'GEN' | 'OBC' | 'SC' | 'ST'
+  const [streamFilter, setStreamFilter] = useState('all'); // 'all' | 'arts' | 'sci'
+  const [viewMode, setViewMode] = useState('auto'); // 'auto' (cards on mobile, table on desktop) | 'cards' | 'table'
+
+  // Determine if assigned class is Senior Secondary (Class XI or XII with Arts & Science)
+  const isSeniorSecondary = useMemo(() => {
+    const cid = String(assignedClassId || '').toLowerCase();
+    const cname = String(assignedClassName || '').toLowerCase();
+    return cid.includes('11') || cid.includes('12') || cname.includes('xi') || cname.includes('xii');
+  }, [assignedClassId, assignedClassName]);
+
+  const { artsCount, sciCount } = useMemo(() => {
+    let arts = 0;
+    let sci = 0;
+    students.forEach((s) => {
+      const cid = (s.classId || '').toLowerCase();
+      const cname = (s.className || '').toLowerCase();
+      if (cid.includes('arts') || cname.includes('arts')) arts++;
+      else if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) sci++;
+    });
+    return { artsCount: arts, sciCount: sci };
+  }, [students]);
 
   // Modals state
   const [viewingStudent, setViewingStudent] = useState(null);
@@ -103,6 +127,14 @@ const TeacherStudents = ({
   const filteredStudents = useMemo(() => {
     return students
       .filter((s) => {
+        // Stream filter for Senior Secondary
+        if (isSeniorSecondary && streamFilter !== 'all') {
+          const cid = (s.classId || '').toLowerCase();
+          const cname = (s.className || '').toLowerCase();
+          if (streamFilter === 'arts' && !cid.includes('arts') && !cname.includes('arts')) return false;
+          if (streamFilter === 'sci' && !cid.includes('sci') && !cname.includes('sci') && !cname.includes('science')) return false;
+        }
+
         // Gender filter
         if (genderFilter !== 'all') {
           const g = (s.gender || '').trim().toLowerCase();
@@ -155,7 +187,7 @@ const TeacherStudents = ({
         const rollB = parseInt(b.roll, 10) || 0;
         return rollA - rollB;
       });
-  }, [students, genderFilter, statusFilter, searchQuery]);
+  }, [students, isSeniorSecondary, streamFilter, genderFilter, statusFilter, casteFilter, searchQuery]);
 
   const handleSaveStudentDetails = async (updatedData) => {
     try {
@@ -267,37 +299,37 @@ const TeacherStudents = ({
             <div className="caste-breakdown-row">
               <span
                 className={`caste-chip gen ${casteFilter === 'GEN' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'GEN' ? 'all' : 'GEN')}
-                title="Click to filter Gen category students"
+                onClick={() => setCasteFilter((prev) => (prev === 'GEN' ? 'all' : 'GEN'))}
+                title="Click to filter Gen category students (click again to remove filter)"
               >
                 <strong>{stats.casteCounts.GEN}</strong> Gen
               </span>
               <span
                 className={`caste-chip obc ${casteFilter === 'OBC' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'OBC' ? 'all' : 'OBC')}
-                title="Click to filter OBC category students"
+                onClick={() => setCasteFilter((prev) => (prev === 'OBC' ? 'all' : 'OBC'))}
+                title="Click to filter OBC category students (click again to remove filter)"
               >
                 <strong>{stats.casteCounts.OBC}</strong> OBC
               </span>
               <span
                 className={`caste-chip sc ${casteFilter === 'SC' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'SC' ? 'all' : 'SC')}
-                title="Click to filter SC category students"
+                onClick={() => setCasteFilter((prev) => (prev === 'SC' ? 'all' : 'SC'))}
+                title="Click to filter SC category students (click again to remove filter)"
               >
                 <strong>{stats.casteCounts.SC}</strong> SC
               </span>
               <span
                 className={`caste-chip st ${casteFilter === 'ST' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'ST' ? 'all' : 'ST')}
-                title="Click to filter ST category students"
+                onClick={() => setCasteFilter((prev) => (prev === 'ST' ? 'all' : 'ST'))}
+                title="Click to filter ST category students (click again to remove filter)"
               >
                 <strong>{stats.casteCounts.ST}</strong> ST
               </span>
               {stats.casteCounts.Other > 0 && (
                 <span
                   className={`caste-chip other ${casteFilter === 'Other' ? 'active' : ''}`}
-                  onClick={() => setCasteFilter(casteFilter === 'Other' ? 'all' : 'Other')}
-                  title="Click to filter other/unassigned category students"
+                  onClick={() => setCasteFilter((prev) => (prev === 'Other' ? 'all' : 'Other'))}
+                  title="Click to filter other category students (click again to remove filter)"
                 >
                   <strong>{stats.casteCounts.Other}</strong> Other
                 </span>
@@ -372,6 +404,40 @@ const TeacherStudents = ({
         </div>
 
         <div className="ts-filters-group">
+          {/* Stream Filter Pills for Class XI & XII */}
+          {isSeniorSecondary && (artsCount > 0 || sciCount > 0) && (
+            <div className="ts-gender-pills stream-pills">
+              <button
+                type="button"
+                className={`ts-filter-pill ${streamFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setStreamFilter('all')}
+                title="Show both Arts & Science students"
+              >
+                All ({students.length})
+              </button>
+              {artsCount > 0 && (
+                <button
+                  type="button"
+                  className={`ts-filter-pill ${streamFilter === 'arts' ? 'active' : ''}`}
+                  onClick={() => setStreamFilter('arts')}
+                  title="Show Class XI/XII Arts students only"
+                >
+                  <span>Arts ({artsCount})</span>
+                </button>
+              )}
+              {sciCount > 0 && (
+                <button
+                  type="button"
+                  className={`ts-filter-pill ${streamFilter === 'sci' ? 'active' : ''}`}
+                  onClick={() => setStreamFilter('sci')}
+                  title="Show Class XI/XII Science students only"
+                >
+                  <span>Science ({sciCount})</span>
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Gender Filter Buttons */}
           <div className="ts-gender-pills">
             <button
@@ -434,159 +500,347 @@ const TeacherStudents = ({
               )}
             </select>
           </div>
+
+          {/* View Mode Toggle: Cards (Mobile friendly) vs Table */}
+          <div className="ts-view-mode-toggle" title="Switch layout">
+            <button
+              type="button"
+              className={`ts-view-btn ${viewMode === 'cards' || viewMode === 'auto' ? 'active' : ''}`}
+              onClick={() => setViewMode('cards')}
+              title="Cards layout (Optimal for mobile)"
+            >
+              <LayoutGrid size={13} />
+              <span>Cards</span>
+            </button>
+            <button
+              type="button"
+              className={`ts-view-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title="Table layout"
+            >
+              <List size={13} />
+              <span>Table</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── Students Table ── */}
-      <div className="teacher-students-table-wrap">
-        {loading ? (
-          <div className="ts-table-loading">
-            <RefreshCw size={28} className="spinning" />
-            <p>Loading student roster...</p>
-          </div>
-        ) : error ? (
-          <div className="ts-table-error">
-            <AlertCircle size={28} />
-            <p>{error}</p>
-          </div>
-        ) : filteredStudents.length === 0 ? (
-          <div className="ts-table-empty">
-            <Users size={38} className="empty-icon" />
-            <h4>No students found</h4>
-            <p>No student records matched your search or filters.</p>
-            {(searchQuery || genderFilter !== 'all' || statusFilter !== 'all' || casteFilter !== 'all') && (
-              <button
-                type="button"
-                className="reset-filters-btn"
-                onClick={() => {
-                  setSearchQuery('');
-                  setGenderFilter('all');
-                  setStatusFilter('all');
-                  setCasteFilter('all');
-                }}
-              >
-                Reset Filters
-              </button>
-            )}
-          </div>
-        ) : (
-          <table className="teacher-students-table">
-            <thead>
-              <tr>
-                <th style={{ width: '70px', textAlign: 'center' }}>Roll</th>
-                <th>Student Name & Identifiers</th>
-                <th>Father / Guardian</th>
-                <th>Mother's Name</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right', paddingRight: '24px' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((st) => {
-                const isGirl = (st.gender || '').trim().toLowerCase() === 'girl';
-                const avatarInitial = st.name ? st.name.charAt(0).toUpperCase() : 'S';
+      {/* ── Active Filter Badges ── */}
+      {(casteFilter !== 'all' || streamFilter !== 'all' || genderFilter !== 'all' || statusFilter !== 'all' || searchQuery) && (
+        <div className="active-filters-bar">
+          <span className="active-filters-label">Active Filter:</span>
+          {casteFilter !== 'all' && (
+            <span
+              className="active-filter-badge caste-badge"
+              onClick={() => setCasteFilter('all')}
+              title="Click to remove caste filter"
+            >
+              Caste: <strong>{casteFilter}</strong> <X size={13} />
+            </span>
+          )}
+          {streamFilter !== 'all' && (
+            <span
+              className="active-filter-badge stream-badge"
+              onClick={() => setStreamFilter('all')}
+              title="Click to show all streams"
+            >
+              Stream: <strong>{streamFilter === 'arts' ? 'Arts' : 'Science'}</strong> <X size={13} />
+            </span>
+          )}
+          {genderFilter !== 'all' && (
+            <span
+              className="active-filter-badge"
+              onClick={() => setGenderFilter('all')}
+              title="Click to show all genders"
+            >
+              Gender: <strong>{genderFilter === 'boy' ? 'Boys' : 'Girls'}</strong> <X size={13} />
+            </span>
+          )}
+          {statusFilter !== 'all' && (
+            <span
+              className="active-filter-badge"
+              onClick={() => setStatusFilter('all')}
+              title="Click to remove status filter"
+            >
+              Status: <strong>{statusFilter}</strong> <X size={13} />
+            </span>
+          )}
+          {searchQuery && (
+            <span
+              className="active-filter-badge"
+              onClick={() => setSearchQuery('')}
+              title="Click to clear search query"
+            >
+              Search: <strong>"{searchQuery}"</strong> <X size={13} />
+            </span>
+          )}
+          <button
+            type="button"
+            className="clear-all-filters-btn"
+            onClick={() => {
+              setCasteFilter('all');
+              setStreamFilter('all');
+              setGenderFilter('all');
+              setStatusFilter('all');
+              setSearchQuery('');
+            }}
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
-                return (
-                  <tr key={st.id || st.studentId || st._id} className="student-row">
-                    {/* Roll */}
-                    <td className="roll-cell font-mono">
-                      <span className="roll-pill">#{st.roll || '—'}</span>
-                    </td>
+      {/* ── Students Roster Content ── */}
+      {loading ? (
+        <div className="ts-table-loading">
+          <RefreshCw size={28} className="spinning" />
+          <p>Loading student roster...</p>
+        </div>
+      ) : error ? (
+        <div className="ts-table-error">
+          <AlertCircle size={28} />
+          <p>{error}</p>
+        </div>
+      ) : filteredStudents.length === 0 ? (
+        <div className="ts-table-empty">
+          <Users size={38} className="empty-icon" />
+          <h4>No students found</h4>
+          <p>No student records matched your search or filters.</p>
+          {(searchQuery || genderFilter !== 'all' || statusFilter !== 'all' || casteFilter !== 'all' || streamFilter !== 'all') && (
+            <button
+              type="button"
+              className="reset-filters-btn"
+              onClick={() => {
+                setSearchQuery('');
+                setGenderFilter('all');
+                setStatusFilter('all');
+                setCasteFilter('all');
+                setStreamFilter('all');
+              }}
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* 1. Mobile Cards View (Touch-optimized for phones and small screens) */}
+          <div className={`ts-mobile-card-list ${viewMode === 'table' ? 'hide-force' : ''}`}>
+            {filteredStudents.map((st) => {
+              const isGirl = (st.gender || '').trim().toLowerCase() === 'girl';
+              const avatarInitial = st.name ? st.name.charAt(0).toUpperCase() : 'S';
 
-                    {/* Student Name & Identifiers */}
-                    <td className="student-info-cell">
-                      <div className="student-flex">
-                        <div className={`avatar-pill ${isGirl ? 'girl' : 'boy'}`}>
-                          {avatarInitial}
-                        </div>
-                        <div className="student-details-inline">
-                          <div className="student-name-row">
-                            <span
-                              className="student-name clickable"
-                              onClick={() => setViewingStudent(st)}
-                              title="Click to view complete student profile"
-                            >
-                              {st.name}
-                            </span>
-                            <span className={`gender-tag ${isGirl ? 'girl' : 'boy'}`}>
-                              {isGirl ? 'Girl' : 'Boy'}
-                            </span>
-                            {st.caste && (
-                              <span className="caste-tag">{st.caste}</span>
-                            )}
-                          </div>
-                          <div className="student-id-row font-mono">
-                            {st.penNumber ? (
-                              <span>PEN: {st.penNumber}</span>
-                            ) : st.apaarId ? (
-                              <span>APAAR: {st.apaarId}</span>
-                            ) : (
-                              <span className="id-subtext">ID: {st.studentId || st.id}</span>
-                            )}
-                          </div>
+              return (
+                <div key={st.id || st.studentId || st._id} className="ts-mobile-student-card">
+                  {/* Top: Roll, Avatar, Name, Gender, Caste & Status */}
+                  <div className="m-card-header">
+                    <div className="m-card-left">
+                      <span className="m-roll-badge font-mono">#{st.roll || '—'}</span>
+                      <div className={`avatar-pill ${isGirl ? 'girl' : 'boy'}`}>
+                        {avatarInitial}
+                      </div>
+                      <div className="m-student-meta">
+                        <span
+                          className="m-student-name"
+                          onClick={() => setViewingStudent(st)}
+                          title="Click to view full profile"
+                        >
+                          {st.name}
+                        </span>
+                        <div className="m-tags-row">
+                          <span className={`gender-tag ${isGirl ? 'girl' : 'boy'}`}>
+                            {isGirl ? 'Girl' : 'Boy'}
+                          </span>
+                          {st.caste && <span className="caste-tag">{st.caste}</span>}
                         </div>
                       </div>
-                    </td>
+                    </div>
+                    <div className="m-card-status">
+                      {renderStatusBadge(st.status)}
+                    </div>
+                  </div>
 
-                    {/* Father / Guardian */}
-                    <td className="guardian-cell">
-                      <span className="parent-text">{st.father || st.guardian || '—'}</span>
-                    </td>
+                  {/* Body: Identification & Family Details */}
+                  <div className="m-card-body">
+                    <div className="m-detail-item">
+                      <span className="m-lbl">PEN / APAAR:</span>
+                      <span className="m-val font-mono">{st.penNumber || st.apaarId || st.studentId || '—'}</span>
+                    </div>
 
-                    {/* Mother */}
-                    <td className="guardian-cell">
-                      <span className="parent-text">{st.mother || '—'}</span>
-                    </td>
+                    {(st.father || st.guardian) && (
+                      <div className="m-detail-item">
+                        <span className="m-lbl">Father / Guardian:</span>
+                        <span className="m-val">{st.father || st.guardian}</span>
+                      </div>
+                    )}
 
-                    {/* Phone */}
-                    <td className="contact-cell">
-                      {st.phone ? (
-                        <a href={`tel:${st.phone.split('/')[0].trim()}`} className="phone-link">
-                          <Phone size={13} />
+                    {st.mother && (
+                      <div className="m-detail-item">
+                        <span className="m-lbl">Mother's Name:</span>
+                        <span className="m-val">{st.mother}</span>
+                      </div>
+                    )}
+
+                    {st.phone && (
+                      <div className="m-detail-item">
+                        <span className="m-lbl">Contact Phone:</span>
+                        <a href={`tel:${st.phone.split('/')[0].trim()}`} className="m-phone-link">
+                          <Phone size={12} />
                           <span>{st.phone}</span>
                         </a>
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
-                    </td>
-
-                    {/* Enrollment Status */}
-                    <td className="status-cell">
-                      {renderStatusBadge(st.status)}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="actions-cell">
-                      <div className="actions-button-group">
-                        <button
-                          type="button"
-                          className="ts-action-btn view-btn"
-                          onClick={() => setViewingStudent(st)}
-                          title={`View details of ${st.name}`}
-                        >
-                          <Eye size={14} />
-                          <span>View</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="ts-action-btn edit-btn"
-                          onClick={() => setEditingStudent(st)}
-                          title={`Edit profile and details of ${st.name}`}
-                        >
-                          <Pencil size={14} />
-                          <span>Edit</span>
-                        </button>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Actions */}
+                  <div className="m-card-actions">
+                    <button
+                      type="button"
+                      className="m-action-btn view-btn"
+                      onClick={() => setViewingStudent(st)}
+                      title={`View details of ${st.name}`}
+                    >
+                      <Eye size={14} />
+                      <span>View Profile</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="m-action-btn edit-btn"
+                      onClick={() => setEditingStudent(st)}
+                      title={`Edit details of ${st.name}`}
+                    >
+                      <Pencil size={14} />
+                      <span>Edit Details</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 2. Desktop & Tablet Table View (with horizontal scroll support) */}
+          <div className={`teacher-students-table-wrap ${viewMode === 'cards' ? 'hide-on-mobile' : ''}`}>
+            <div className="ts-table-scroll-hint">
+              <span>⇄ Swipe horizontally to view full table columns</span>
+            </div>
+            <table className="teacher-students-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '70px', textAlign: 'center' }}>Roll</th>
+                  <th>Student Name & Identifiers</th>
+                  <th>Father / Guardian</th>
+                  <th>Mother's Name</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: 'right', paddingRight: '24px' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((st) => {
+                  const isGirl = (st.gender || '').trim().toLowerCase() === 'girl';
+                  const avatarInitial = st.name ? st.name.charAt(0).toUpperCase() : 'S';
+
+                  return (
+                    <tr key={st.id || st.studentId || st._id} className="student-row">
+                      {/* Roll */}
+                      <td className="roll-cell font-mono">
+                        <span className="roll-pill">#{st.roll || '—'}</span>
+                      </td>
+
+                      {/* Student Name & Identifiers */}
+                      <td className="student-info-cell">
+                        <div className="student-flex">
+                          <div className={`avatar-pill ${isGirl ? 'girl' : 'boy'}`}>
+                            {avatarInitial}
+                          </div>
+                          <div className="student-details-inline">
+                            <div className="student-name-row">
+                              <span
+                                className="student-name clickable"
+                                onClick={() => setViewingStudent(st)}
+                                title="Click to view complete student profile"
+                              >
+                                {st.name}
+                              </span>
+                              <span className={`gender-tag ${isGirl ? 'girl' : 'boy'}`}>
+                                {isGirl ? 'Girl' : 'Boy'}
+                              </span>
+                              {st.caste && (
+                                <span className="caste-tag">{st.caste}</span>
+                              )}
+                            </div>
+                            <div className="student-id-row font-mono">
+                              {st.penNumber ? (
+                                <span>PEN: {st.penNumber}</span>
+                              ) : st.apaarId ? (
+                                <span>APAAR: {st.apaarId}</span>
+                              ) : (
+                                <span className="id-subtext">ID: {st.studentId || st.id}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Father / Guardian */}
+                      <td className="guardian-cell">
+                        <span className="parent-text">{st.father || st.guardian || '—'}</span>
+                      </td>
+
+                      {/* Mother */}
+                      <td className="guardian-cell">
+                        <span className="parent-text">{st.mother || '—'}</span>
+                      </td>
+
+                      {/* Phone */}
+                      <td className="contact-cell">
+                        {st.phone ? (
+                          <a href={`tel:${st.phone.split('/')[0].trim()}`} className="phone-link">
+                            <Phone size={13} />
+                            <span>{st.phone}</span>
+                          </a>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+
+                      {/* Enrollment Status */}
+                      <td className="status-cell">
+                        {renderStatusBadge(st.status)}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="actions-cell">
+                        <div className="actions-button-group">
+                          <button
+                            type="button"
+                            className="ts-action-btn view-btn"
+                            onClick={() => setViewingStudent(st)}
+                            title={`View details of ${st.name}`}
+                          >
+                            <Eye size={14} />
+                            <span>View</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="ts-action-btn edit-btn"
+                            onClick={() => setEditingStudent(st)}
+                            title={`Edit profile and details of ${st.name}`}
+                          >
+                            <Pencil size={14} />
+                            <span>Edit</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       {/* ── View Student Details Modal ── */}
       {viewingStudent && (

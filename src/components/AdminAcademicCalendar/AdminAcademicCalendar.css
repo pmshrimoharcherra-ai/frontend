@@ -636,6 +636,7 @@
 .cell-holiday-chip {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 3px;
   padding: 2px 4px;
   border-radius: 4px;
@@ -646,10 +647,37 @@
   text-overflow: ellipsis;
   cursor: pointer;
   transition: transform 0.15s ease;
+  position: relative;
+}
+
+.cell-chip-del-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: none;
+  background: rgba(0, 0, 0, 0.14);
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.cell-holiday-chip:hover .cell-chip-del-btn {
+  display: inline-flex;
+}
+
+.cell-chip-del-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
 }
 
 .cell-holiday-chip:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 .cell-holiday-chip.national {
@@ -1148,13 +1176,228 @@
   accent-color: #ea580c;
 }
 
+.dialog-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-delete-holiday-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-delete-holiday-btn:hover {
+  background: #fca5a5;
+  color: #991b1b;
+}
+
+/* Existing Holidays Card inside Modal */
+.existing-holidays-card {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.existing-holidays-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b45309;
+  margin-bottom: 8px;
+}
+
+.existing-info-icon {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.existing-holidays-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.existing-holiday-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  gap: 8px;
+}
+
+.existing-item-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.existing-item-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.existing-item-category {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.existing-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.existing-edit-btn {
+  padding: 4px 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.existing-edit-btn:hover {
+  background: #dbeafe;
+}
+
+.existing-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.existing-remove-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Modal Footer Styling */
 .dialog-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 10px;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 1px solid #f1f5f9;
+}
+
+.dialog-footer-spacer {
+  flex: 1;
+}
+
+.dialog-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dialog-delete-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.modal-delete-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #e11d48;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-delete-trigger-btn:hover {
+  background: #ffe4e6;
+  color: #be123c;
+  border-color: #fda4af;
+}
+
+.modal-delete-confirm-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.modal-delete-confirm-box .confirm-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.confirm-yes-btn-danger {
+  padding: 5px 10px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.confirm-yes-btn-danger:hover {
+  background: #b91c1c;
+}
+
+.confirm-no-btn-subtle {
+  padding: 5px 10px;
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.confirm-no-btn-subtle:hover {
+  background: #f1f5f9;
 }
 
 .cancel-btn {

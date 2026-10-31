@@ -195,6 +195,26 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   // Filtering & Search for Attendance
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('ALL'); // 'ALL' | 'Boy' | 'Girl'
+  const [streamFilter, setStreamFilter] = useState('ALL'); // 'ALL' | 'ARTS' | 'SCI'
+
+  // Senior Secondary detection (Class XI and Class XII have unified class teacher for Arts & Science)
+  const isSeniorSecondary = useMemo(() => {
+    const cid = (assignedClassId || '').toLowerCase();
+    const cname = (assignedClassName || '').toLowerCase();
+    return cid.includes('11') || cid.includes('12') || cname.includes('xi') || cname.includes('xii');
+  }, [assignedClassId, assignedClassName]);
+
+  const { artsCount, sciCount } = useMemo(() => {
+    let arts = 0;
+    let sci = 0;
+    students.forEach((s) => {
+      const cid = (s.classId || '').toLowerCase();
+      const cname = (s.className || '').toLowerCase();
+      if (cid.includes('arts') || cname.includes('arts')) arts++;
+      else if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) sci++;
+    });
+    return { artsCount: arts, sciCount: sci };
+  }, [students]);
 
   // Saving state & feedback for Attendance
   const [saving, setSaving] = useState(false);
@@ -254,7 +274,13 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${API_STUDENTS}?classId=${classId}`);
+      let queryClass = classId;
+      if (classId === 'class-11' || classId === 'class-11-arts' || classId === 'class-11-sci') {
+        queryClass = 'class-11-arts,class-11-sci';
+      } else if (classId === 'class-12' || classId === 'class-12-arts' || classId === 'class-12-sci') {
+        queryClass = 'class-12-arts,class-12-sci';
+      }
+      const res = await fetch(`${API_STUDENTS}?classId=${queryClass}`);
       const data = await res.json();
 
       if (data.success && Array.isArray(data.students)) {
@@ -437,9 +463,15 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
         (genderFilter === 'Boy' && (s.gender === 'Boy' || !s.gender)) ||
         (genderFilter === 'Girl' && s.gender === 'Girl');
 
-      return matchesSearch && matchesGender;
+      const matchesStream =
+        !isSeniorSecondary ||
+        streamFilter === 'ALL' ||
+        (streamFilter === 'ARTS' && ((s.classId || '').includes('arts') || (s.className || '').toLowerCase().includes('arts'))) ||
+        (streamFilter === 'SCI' && ((s.classId || '').includes('sci') || (s.className || '').toLowerCase().includes('sci') || (s.className || '').toLowerCase().includes('science')));
+
+      return matchesSearch && matchesGender && matchesStream;
     });
-  }, [students, searchQuery, genderFilter]);
+  }, [students, searchQuery, genderFilter, streamFilter, isSeniorSecondary]);
 
   // Dynamic statistics for today's register
   const stats = useMemo(() => {
@@ -1106,6 +1138,37 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                           <span>Girls</span>
                         </button>
                       </div>
+
+                      {/* Stream Filter Pills for Senior Secondary (XI / XII) */}
+                      {isSeniorSecondary && (artsCount > 0 || sciCount > 0) && (
+                        <div className="gender-filter-pills stream-filter-pills">
+                          <button
+                            type="button"
+                            className={`gender-pill ${streamFilter === 'ALL' ? 'active' : ''}`}
+                            onClick={() => setStreamFilter('ALL')}
+                          >
+                            All ({students.length})
+                          </button>
+                          {artsCount > 0 && (
+                            <button
+                              type="button"
+                              className={`gender-pill ${streamFilter === 'ARTS' ? 'active' : ''}`}
+                              onClick={() => setStreamFilter('ARTS')}
+                            >
+                              Arts ({artsCount})
+                            </button>
+                          )}
+                          {sciCount > 0 && (
+                            <button
+                              type="button"
+                              className={`gender-pill ${streamFilter === 'SCI' ? 'active' : ''}`}
+                              onClick={() => setStreamFilter('SCI')}
+                            >
+                              Science ({sciCount})
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -1325,14 +1325,67 @@
 }
 
 @media (max-width: 768px) {
+  .teacher-top-navbar {
+    padding: 0;
+  }
   .teacher-navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .teacher-header-left {
+    min-width: 0;
+    flex: 1;
+    gap: 8px;
+  }
+  .breadcrumb-root,
+  .breadcrumb-sep {
+    display: none !important;
+  }
+  .breadcrumb-current {
+    font-size: 13px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .teacher-nav-pill-btn,
+  .teacher-date-badge {
+    display: none !important;
   }
   .teacher-header-actions {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    width: auto !important;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .teacher-header-pill {
+    padding: 4px 8px !important;
+    gap: 6px;
+  }
+  .teacher-header-pill .user-logged-role {
+    display: none !important;
+  }
+  .teacher-header-pill .user-logged-name {
+    font-size: 12px;
+    max-width: 95px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 2px;
+  }
+  .teacher-dashboard-main {
+    padding: 12px 10px;
+    gap: 14px;
+  }
+  .teacher-welcome-banner {
+    padding: 16px 14px;
+    border-radius: 12px;
+  }
+  .welcome-banner-content {
+    flex-direction: column;
+    gap: 12px;
   }
   .attendance-stat-grid {
     grid-template-columns: 1fr;
@@ -1340,8 +1393,28 @@
   .register-toolbar {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+  .toolbar-left-controls,
+  .toolbar-right-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .register-search-box {
     width: 100%;
+  }
+  .gender-filter-pills {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .register-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+  .teacher-roster-table {
+    min-width: 760px;
   }
 }

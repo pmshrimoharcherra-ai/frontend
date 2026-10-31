@@ -31,11 +31,15 @@ export const CLASS_OPTIONS = [
   { id: 'class-8', label: 'Class VIII (Elementary)' },
   { id: 'class-9', label: 'Class IX (Secondary)' },
   { id: 'class-10', label: 'Class X (Secondary)' },
-  { id: 'class-11-sci', label: 'Class XI (Science)' },
-  { id: 'class-11-arts', label: 'Class XI (Arts)' },
-  { id: 'class-12-sci', label: 'Class XII (Science)' },
-  { id: 'class-12-arts', label: 'Class XII (Arts)' },
+  { id: 'class-11', label: 'Class XI (Arts & Science)' },
+  { id: 'class-12', label: 'Class XII (Arts & Science)' },
 ];
+
+const normalizeClassId = (cid) => {
+  if (cid === 'class-11-arts' || cid === 'class-11-sci') return 'class-11';
+  if (cid === 'class-12-arts' || cid === 'class-12-sci') return 'class-12';
+  return cid || '';
+};
 
 const STATUS_OPTIONS = [
   'Active Faculty',
@@ -65,7 +69,7 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
     phone: teacher.phone || '',
     email: teacher.email || '',
     status: teacher.status || 'Active Faculty',
-    assignedClassId: teacher.assignedClassId || '',
+    assignedClassId: normalizeClassId(teacher.assignedClassId),
     assignedClassName: teacher.assignedClassName || '',
     teachingAssignments: Array.isArray(teacher.teachingAssignments) ? teacher.teachingAssignments : [],
   });
@@ -95,7 +99,7 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
       phone: teacher.phone || '',
       email: teacher.email || '',
       status: teacher.status || 'Active Faculty',
-      assignedClassId: teacher.assignedClassId || '',
+      assignedClassId: normalizeClassId(teacher.assignedClassId),
       assignedClassName: teacher.assignedClassName || '',
       teachingAssignments: Array.isArray(teacher.teachingAssignments) ? teacher.teachingAssignments : [],
     });
@@ -112,10 +116,15 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
 
   const handleClassChange = (newClassId) => {
     const selected = CLASS_OPTIONS.find((c) => c.id === newClassId);
+    let cName = '';
+    if (newClassId === 'class-11') cName = 'Class XI';
+    else if (newClassId === 'class-12') cName = 'Class XII';
+    else if (selected && newClassId) cName = selected.label.split(' (')[0];
+
     setFormData((prev) => ({
       ...prev,
       assignedClassId: newClassId,
-      assignedClassName: selected ? (newClassId ? selected.label.split(' (')[0] : '') : '',
+      assignedClassName: cName,
     }));
     if (errorMessage) setErrorMessage('');
   };

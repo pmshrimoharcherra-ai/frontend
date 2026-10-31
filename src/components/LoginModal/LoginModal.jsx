@@ -189,6 +189,8 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               <input
                 id="user-id"
                 type="text"
+                inputMode={selectedRole === 'student' ? 'numeric' : 'text'}
+                maxLength={selectedRole === 'student' ? 12 : undefined}
                 placeholder={
                   selectedRole === 'student' 
                     ? 'Enter 12-digit APAAR ID or 11-digit PEN' 
@@ -198,8 +200,22 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 }
                 value={identifier}
                 onChange={(e) => {
-                  setIdentifier(e.target.value);
+                  let val = e.target.value;
+                  if (selectedRole === 'student') {
+                    // Strictly restrict to digits only and limit to maximum 12 digits
+                    val = val.replace(/\D/g, '').slice(0, 12);
+                  }
+                  setIdentifier(val);
                   setError('');
+                }}
+                onPaste={(e) => {
+                  if (selectedRole === 'student') {
+                    e.preventDefault();
+                    const text = e.clipboardData.getData('text');
+                    const clean = text.replace(/\D/g, '').slice(0, 12);
+                    setIdentifier(clean);
+                    setError('');
+                  }
                 }}
                 required
                 className="form-input"

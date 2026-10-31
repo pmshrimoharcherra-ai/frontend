@@ -22,7 +22,8 @@ import {
   Filter,
   Check,
   Building2,
-  CalendarCheck2
+  CalendarCheck2,
+  Info
 } from 'lucide-react';
 
 const ACADEMIC_MONTHS = [
@@ -55,6 +56,7 @@ const AdminAcademicCalendar = () => {
   const [editingHoliday, setEditingHoliday] = useState(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [confirmDeleteInModal, setConfirmDeleteInModal] = useState(false);
 
   // Form Fields State
   const [formData, setFormData] = useState({
@@ -119,6 +121,18 @@ const AdminAcademicCalendar = () => {
   const monthHolidays = useMemo(() => {
     return holidays.filter((h) => Number(h.month) === Number(selectedMonthKey));
   }, [holidays, selectedMonthKey]);
+
+  // Existing holidays for the selected day in Add Modal
+  const existingHolidaysOnDate = useMemo(() => {
+    if (!formData.date || editingHoliday) return [];
+    const d = Number(formData.date);
+    return monthHolidays.filter((h) => {
+      if (h.endDate) {
+        return d >= h.date && d <= h.endDate;
+      }
+      return h.date === d;
+    });
+  }, [formData.date, monthHolidays, editingHoliday]);
 
   // Count holidays per month for badges
   const holidayCountsByMonth = useMemo(() => {
@@ -185,6 +199,7 @@ const AdminAcademicCalendar = () => {
   // Open Add Modal
   const handleOpenAddModal = (presetDate = null) => {
     setEditingHoliday(null);
+    setConfirmDeleteInModal(false);
     setFormData({
       name: '',
       isDateRange: false,
@@ -203,6 +218,7 @@ const AdminAcademicCalendar = () => {
   // Open Edit Modal
   const handleOpenEditModal = (holiday) => {
     setEditingHoliday(holiday);
+    setConfirmDeleteInModal(false);
     setFormData({
       name: holiday.name,
       isDateRange: Boolean(holiday.endDate),
@@ -307,6 +323,11 @@ const AdminAcademicCalendar = () => {
       if (!res.ok) throw new Error('Failed to delete holiday');
       setHolidays((prev) => prev.filter((h) => (h.id || h._id) !== id));
       setDeleteConfirmId(null);
+      setConfirmDeleteInModal(false);
+      if (editingHoliday && ((editingHoliday.id || editingHoliday._id) === id)) {
+        setShowModal(false);
+        setEditingHoliday(null);
+      }
       showToast(`Holiday "${name}" removed from calendar.`);
     } catch (err) {
       showToast(`Failed to remove holiday: ${err.message}`);
@@ -586,10 +607,16 @@ const AdminAcademicCalendar = () => {
                     } ${hasHolidays ? 'has-holiday' : ''} ${
                       primaryHoliday ? `type-${primaryHoliday.type}` : ''
                     }`}
-                    onClick={() => handleOpenAddModal(cell.day)}
+                    onClick={() => {
+                      if (hasHolidays && cell.holidays.length === 1) {
+                        handleOpenEditModal(cell.holidays[0]);
+                      } else {
+                        handleOpenAddModal(cell.day);
+                      }
+                    }}
                     title={
                       hasHolidays
-                        ? cell.holidays.map((h) => `${h.name} (${h.category})`).join('\n')
+                        ? `${cell.holidays.map((h) => `${h.name} (${h.category})`).join('\n')}\nClick to view/edit or remove holiday`
                         : `Click to schedule holiday for ${cell.day} ${activeMonth.name}`
                     }
                   >
@@ -627,6 +654,19 @@ const AdminAcademicCalendar = () => {
                         >
                           <span className="chip-bullet">•</span>
                           <span className="chip-name">{h.name}</span>
+                          <button
+                            type="button"
+                            className="cell-chip-del-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(`Remove holiday "${h.name}" from calendar?`)) {
+                                handleDeleteHoliday(h.id || h._id, h.name);
+                              }
+                            }}
+                            title={`Remove "${h.name}"`}
+                          >
+                            <X size={11} />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -799,16 +839,70 @@ const AdminAcademicCalendar = () => {
                 <h4>{editingHoliday ? 'Adjust / Edit Holiday' : 'Add School Holiday or Recess'}</h4>
                 <p>Academic Year 2026 – 2027 • PM SHRI Moharcherra H.S. School</p>
               </div>
-              <button
-                type="button"
-                className="close-dialog-btn"
-                onClick={() => setShowModal(false)}
-              >
-                <X size={18} />
-              </button>
+              <div className="dialog-header-actions">
+                {editingHoliday && (
+                  <button
+                    type="button"
+                    className="header-delete-holiday-btn"
+                    onClick={() => setConfirmDeleteInModal(true)}
+                    title="Remove this holiday from calendar"
+                  >
+                    <Trash2 size={15} />
+                    <span>Remove</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="close-dialog-btn"
+                  onClick={() => setShowModal(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmitHoliday} className="dialog-form">
+              {/* Existing Holiday Prompt when in Add mode on a date that already has a holiday */}
+              {!editingHoliday && existingHolidaysOnDate.length > 0 && (
+                <div className="existing-holidays-card">
+                  <div className="existing-holidays-header">
+                    <Info size={16} className="existing-info-icon" />
+                    <span>Existing Holiday{existingHolidaysOnDate.length > 1 ? 's' : ''} on {activeMonth.name} {formData.date}:</span>
+                  </div>
+                  <div className="existing-holidays-list">
+                    {existingHolidaysOnDate.map((eh) => (
+                      <div key={eh.id || eh._id} className="existing-holiday-item">
+                        <div className="existing-item-info">
+                          <span className="existing-item-name">{eh.name}</span>
+                          <span className="existing-item-category">({eh.category || 'Holiday'})</span>
+                        </div>
+                        <div className="existing-item-actions">
+                          <button
+                            type="button"
+                            className="existing-edit-btn"
+                            onClick={() => handleOpenEditModal(eh)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="existing-remove-btn"
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to remove "${eh.name}" from the academic calendar?`)) {
+                                handleDeleteHoliday(eh.id || eh._id, eh.name);
+                              }
+                            }}
+                          >
+                            <Trash2 size={13} />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Holiday Name */}
               <div className="form-group">
                 <label className="form-label">
@@ -980,26 +1074,64 @@ const AdminAcademicCalendar = () => {
 
               {/* Dialog Footer Actions */}
               <div className="dialog-footer">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formSubmitting}
-                  className="submit-btn"
-                >
-                  {formSubmitting ? (
-                    'Saving...'
-                  ) : editingHoliday ? (
-                    'Update Holiday'
-                  ) : (
-                    'Save to Calendar'
-                  )}
-                </button>
+                {editingHoliday ? (
+                  <div className="dialog-delete-wrapper">
+                    {confirmDeleteInModal ? (
+                      <div className="modal-delete-confirm-box">
+                        <span className="confirm-text">Confirm removal?</span>
+                        <button
+                          type="button"
+                          className="confirm-yes-btn-danger"
+                          onClick={() => handleDeleteHoliday(editingHoliday.id || editingHoliday._id, editingHoliday.name)}
+                        >
+                          Yes, Remove
+                        </button>
+                        <button
+                          type="button"
+                          className="confirm-no-btn-subtle"
+                          onClick={() => setConfirmDeleteInModal(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="modal-delete-trigger-btn"
+                        onClick={() => setConfirmDeleteInModal(true)}
+                        title="Remove this holiday from calendar"
+                      >
+                        <Trash2 size={15} />
+                        <span>Remove Holiday</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="dialog-footer-spacer" />
+                )}
+
+                <div className="dialog-footer-right">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formSubmitting}
+                    className="submit-btn"
+                  >
+                    {formSubmitting ? (
+                      'Saving...'
+                    ) : editingHoliday ? (
+                      'Update Holiday'
+                    ) : (
+                      'Save to Calendar'
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

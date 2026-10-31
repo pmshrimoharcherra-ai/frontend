@@ -1054,10 +1054,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   <label>Roll Number *</label>
                   <input 
                     type="text" 
+                    inputMode="numeric"
+                    maxLength={4}
                     required
                     placeholder="e.g. 05"
                     value={newStudent.roll}
-                    onChange={(e) => setNewStudent({ ...newStudent, roll: e.target.value })}
+                    onChange={(e) => setNewStudent({ ...newStudent, roll: e.target.value.replace(/\D/g, '').slice(0, 4) })}
                   />
                 </div>
               </div>

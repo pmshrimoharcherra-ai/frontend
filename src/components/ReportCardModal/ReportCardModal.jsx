@@ -226,15 +226,15 @@ const ReportCardModal = ({
             {/* Left Logo: Tripura State Emblem */}
             <div className="prc-logo-box left">
               <img
-                src="/logos/emblem-tripura.png"
-                alt="Emblem of Tripura"
+                src="/Government%20of%20Tripura%20Emblem.png"
+                alt="Government of Tripura Emblem"
                 className="prc-crest-img"
                 width="72"
                 height="72"
                 loading="eager"
                 decoding="async"
                 onError={(e) => {
-                  e.target.style.display = 'none';
+                  e.target.src = '/logos/emblem-tripura.png';
                 }}
               />
             </div>
