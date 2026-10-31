@@ -665,37 +665,49 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           />
                         )}
 
-                        <div className="media-visual-overlay">
-                          <div className="overlay-top">
-                            <span className="media-type-tag">
-                              {isVideo ? (
-                                <>
-                                  <Film size={12} /> Video
-                                </>
-                              ) : (
-                                <>
-                                  <ImageIcon size={12} /> Photo
-                                </>
-                              )}
-                            </span>
-                            <span className="media-folder-pill">{item.folderName || selectedFolder.name}</span>
-                          </div>
-
-                          {isVideo ? (
-                            <div className="overlay-play-btn">
-                              <Play size={24} fill="#ffffff" color="#ffffff" />
-                            </div>
-                          ) : (
-                            <div className="overlay-zoom-icon">
-                              <Camera size={20} />
-                            </div>
-                          )}
-
-                          <div className="overlay-bottom">
-                            <h4>{item.title}</h4>
-                            {item.caption && <p>{item.caption}</p>}
-                          </div>
+                        {/* Top Badges */}
+                        <div className="media-top-badges">
+                          <span className="media-type-tag">
+                            {isVideo ? (
+                              <>
+                                <Film size={11} /> Video
+                              </>
+                            ) : (
+                              <>
+                                <ImageIcon size={11} /> {item.format?.toUpperCase() || 'Photo'}
+                              </>
+                            )}
+                          </span>
                         </div>
+
+                        {/* Hover Overlay */}
+                        <div className="media-hover-overlay">
+                          <span className="media-zoom-pill">
+                            {isVideo ? (
+                              <>
+                                <Play size={13} fill="#ffffff" /> Watch Video
+                              </>
+                            ) : (
+                              <>
+                                <Eye size={13} /> View Photo
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Info Box with Title & Caption */}
+                      <div className="public-media-info">
+                        <h4 className="public-media-title" title={item.title}>
+                          {item.title || 'Untitled Media'}
+                        </h4>
+                        {item.caption ? (
+                          <p className="public-media-caption">{item.caption}</p>
+                        ) : (
+                          <span className="public-media-meta-tag">
+                            <Calendar size={11} /> PM SHRI Archive
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
