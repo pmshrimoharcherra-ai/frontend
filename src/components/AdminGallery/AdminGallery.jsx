@@ -280,8 +280,8 @@ const AdminGallery = () => {
     e.stopPropagation();
     const isSub = Boolean(folder.parentId);
     const confirmPrompt = isSub
-      ? `Are you sure you want to delete campaign subfolder "${folder.name}" and all its photos & videos? This action cannot be undone.`
-      : `Are you sure you want to delete folder "${folder.name}", all its subfolders/campaigns, and all associated media? This action cannot be undone.`;
+      ? `Are you sure you want to delete subfolder "${folder.name}" and all its photos & videos? This action cannot be undone.`
+      : `Are you sure you want to delete folder "${folder.name}", all its subfolders, and all associated media? This action cannot be undone.`;
 
     if (!window.confirm(confirmPrompt)) {
       return;
@@ -583,7 +583,7 @@ const AdminGallery = () => {
             onClick={() => handleOpenFolderModal(null, selectedFolder && !selectedFolder.parentId ? selectedFolder : null)}
           >
             <FolderPlus size={16} />
-            <span>{selectedFolder && !selectedFolder.parentId ? 'New Campaign Subfolder' : 'New Folder / Album'}</span>
+            <span>{selectedFolder && !selectedFolder.parentId ? 'New Subfolder' : 'New Folder / Album'}</span>
           </button>
 
           <button
@@ -671,12 +671,12 @@ const AdminGallery = () => {
                 <h3>{selectedFolder.name}</h3>
                 {selectedFolder.parentId ? (
                   <span className="subfolder-tag">
-                    <Sparkles size={11} /> Campaign Subfolder
+                    <Sparkles size={11} /> Subfolder
                   </span>
                 ) : (
                   currentSubfolders.length > 0 && (
                     <span className="subfolder-count-pill">
-                      {currentSubfolders.length} {currentSubfolders.length === 1 ? 'Campaign' : 'Campaigns'}
+                      {currentSubfolders.length} {currentSubfolders.length === 1 ? 'Subfolder' : 'Subfolders'}
                     </span>
                   )
                 )}
@@ -695,7 +695,7 @@ const AdminGallery = () => {
                 onClick={() => handleOpenFolderModal(null, selectedFolder)}
               >
                 <FolderPlus size={15} />
-                <span>New Campaign Subfolder</span>
+                <span>New Subfolder</span>
               </button>
             )}
 
@@ -739,7 +739,7 @@ const AdminGallery = () => {
         <div className="folders-section">
           <div className="section-title-row">
             <h4>Gallery Folders ({rootFolders.length})</h4>
-            <span className="section-hint">Select a folder to view campaigns and upload respective media</span>
+            <span className="section-hint">Select a folder to view subfolders and upload respective media</span>
           </div>
 
           {loading ? (
@@ -780,7 +780,7 @@ const AdminGallery = () => {
                       <div className="folder-badges-top-right">
                         {subCount > 0 && (
                           <span className="folder-sub-count-badge">
-                            📂 {subCount} {subCount === 1 ? 'Campaign' : 'Campaigns'}
+                            📂 {subCount} {subCount === 1 ? 'Subfolder' : 'Subfolders'}
                           </span>
                         )}
                         <span className="folder-count-badge">
@@ -794,7 +794,7 @@ const AdminGallery = () => {
                       {folder.description ? (
                         <p className="folder-desc">{folder.description}</p>
                       ) : (
-                        <p className="folder-desc empty">Click to explore albums and campaigns</p>
+                        <p className="folder-desc empty">Click to explore albums and subfolders</p>
                       )}
                     </div>
 
@@ -844,9 +844,9 @@ const AdminGallery = () => {
           <div className="subfolders-header">
             <div className="subfolders-header-left">
               <FolderOpen size={18} className="subfolder-header-icon" />
-              <h4>Campaigns & Subfolders ({currentSubfolders.length})</h4>
+              <h4>Subfolders ({currentSubfolders.length})</h4>
               <span className="subfolders-header-hint">
-                Organized events & drives under {selectedFolder.name}
+                Organized events & collections under {selectedFolder.name}
               </span>
             </div>
             <button
@@ -855,7 +855,7 @@ const AdminGallery = () => {
               onClick={() => handleOpenFolderModal(null, selectedFolder)}
             >
               <FolderPlus size={14} />
-              <span>+ New Campaign Subfolder</span>
+              <span>+ New Subfolder</span>
             </button>
           </div>
 
@@ -883,7 +883,7 @@ const AdminGallery = () => {
                       />
                       <div className="subfolder-overlay">
                         <span className="subfolder-open-pill">
-                          <FolderOpen size={13} /> Open Campaign
+                          <FolderOpen size={13} /> Open Subfolder
                         </span>
                       </div>
                       <span className="subfolder-badge">
@@ -896,7 +896,7 @@ const AdminGallery = () => {
                       {sub.description ? (
                         <p className="subfolder-desc">{sub.description}</p>
                       ) : (
-                        <p className="subfolder-desc empty">Campaign folder</p>
+                        <p className="subfolder-desc empty">Subfolder</p>
                       )}
                     </div>
 
@@ -908,7 +908,7 @@ const AdminGallery = () => {
                           e.stopPropagation();
                           handleOpenFolderModal(sub);
                         }}
-                        title="Edit Campaign Details"
+                        title="Edit Subfolder Details"
                       >
                         <Pencil size={13} />
                       </button>
@@ -916,7 +916,7 @@ const AdminGallery = () => {
                         type="button"
                         className="subfolder-action-btn delete"
                         onClick={(e) => handleDeleteFolder(sub, e)}
-                        title="Delete Campaign"
+                        title="Delete Subfolder"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -931,9 +931,9 @@ const AdminGallery = () => {
                 <FolderPlus size={24} />
               </div>
               <div className="empty-subfolders-text">
-                <h5>Organize by Campaigns or Activities</h5>
+                <h5>Organize with Subfolders</h5>
                 <p>
-                  You can create campaign subfolders (e.g., "Tree Plantation Drive 2026", "Clean Campus Campaign") to organize photos and videos inside {selectedFolder.name}.
+                  You can create subfolders (e.g., "Tree Plantation Drive 2026", "Clean Campus Drive") to organize photos and videos inside {selectedFolder.name}.
                 </p>
               </div>
               <button
@@ -942,7 +942,7 @@ const AdminGallery = () => {
                 onClick={() => handleOpenFolderModal(null, selectedFolder)}
               >
                 <Plus size={14} />
-                <span>Create Campaign Subfolder</span>
+                <span>Create Subfolder</span>
               </button>
             </div>
           )}
@@ -1070,15 +1070,15 @@ const AdminGallery = () => {
                 <h4>
                   {editingFolder
                     ? editingFolder.parentId
-                      ? 'Edit Campaign Subfolder'
+                      ? 'Edit Subfolder'
                       : 'Edit Folder & Thumbnail'
                     : folderForm.parentId
-                    ? 'Create Campaign Subfolder'
+                    ? 'Create Subfolder'
                     : 'Create New Gallery Folder'}
                 </h4>
                 <p>
                   {folderForm.parentId
-                    ? `Organize activity & campaign media under "${folderForm.parentName}"`
+                    ? `Organize media under "${folderForm.parentName}"`
                     : 'Organize campus photos and video albums with custom cover art'}
                 </p>
               </div>
@@ -1109,7 +1109,7 @@ const AdminGallery = () => {
               <div className="form-group">
                 <label className="form-label">
                   <FolderPlus size={14} className="label-icon" />
-                  <span>{folderForm.parentId ? 'Campaign / Subfolder Name' : 'Folder / Event Name'}</span>
+                  <span>{folderForm.parentId ? 'Subfolder Name' : 'Folder / Event Name'}</span>
                   <span className="req">*</span>
                 </label>
                 <input
@@ -1323,9 +1323,9 @@ const AdminGallery = () => {
                       <span>Saving...</span>
                     </span>
                   ) : editingFolder ? (
-                    editingFolder.parentId ? 'Update Campaign' : 'Update Folder & Thumbnail'
+                    editingFolder.parentId ? 'Update Subfolder' : 'Update Folder & Thumbnail'
                   ) : folderForm.parentId ? (
-                    'Create Campaign Subfolder'
+                    'Create Subfolder'
                   ) : (
                     'Create Folder'
                   )}

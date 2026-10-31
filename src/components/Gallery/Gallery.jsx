@@ -401,7 +401,7 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           </span>
                           {folder.subfolderCount > 0 && (
                             <span className="folder-campaign-count-badge">
-                              📂 {folder.subfolderCount} {folder.subfolderCount === 1 ? 'Campaign' : 'Campaigns'}
+                              📂 {folder.subfolderCount} {folder.subfolderCount === 1 ? 'Subfolder' : 'Subfolders'}
                             </span>
                           )}
                           <span className="folder-count-badge">
@@ -477,7 +477,7 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                 )}
                 <span className="crumb-current">{selectedFolder.name}</span>
                 {selectedFolder.parentId && (
-                  <span className="crumb-campaign-badge">Campaign</span>
+                  <span className="crumb-campaign-badge">Subfolder</span>
                 )}
               </div>
             </div>
@@ -549,15 +549,15 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
               </div>
             </div>
 
-            {/* Subfolders / Campaigns Grid inside Parent Folder */}
+            {/* Subfolders Grid inside Parent Folder */}
             {subfolders.length > 0 && (
               <div className="public-subfolders-section">
                 <div className="public-subfolders-header">
                   <div className="header-icon-title">
                     <FolderOpen size={20} className="section-title-icon" />
-                    <h3>Campaigns & Activities ({subfolders.length})</h3>
+                    <h3>Subfolders ({subfolders.length})</h3>
                   </div>
-                  <p>Browse specific initiatives, campaigns, and events organised under {selectedFolder.name}</p>
+                  <p>Browse albums and collections organized under {selectedFolder.name}</p>
                 </div>
 
                 <div className="public-subfolders-grid">
@@ -587,7 +587,7 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           <img src={subCover} alt={sub.name} loading="lazy" />
                           <div className="subfolder-hover-overlay">
                             <span className="open-subfolder-pill">
-                              <FolderOpen size={14} /> Open Campaign
+                              <FolderOpen size={14} /> Open Subfolder
                             </span>
                           </div>
                           <span className="subfolder-items-tag">
@@ -599,9 +599,9 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           {sub.description ? (
                             <p>{sub.description}</p>
                           ) : (
-                            <p className="empty">Click to view campaign photos & videos</p>
+                            <p className="empty">Click to view photos & videos</p>
                           )}
-                          <span className="view-campaign-link">Open Campaign Photos →</span>
+                          <span className="view-campaign-link">Open Subfolder →</span>
                         </div>
                       </div>
                     );
