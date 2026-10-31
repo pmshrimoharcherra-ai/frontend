@@ -1,0 +1,169 @@
+/* StudentProfile.css */
+.student-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeInProfile 0.3s ease-in-out;
+}
+
+@keyframes fadeInProfile {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sp-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sp-page-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sp-page-header p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.sp-profile-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.sp-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.sp-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sp-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sp-card-title-wrap .icon-title {
+  color: #ea580c;
+}
+
+.sp-card-title-wrap h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.profile-box.full-width {
+  grid-column: span 2;
+}
+
+.profile-fields-list {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.p-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #0f172a;
+}
+
+.p-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.p-val {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.p-val.font-bold {
+  font-weight: 700;
+}
+
+.p-val.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.p-val.text-success {
+  color: #16a34a;
+}
+
+.val-with-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn-mini {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.copy-btn-mini:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.profile-fields-grid-3 {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.profile-fields-grid-3 .span-2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 1024px) {
+  .sp-profile-sections-grid,
+  .profile-fields-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-box.full-width,
+  .profile-fields-grid-3 .span-2 {
+    grid-column: span 1;
+  }
+}

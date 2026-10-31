@@ -1,0 +1,148 @@
+/* Student Attendance Styles */
+.student-attendance-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  animation: tabFadeIn 0.2s ease-out;
+}
+
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sp-page-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sp-page-header p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.sp-overall-att-badge {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-overall-att-badge .lbl {
+  font-size: 12px;
+  color: #047857;
+  font-weight: 600;
+}
+
+.sp-overall-att-badge .val {
+  font-size: 18px;
+  color: #065f46;
+}
+
+.sp-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.sp-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sp-card-header h4 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sp-table-scroll {
+  overflow-x: auto;
+}
+
+.sp-attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.sp-attendance-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sp-attendance-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.sp-attendance-table tr:hover {
+  background: #f8fafc;
+}
+
+.current-month-row {
+  background: #fffbeb !important;
+}
+
+.current-pill {
+  font-size: 10px;
+  font-weight: 700;
+  background: #f59e0b;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.text-success {
+  color: #059669;
+}
+
+.text-danger {
+  color: #dc2626;
+}
+
+.att-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.att-badge.high {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.att-badge.medium {
+  background: #fff7ed;
+  color: #ea580c;
+}

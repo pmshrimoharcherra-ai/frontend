@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
 import './LoginModal.css';
+import ForgotStudentIdModal from './ForgotStudentIdModal';
+import ForgotStudentPasswordModal from './ForgotStudentPasswordModal';
 import { 
   X, 
   User, 
@@ -24,6 +26,8 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showForgotIdModal, setShowForgotIdModal] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -178,7 +182,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         <form onSubmit={handleSubmit} className="modal-login-form">
           <div className="form-group">
             <label className="form-label" htmlFor="user-id">
-              {selectedRole === 'student' ? 'APAAR ID' : selectedRole === 'teacher' ? 'Teacher ID / Email' : 'Admin Username / Email'}
+              {selectedRole === 'student' ? 'APAAR ID / PEN Number' : selectedRole === 'teacher' ? 'Teacher ID / Email' : 'Admin Username / Email'}
             </label>
             <div className="input-wrapper">
               <User size={18} className="input-icon" />
@@ -187,7 +191,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 type="text"
                 placeholder={
                   selectedRole === 'student' 
-                    ? 'Enter 12-digit APAAR ID (e.g. 723387030675)' 
+                    ? 'Enter 12-digit APAAR ID or 11-digit PEN' 
                     : selectedRole === 'teacher' 
                     ? 'Enter Teacher ID (e.g. TR45208338) or Email' 
                     : 'Enter Admin username or email'
@@ -202,18 +206,21 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               />
             </div>
             {selectedRole === 'student' && (
-              <span className="student-login-hint">
-                Students can also use their 11-digit PEN Number if APAAR ID is pending.
-              </span>
+              <div className="forgot-id-row">
+                <button
+                  type="button"
+                  className="forgot-id-btn"
+                  onClick={() => setShowForgotIdModal(true)}
+                >
+                  Forgot APAAR ID / PEN Number?
+                </button>
+              </div>
             )}
           </div>
 
           <div className="form-group">
             <div className="password-label-row">
               <label className="form-label" htmlFor="user-password">Password</label>
-              {selectedRole === 'student' && (
-                <span className="password-format-tag">Format: FirstName + Roll + Class</span>
-              )}
             </div>
             <div className="input-wrapper">
               <Lock size={18} className="input-icon" />
@@ -222,7 +229,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder={
                   selectedRole === 'student'
-                    ? 'e.g. Kiran01IX (FirstName + Roll + Class)'
+                    ? 'Enter your password'
                     : selectedRole === 'teacher'
                     ? 'e.g. JoydebPhysics'
                     : 'Enter your password'
@@ -244,11 +251,6 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {selectedRole === 'student' && (
-              <span className="student-login-hint student-pass-hint">
-                Example: <strong>Kiran01IX</strong> (for Kiran, Roll 01, Class IX) or <strong>Aditya03X</strong>
-              </span>
-            )}
           </div>
 
           <div className="form-meta">
@@ -256,7 +258,18 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               <input type="checkbox" defaultChecked />
               <span>Remember me</span>
             </label>
-            <a href="#forgot" className="forgot-link" onClick={(e) => { e.preventDefault(); alert('Please contact the school administrative desk to reset your credentials.'); }}>
+            <a 
+              href="#forgot" 
+              className="forgot-link" 
+              onClick={(e) => { 
+                e.preventDefault(); 
+                if (selectedRole === 'student') {
+                  setShowForgotPasswordModal(true);
+                } else {
+                  alert('Please contact the school administrative desk to reset teacher or administrator credentials.');
+                }
+              }}
+            >
               Forgot password?
             </a>
           </div>
@@ -279,6 +292,31 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             )}
           </button>
         </form>
+
+        {/* Modal: Find Student APAAR ID / PEN Number */}
+        <ForgotStudentIdModal
+          isOpen={showForgotIdModal}
+          onClose={() => setShowForgotIdModal(false)}
+          onSelectIdentifier={(chosenId) => {
+            setIdentifier(chosenId);
+            setError('');
+          }}
+        />
+
+        {/* Modal: Student Forgot Password Recovery */}
+        <ForgotStudentPasswordModal
+          isOpen={showForgotPasswordModal}
+          onClose={() => setShowForgotPasswordModal(false)}
+          onSelectPassword={(chosenPass) => {
+            setPassword(chosenPass);
+            setError('');
+          }}
+          onSetIdentifier={(chosenId) => {
+            if (!identifier) {
+              setIdentifier(chosenId);
+            }
+          }}
+        />
       </div>
     </div>
   );

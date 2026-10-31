@@ -40,7 +40,44 @@ export const BILINGUAL_SUBJECT_LABELS = {
     en: 'IT / ITeS',
     bn: 'তথ্য প্রযুক্তি',
     full: 'IT / ITeS / তথ্য প্রযুক্তি'
+  },
+  'IT / ITeS': {
+    en: 'IT / ITeS',
+    bn: 'তথ্য প্রযুক্তি',
+    full: 'IT / ITeS / তথ্য প্রযুক্তি'
+  },
+  'Physical Education': {
+    en: 'Physical Education',
+    bn: 'শারীরিক শিক্ষা',
+    full: 'Physical Education / শারীরিক শিক্ষা'
+  },
+  'Work Education': {
+    en: 'Work Education',
+    bn: 'কর্ম শিক্ষা',
+    full: 'Work Education / কর্ম শিক্ষা'
   }
+};
+
+export const getBilingualSubject = (subj = '') => {
+  if (!subj) return { en: 'Subject', bn: '', full: 'Subject' };
+  if (BILINGUAL_SUBJECT_LABELS[subj]) return BILINGUAL_SUBJECT_LABELS[subj];
+
+  const s = subj.toLowerCase();
+  if (s.includes('english')) return BILINGUAL_SUBJECT_LABELS.English;
+  if (s.includes('bengali') || s.includes('kokborok')) return BILINGUAL_SUBJECT_LABELS.Bengali;
+  if (s.includes('math')) return BILINGUAL_SUBJECT_LABELS.Mathematics;
+  if (s.includes('social')) return BILINGUAL_SUBJECT_LABELS['Social Science'];
+  if (s.includes('science')) return BILINGUAL_SUBJECT_LABELS.Science;
+  if (s.includes('sanskrit') || s.includes('hindi')) return BILINGUAL_SUBJECT_LABELS.Sanskrit;
+  if (s.includes('it') || s.includes('ites') || s.includes('computer')) return BILINGUAL_SUBJECT_LABELS['IT/ITeS'];
+  if (s.includes('physical')) return BILINGUAL_SUBJECT_LABELS['Physical Education'];
+  if (s.includes('work')) return BILINGUAL_SUBJECT_LABELS['Work Education'];
+
+  return {
+    en: subj,
+    bn: '',
+    full: subj
+  };
 };
 
 export const computeTBSEGrade = (marks) => {
@@ -108,10 +145,25 @@ export const calculateSubjectRow = ({
   );
 
   const gradeInfo = computeTBSEGrade(totalMarks);
+  const bilingual = getBilingualSubject(subject);
 
   return {
     subject,
-    label: BILINGUAL_SUBJECT_LABELS[subject]?.full || subject,
+    subjectEn: bilingual.en,
+    subjectBn: bilingual.bn,
+    label: bilingual.full,
+    // Flattened fields expected directly by ReportCardModal.jsx
+    pt1Raw: rawPT1,
+    pt1Wt: wtPT1,
+    hyRaw: rawHY,
+    hyWt: wtHY,
+    pt2Raw: rawPT2,
+    pt2Wt: wtPT2,
+    annRaw: rawAnnual,
+    annWt: wtAnnual,
+    attMarks: wtAttendance,
+    iaMarks: wtInternal,
+    // Nested objects
     rawMarks: {
       pt1: rawPT1,
       halfYearly: rawHY,
@@ -160,10 +212,10 @@ export const buildStudentReportCard = ({
     const subjHash = subj.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
     const baselinePct = 0.55 + ((rollNum * 11 + subjHash * 5) % 38) / 100;
 
-    const finalPT1 = pt1 !== undefined ? pt1 : Math.round(40 * baselinePct);
-    const finalHY = hy !== undefined ? hy : Math.round(80 * baselinePct);
-    const finalPT2 = pt2 !== undefined ? pt2 : Math.round(40 * (baselinePct + 0.02));
-    const finalAnnual = annual !== undefined ? annual : Math.round(80 * (baselinePct + 0.05));
+    const finalPT1 = (pt1 !== undefined && Number(pt1) > 0) ? Number(pt1) : Math.round(40 * baselinePct);
+    const finalHY = (hy !== undefined && Number(hy) > 0) ? Number(hy) : Math.round(80 * baselinePct);
+    const finalPT2 = (pt2 !== undefined && Number(pt2) > 0) ? Number(pt2) : Math.round(40 * (baselinePct + 0.02));
+    const finalAnnual = (annual !== undefined && Number(annual) > 0) ? Number(annual) : Math.round(80 * (baselinePct + 0.05));
 
     return calculateSubjectRow({
       subject: subj,

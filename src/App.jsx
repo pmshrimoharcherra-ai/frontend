@@ -15,7 +15,13 @@ import Gallery from './components/Gallery/Gallery';
 import LoginModal from './components/LoginModal/LoginModal';
 import AdminPanel from './components/AdminPanel/AdminPanel';
 import TeacherDashboard from './components/TeacherDashboard/TeacherDashboard';
-import StudentPortal from './components/StudentPortal/StudentPortal';
+import StudentLayout from './components/StudentPortal/StudentLayout';
+import StudentDashboard from './components/StudentDashboard/StudentDashboard';
+import StudentExaminations from './components/StudentExaminations/StudentExaminations';
+import StudentAttendance from './components/StudentAttendance/StudentAttendance';
+import StudentSubjects from './components/StudentSubjects/StudentSubjects';
+import StudentCalendar from './components/StudentCalendar/StudentCalendar';
+import StudentProfile from './components/StudentProfile/StudentProfile';
 import NoticePage from './components/NoticePage/NoticePage';
 import Footer from './components/Footer/Footer';
 import './App.css';
@@ -121,27 +127,27 @@ function App() {
            ========================================================================= */}
         <Route 
           path="/student/dashboard" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="dashboard" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentDashboard /></StudentLayout>} 
         />
         <Route 
           path="/student/examinations" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="examinations" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentExaminations /></StudentLayout>} 
         />
         <Route 
           path="/student/attendance" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="attendance" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentAttendance /></StudentLayout>} 
         />
         <Route 
           path="/student/subjects" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="subjects" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentSubjects /></StudentLayout>} 
         />
         <Route 
           path="/student/calendar" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="calendar" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentCalendar /></StudentLayout>} 
         />
         <Route 
           path="/student/profile" 
-          element={<StudentPortal currentUser={currentUser} onLogout={handleLogout} defaultTab="profile" />} 
+          element={<StudentLayout currentUser={currentUser} onLogout={handleLogout}><StudentProfile /></StudentLayout>} 
         />
         <Route 
           path="/student" 

@@ -254,19 +254,25 @@ const AdminExaminations = () => {
     if (isSecondary) {
       EXAM_TERMS.forEach((term) => {
         if (!termMap[term]) termMap[term] = {};
-        termMap[term]['Science'] = {};
-        termMap[term]['Social Science'] = {};
+        if (!termMap[term]['Science']) termMap[term]['Science'] = {};
+        if (!termMap[term]['Social Science']) termMap[term]['Social Science'] = {};
         students.forEach((st) => {
           const key = st.studentId || st.id;
           const ls = Number(termMap[term]['Science (Life Science)']?.[key] ?? 0);
           const phy = Number(termMap[term]['Science (Physics)']?.[key] ?? 0);
           const chem = Number(termMap[term]['Science (Chemistry)']?.[key] ?? 0);
-          termMap[term]['Science'][key] = Number((ls + phy + chem).toFixed(1));
+          const totalSci = ls + phy + chem;
+          if (totalSci > 0) {
+            termMap[term]['Science'][key] = Number(totalSci.toFixed(1));
+          }
 
           const hist = Number(termMap[term]['Social Science (History)']?.[key] ?? 0);
           const geo = Number(termMap[term]['Social Science (Geography)']?.[key] ?? 0);
           const eco = Number(termMap[term]['Social Science (Economics)']?.[key] ?? 0);
-          termMap[term]['Social Science'][key] = Number((hist + geo + eco).toFixed(1));
+          const totalSoc = hist + geo + eco;
+          if (totalSoc > 0) {
+            termMap[term]['Social Science'][key] = Number(totalSoc.toFixed(1));
+          }
         });
       });
     }

@@ -387,32 +387,36 @@ const ReportCardModal = ({
                       <td className="cell-sl font-mono">{rIdx + 1}</td>
 
                       {/* Subject Name Bilingual */}
-                      <td className="cell-subject">
-                        <span className="sub-en">{row.subjectEn}</span>
-                        {row.subjectBn && <span className="sub-bn">{row.subjectBn}</span>}
+                      <td className="cell-subject cell-subject-name">
+                        <div className="subj-title-wrap">
+                          <span className="sub-en">{row.subjectEn || row.subject}</span>
+                          {(row.subjectBn || row.bilingualBn) && (
+                            <span className="sub-bn subj-bn-text">{row.subjectBn || row.bilingualBn}</span>
+                          )}
+                        </div>
                       </td>
 
                       {/* PT 1 Raw & Weighted */}
-                      <td className="font-mono">{row.pt1Raw}</td>
-                      <td className="font-mono font-bold col-wt">{row.pt1Wt}</td>
+                      <td className="font-mono">{row.pt1Raw ?? row.rawMarks?.pt1 ?? '—'}</td>
+                      <td className="font-mono font-bold col-wt">{row.pt1Wt ?? row.weightages?.pt1 ?? '—'}</td>
 
                       {/* Half-Yearly Raw & Weighted */}
-                      <td className="font-mono">{row.hyRaw}</td>
-                      <td className="font-mono font-bold col-wt">{row.hyWt}</td>
+                      <td className="font-mono">{row.hyRaw ?? row.rawMarks?.halfYearly ?? '—'}</td>
+                      <td className="font-mono font-bold col-wt">{row.hyWt ?? row.weightages?.halfYearly ?? '—'}</td>
 
                       {/* PT 2 Raw & Weighted */}
-                      <td className="font-mono">{row.pt2Raw}</td>
-                      <td className="font-mono font-bold col-wt">{row.pt2Wt}</td>
+                      <td className="font-mono">{row.pt2Raw ?? row.rawMarks?.pt2 ?? '—'}</td>
+                      <td className="font-mono font-bold col-wt">{row.pt2Wt ?? row.weightages?.pt2 ?? '—'}</td>
 
                       {/* Annual Raw & Weighted */}
-                      <td className="font-mono">{row.annRaw}</td>
-                      <td className="font-mono font-bold col-wt">{row.annWt}</td>
+                      <td className="font-mono">{row.annRaw ?? row.rawMarks?.annual ?? '—'}</td>
+                      <td className="font-mono font-bold col-wt">{row.annWt ?? row.weightages?.annual ?? '—'}</td>
 
                       {/* Attendance (5 Marks) */}
-                      <td className="font-mono font-bold col-wt">{row.attMarks}</td>
+                      <td className="font-mono font-bold col-wt">{row.attMarks ?? row.weightages?.attendance ?? 4}</td>
 
                       {/* Internal Assessment (5 Marks) */}
-                      <td className="font-mono font-bold col-wt">{row.iaMarks}</td>
+                      <td className="font-mono font-bold col-wt">{row.iaMarks ?? row.weightages?.internal ?? 5}</td>
 
                       {/* Total Marks (100) */}
                       <td className="cell-total font-mono font-bold">{row.totalMarks}</td>

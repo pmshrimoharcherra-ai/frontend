@@ -1,0 +1,33 @@
+/* Student Layout Wrapper */
+.student-portal-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+}
+
+.sp-body-container {
+  display: flex;
+  flex: 1;
+}
+
+.sp-main-content {
+  flex: 1;
+  padding: 24px 30px;
+  overflow-y: auto;
+  max-width: 1380px;
+}
+
+@media (max-width: 1024px) {
+  .sp-body-container {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 680px) {
+  .sp-main-content {
+    padding: 16px;
+  }
+}
