@@ -378,19 +378,39 @@ const AdminGallery = () => {
       // Add to items state
       setItems((prev) => [data.item, ...prev]);
 
-      // Update folder count
+      // Update folder count and set coverImage to this first uploaded image if not already set
       setFolders((prev) =>
         prev.map((f) => {
-          if ((f.id || f._id) === uploadData.folderId) {
+          const fId = f.id || f._id;
+          if (fId === uploadData.folderId) {
             return {
               ...f,
               itemCount: (f.itemCount || 0) + 1,
-              coverImage: f.coverImage || data.item.url
+              coverImage: f.coverImage || (data.item.mediaType === 'image' ? data.item.url : f.coverImage)
+            };
+          }
+          const targetF = prev.find((pf) => (pf.id || pf._id) === uploadData.folderId);
+          if (targetF?.parentId && fId === targetF.parentId && !f.coverImage && data.item.mediaType === 'image') {
+            return {
+              ...f,
+              coverImage: data.item.url
             };
           }
           return f;
         })
       );
+
+      if (selectedFolder && (selectedFolder.id || selectedFolder._id) === uploadData.folderId) {
+        setSelectedFolder((prev) =>
+          prev
+            ? {
+                ...prev,
+                itemCount: (prev.itemCount || 0) + 1,
+                coverImage: prev.coverImage || (data.item.mediaType === 'image' ? data.item.url : prev.coverImage)
+              }
+            : prev
+        );
+      }
 
       showToast(data.message || 'File uploaded to Cloudinary successfully!');
       setShowUploadModal(false);
@@ -418,13 +438,22 @@ const AdminGallery = () => {
 
       setItems((prev) => prev.filter((it) => (it.id || it._id) !== itemId));
 
-      // Decrement folder count
+      // Decrement folder count & update cover if deleted item was the cover
       setFolders((prev) =>
         prev.map((f) => {
-          if ((f.id || f._id) === item.folderId) {
+          const fId = f.id || f._id;
+          if (fId === item.folderId) {
+            let nextCover = f.coverImage;
+            if (f.coverImage === item.url) {
+              const remainingImages = items.filter(
+                (it) => (it.id || it._id) !== itemId && it.folderId === item.folderId && it.mediaType === 'image'
+              );
+              nextCover = remainingImages.length > 0 ? remainingImages[remainingImages.length - 1].url : '';
+            }
             return {
               ...f,
-              itemCount: Math.max(0, (f.itemCount || 1) - 1)
+              itemCount: Math.max(0, (f.itemCount || 1) - 1),
+              coverImage: nextCover
             };
           }
           return f;
@@ -660,6 +689,12 @@ const AdminGallery = () => {
                 const fId = folder.id || folder._id;
                 const count = folder.itemCount || 0;
                 const subCount = folder.subfolderCount || 0;
+                const directImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
+                const subIds = folders.filter((f) => f.parentId === fId).map((f) => f.id || f._id);
+                const subImages = items.filter((it) => subIds.includes(it.folderId) && it.mediaType === 'image');
+                const firstAvailablePhoto = directImages[directImages.length - 1] || directImages[0] || subImages[subImages.length - 1] || subImages[0];
+                const folderCover = folder.coverImage || firstAvailablePhoto?.url || 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80';
+
                 return (
                   <div
                     key={fId}
@@ -668,7 +703,7 @@ const AdminGallery = () => {
                   >
                     <div className="folder-cover-wrap">
                       <img
-                        src={folder.coverImage || 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80'}
+                        src={folderCover}
                         alt={folder.name}
                         className="folder-cover-img"
                         loading="lazy"
@@ -765,6 +800,10 @@ const AdminGallery = () => {
               {currentSubfolders.map((sub) => {
                 const subId = sub.id || sub._id;
                 const subItemCount = sub.itemCount || 0;
+                const subImages = items.filter((it) => it.folderId === subId && it.mediaType === 'image');
+                const subFirstPhoto = subImages[subImages.length - 1] || subImages[0];
+                const subCover = sub.coverImage || subFirstPhoto?.url || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80';
+
                 return (
                   <div
                     key={subId}
@@ -773,10 +812,7 @@ const AdminGallery = () => {
                   >
                     <div className="subfolder-thumb-wrap">
                       <img
-                        src={
-                          sub.coverImage ||
-                          'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80'
-                        }
+                        src={subCover}
                         alt={sub.name}
                         className="subfolder-thumb-img"
                         loading="lazy"
@@ -1027,38 +1063,63 @@ const AdminGallery = () => {
 
               {/* FOLDER THUMBNAIL / COVER SECTION */}
               <div className="form-group thumbnail-edit-group">
-                <label className="form-label">
-                  <ImageIcon size={14} className="label-icon" />
-                  <span>Folder Thumbnail / Cover Image</span>
-                </label>
+                <div className="thumbnail-label-row">
+                  <label className="form-label">
+                    <ImageIcon size={14} className="label-icon" />
+                    <span>Folder Thumbnail / Cover Image</span>
+                  </label>
+                  <span className="optional-tag">Auto / Optional</span>
+                </div>
                 <p className="form-sub-hint">
-                  This picture appears on the folder card in the Admin Panel and public gallery.
+                  If no thumbnail is uploaded, the <strong>first image of the folder</strong> will automatically become the thumbnail.
                 </p>
 
                 <div className="thumbnail-edit-preview-row">
-                  <div className="thumbnail-preview-box">
-                    <img
-                      src={
-                        folderForm.previewCover ||
-                        'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80'
-                      }
-                      alt="Thumbnail preview"
-                      className="thumbnail-preview-img"
-                    />
-                    {folderForm.coverFile ? (
-                      <span className="thumbnail-status-pill new-upload">
-                        <Check size={11} strokeWidth={3} /> New Image Ready
-                      </span>
-                    ) : folderForm.coverImage ? (
-                      <span className="thumbnail-status-pill active-cover">
-                        Custom Cover
-                      </span>
-                    ) : (
-                      <span className="thumbnail-status-pill default-cover">
-                        Default
-                      </span>
-                    )}
-                  </div>
+                  {(() => {
+                    const fId = editingFolder ? (editingFolder.id || editingFolder._id) : null;
+                    const folderImages = fId ? items.filter((it) => it.folderId === fId && it.mediaType === 'image') : [];
+                    const firstPhoto = folderImages.length > 0 ? folderImages[folderImages.length - 1] : null;
+                    const currentDisplayImage = folderForm.previewCover || folderForm.coverImage || firstPhoto?.url;
+
+                    if (currentDisplayImage) {
+                      return (
+                        <div className="thumbnail-preview-box">
+                          <img
+                            src={currentDisplayImage}
+                            alt="Thumbnail preview"
+                            className="thumbnail-preview-img"
+                          />
+                          {folderForm.coverFile ? (
+                            <span className="thumbnail-status-pill new-upload">
+                              <Check size={11} strokeWidth={3} /> New Image Ready
+                            </span>
+                          ) : folderForm.coverImage ? (
+                            <span className="thumbnail-status-pill active-cover">
+                              Custom Cover
+                            </span>
+                          ) : (
+                            <span className="thumbnail-status-pill auto-cover">
+                              <Sparkles size={10} /> Auto: 1st Photo
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Empty / Auto state when no thumbnail uploaded and no images exist yet
+                    return (
+                      <div className="thumbnail-auto-empty-preview">
+                        <div className="auto-cover-icon-wrap">
+                          <Sparkles size={18} />
+                        </div>
+                        <span className="auto-cover-title">Automatic</span>
+                        <span className="auto-cover-desc">Uses 1st uploaded image</span>
+                        <span className="thumbnail-status-pill auto-cover">
+                          Auto: 1st Image
+                        </span>
+                      </div>
+                    );
+                  })()}
 
                   <div className="thumbnail-actions-col">
                     <input
@@ -1075,7 +1136,7 @@ const AdminGallery = () => {
                       onClick={() => coverFileInputRef.current && coverFileInputRef.current.click()}
                     >
                       <Camera size={15} />
-                      <span>{folderForm.previewCover ? 'Change Thumbnail...' : 'Upload Thumbnail...'}</span>
+                      <span>{folderForm.previewCover || folderForm.coverImage ? 'Change Custom Cover...' : 'Upload Custom Cover...'}</span>
                     </button>
 
                     {(folderForm.previewCover || folderForm.coverImage || folderForm.coverFile) && (
@@ -1091,10 +1152,10 @@ const AdminGallery = () => {
                           }));
                           if (coverFileInputRef.current) coverFileInputRef.current.value = '';
                         }}
-                        title="Reset to default / auto-select from latest photo"
+                        title="Use first uploaded photo automatically as thumbnail"
                       >
                         <RotateCcw size={13} />
-                        <span>Reset to Default</span>
+                        <span>Reset to Auto (1st Photo)</span>
                       </button>
                     )}
                   </div>

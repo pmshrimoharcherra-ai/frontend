@@ -358,8 +358,13 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                 {filteredFolders.map((folder) => {
                   const fId = folder.id || folder._id;
                   const count = folder.itemCount || 0;
+                  const folderImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
+                  const subfolderIds = folders.filter((f) => f.parentId === fId).map((f) => f.id || f._id);
+                  const subImages = items.filter((it) => subfolderIds.includes(it.folderId) && it.mediaType === 'image');
+                  const firstPhoto = folderImages[folderImages.length - 1] || folderImages[0] || subImages[subImages.length - 1] || subImages[0];
                   const cover =
                     folder.coverImage ||
+                    firstPhoto?.url ||
                     'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80';
                   const categoryName = folder.category || 'Clubs & Activities';
 
@@ -559,8 +564,11 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                   {subfolders.map((sub) => {
                     const subId = sub.id || sub._id;
                     const subCount = sub.itemCount || 0;
+                    const subImages = items.filter((it) => it.folderId === subId && it.mediaType === 'image');
+                    const subFirst = subImages[subImages.length - 1] || subImages[0];
                     const subCover =
                       sub.coverImage ||
+                      subFirst?.url ||
                       'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80';
                     return (
                       <div
