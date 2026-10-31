@@ -179,7 +179,15 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
     return folders.find((f) => (f.id || f._id) === selectedFolder.parentId) || null;
   }, [folders, selectedFolder]);
 
-  // Items inside the currently selected folder
+  // Items inside the currently selected folder (including subfolders for parent view)
+  const totalFolderItems = useMemo(() => {
+    if (!selectedFolder) return [];
+    const fId = String(selectedFolder.id || selectedFolder._id);
+    const childIds = folders.filter((f) => String(f.parentId) === fId).map((f) => String(f.id || f._id));
+    return items.filter((item) => String(item.folderId) === fId || childIds.includes(String(item.folderId)));
+  }, [items, selectedFolder, folders]);
+
+  // Direct items inside the currently selected folder
   const currentFolderItems = useMemo(() => {
     if (!selectedFolder) return [];
     const fId = String(selectedFolder.id || selectedFolder._id);
@@ -414,9 +422,10 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
               <div className="public-folders-grid">
                 {filteredFolders.map((folder) => {
                   const fId = folder.id || folder._id;
-                  const count = folder.itemCount || 0;
-                  const folderImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
                   const subfolderIds = folders.filter((f) => f.parentId === fId).map((f) => f.id || f._id);
+                  const totalItems = items.filter((it) => it.folderId === fId || subfolderIds.includes(it.folderId));
+                  const totalCount = totalItems.length;
+                  const folderImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
                   const subImages = items.filter((it) => subfolderIds.includes(it.folderId) && it.mediaType === 'image');
                   const firstPhoto = folderImages[folderImages.length - 1] || folderImages[0] || subImages[subImages.length - 1] || subImages[0];
                   const cover =
@@ -451,18 +460,13 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           </span>
                         </div>
 
-                        {/* Top Badges */}
+                        {/* Top Badges: Category & Total Items Count */}
                         <div className="folder-badge-row">
                           <span className="folder-cat-badge">
                             <Sparkles size={11} /> {categoryName}
                           </span>
-                          {folder.subfolderCount > 0 && (
-                            <span className="folder-campaign-count-badge">
-                              📂 {folder.subfolderCount} {folder.subfolderCount === 1 ? 'Subfolder' : 'Subfolders'}
-                            </span>
-                          )}
                           <span className="folder-count-badge">
-                            <Layers size={11} /> {count} {count === 1 ? 'Item' : 'Items'}
+                            <Layers size={11} /> {totalCount} {totalCount === 1 ? 'Item' : 'Items'}
                           </span>
                         </div>
                       </div>

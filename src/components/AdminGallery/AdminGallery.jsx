@@ -751,10 +751,9 @@ const AdminGallery = () => {
             <div className="folders-grid">
               {rootFolders.map((folder) => {
                 const fId = folder.id || folder._id;
-                const count = folder.itemCount || 0;
-                const subCount = folder.subfolderCount || 0;
-                const directImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
                 const subIds = folders.filter((f) => f.parentId === fId).map((f) => f.id || f._id);
+                const totalCount = items.filter((it) => it.folderId === fId || subIds.includes(it.folderId)).length;
+                const directImages = items.filter((it) => it.folderId === fId && it.mediaType === 'image');
                 const subImages = items.filter((it) => subIds.includes(it.folderId) && it.mediaType === 'image');
                 const firstAvailablePhoto = directImages[directImages.length - 1] || directImages[0] || subImages[subImages.length - 1] || subImages[0];
                 const folderCover = folder.coverImage || firstAvailablePhoto?.url || 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80';
@@ -778,13 +777,8 @@ const AdminGallery = () => {
                         </span>
                       </div>
                       <div className="folder-badges-top-right">
-                        {subCount > 0 && (
-                          <span className="folder-sub-count-badge">
-                            📂 {subCount} {subCount === 1 ? 'Subfolder' : 'Subfolders'}
-                          </span>
-                        )}
                         <span className="folder-count-badge">
-                          {count} {count === 1 ? 'Item' : 'Items'}
+                          {totalCount} {totalCount === 1 ? 'Item' : 'Items'}
                         </span>
                       </div>
                     </div>
