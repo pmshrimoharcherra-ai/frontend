@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   Users,
@@ -8,7 +8,19 @@ import {
   Sparkles,
   FileSpreadsheet,
   CheckCircle2,
-  Clock
+  Clock,
+  ChevronDown,
+  LayoutGrid,
+  FlaskConical,
+  Leaf,
+  Zap,
+  TestTube,
+  Globe,
+  ScrollText,
+  BarChart3,
+  Languages,
+  Calculator,
+  Monitor
 } from 'lucide-react';
 import './ExamControlsTracker.css';
 
@@ -42,6 +54,55 @@ const ExamControlsTracker = ({
   isSecondarySciencePart,
   isSecondarySocialSciencePart
 }) => {
+  const [subjectDropOpen, setSubjectDropOpen] = useState(false);
+  const subjectDropRef = useRef(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (subjectDropRef.current && !subjectDropRef.current.contains(e.target)) {
+        setSubjectDropOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Subject option config
+  const scienceOptions = [
+    { value: 'Science',              label: 'Science',      sub: 'Combined total',    icon: FlaskConical,  color: '#22c55e' },
+    { value: 'Science (Life Science)', label: 'Life Science', sub: 'Biology',          icon: Leaf,          color: '#10b981' },
+    { value: 'Science (Physics)',    label: 'Physics',      sub: 'Mechanics & Optics',icon: Zap,           color: '#f59e0b' },
+    { value: 'Science (Chemistry)',  label: 'Chemistry',    sub: 'Matter & Reactions', icon: TestTube,      color: '#8b5cf6' },
+  ];
+
+  const socialOptions = [
+    { value: 'Social Science',              label: 'Social Science', sub: 'Combined total', icon: Globe,    color: '#3b82f6' },
+    { value: 'Social Science (History)',    label: 'History',        sub: 'Past events',    icon: ScrollText,color: '#f97316' },
+    { value: 'Social Science (Geography)', label: 'Geography',      sub: 'World & maps',   icon: Globe,     color: '#06b6d4' },
+    { value: 'Social Science (Economics)', label: 'Economics',      sub: 'Trade & finance', icon: BarChart3, color: '#ec4899' },
+  ];
+
+  const subjectIconMap = {
+    'English':    { icon: Languages, color: '#2563eb' },
+    'Bengali':    { icon: Languages, color: '#7c3aed' },
+    'Mathematics':{ icon: Calculator,color: '#dc2626' },
+    'IT/ITeS':    { icon: Monitor,   color: '#0891b2' },
+  };
+
+  const getSubjectLabel = () => {
+    if (selectedSubject === 'all') return 'All Subjects';
+    const sciOpt = scienceOptions.find(o => o.value === selectedSubject);
+    if (sciOpt) return sciOpt.label;
+    const socOpt = socialOptions.find(o => o.value === selectedSubject);
+    if (socOpt) return socOpt.label;
+    return selectedSubject;
+  };
+
+  const otherSubjects = curriculumSubjects.filter(
+    (s) => !isSecondarySciencePart(selectedClassId, s) && !isSecondarySocialSciencePart(selectedClassId, s)
+  );
+
   return (
     <>
       {/* ── Filter & Configuration Toolbar ── */}
@@ -78,41 +139,114 @@ const ExamControlsTracker = ({
           </select>
         </div>
 
-        {/* Subject Filter Dropdown */}
-        <div className="toolbar-field-group">
+        {/* Subject Filter — Custom Dropdown */}
+        <div className="toolbar-field-group" ref={subjectDropRef} style={{ position: 'relative' }}>
           <label>Subject View</label>
-          <select
-            className="exam-select-box subject-select"
-            value={selectedSubject}
-            onChange={(e) => onSelectSubject(e.target.value)}
+          <button
+            type="button"
+            className={`subject-dropdown-trigger ${subjectDropOpen ? 'open' : ''}`}
+            onClick={() => setSubjectDropOpen((v) => !v)}
           >
-            <option value="all">All Subjects</option>
+            <span className="subject-trigger-label">{getSubjectLabel()}</span>
+            <ChevronDown size={15} className={`subject-chevron ${subjectDropOpen ? 'rotated' : ''}`} />
+          </button>
 
-            {isSecondary && (
-              <>
-                <option value="Science">Science</option>
-                <option value="Science (Life Science)">Life Science</option>
-                <option value="Science (Physics)">Physics</option>
-                <option value="Science (Chemistry)">Chemistry</option>
-                <option value="Social Science">Social Science</option>
-                <option value="Social Science (History)">History</option>
-                <option value="Social Science (Geography)">Geography</option>
-                <option value="Social Science (Economics)">Economics</option>
-              </>
-            )}
+          {subjectDropOpen && (
+            <div className="subject-dropdown-panel">
+              {/* All Subjects */}
+              <button
+                type="button"
+                className={`subject-option all-option ${selectedSubject === 'all' ? 'active' : ''}`}
+                onClick={() => { onSelectSubject('all'); setSubjectDropOpen(false); }}
+              >
+                <span className="subject-opt-icon-wrap" style={{ background: '#f1f5f9' }}>
+                  <LayoutGrid size={14} color="#64748b" />
+                </span>
+                <div className="subject-opt-text">
+                  <span className="subject-opt-name">All Subjects</span>
+                  <span className="subject-opt-sub">Consolidated marksheet</span>
+                </div>
+                {selectedSubject === 'all' && <span className="subject-opt-check">✓</span>}
+              </button>
 
-            {curriculumSubjects
-              .filter(
-                (s) =>
-                  !isSecondarySciencePart(selectedClassId, s) &&
-                  !isSecondarySocialSciencePart(selectedClassId, s)
-              )
-              .map((s, idx) => (
-                <option key={idx} value={s}>
-                  {s}
-                </option>
-              ))}
-          </select>
+              {/* Science Section */}
+              {isSecondary && (
+                <>
+                  <div className="subject-section-header">Science</div>
+                  {scienceOptions.map((opt) => {
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`subject-option ${selectedSubject === opt.value ? 'active' : ''}`}
+                        onClick={() => { onSelectSubject(opt.value); setSubjectDropOpen(false); }}
+                      >
+                        <span className="subject-opt-icon-wrap" style={{ background: `${opt.color}18` }}>
+                          <Icon size={14} color={opt.color} />
+                        </span>
+                        <div className="subject-opt-text">
+                          <span className="subject-opt-name">{opt.label}</span>
+                          <span className="subject-opt-sub">{opt.sub}</span>
+                        </div>
+                        {selectedSubject === opt.value && <span className="subject-opt-check">✓</span>}
+                      </button>
+                    );
+                  })}
+
+                  {/* Social Science Section */}
+                  <div className="subject-section-header">Social Science</div>
+                  {socialOptions.map((opt) => {
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`subject-option ${selectedSubject === opt.value ? 'active' : ''}`}
+                        onClick={() => { onSelectSubject(opt.value); setSubjectDropOpen(false); }}
+                      >
+                        <span className="subject-opt-icon-wrap" style={{ background: `${opt.color}18` }}>
+                          <Icon size={14} color={opt.color} />
+                        </span>
+                        <div className="subject-opt-text">
+                          <span className="subject-opt-name">{opt.label}</span>
+                          <span className="subject-opt-sub">{opt.sub}</span>
+                        </div>
+                        {selectedSubject === opt.value && <span className="subject-opt-check">✓</span>}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Other Subjects */}
+              {otherSubjects.length > 0 && (
+                <>
+                  <div className="subject-section-header">Other Subjects</div>
+                  {otherSubjects.map((s, idx) => {
+                    const meta = subjectIconMap[s] || { icon: BookOpen, color: '#64748b' };
+                    const Icon = meta.icon;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        className={`subject-option ${selectedSubject === s ? 'active' : ''}`}
+                        onClick={() => { onSelectSubject(s); setSubjectDropOpen(false); }}
+                      >
+                        <span className="subject-opt-icon-wrap" style={{ background: `${meta.color}18` }}>
+                          <Icon size={14} color={meta.color} />
+                        </span>
+                        <div className="subject-opt-text">
+                          <span className="subject-opt-name">{s}</span>
+                        </div>
+                        {selectedSubject === s && <span className="subject-opt-check">✓</span>}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Search Student */}
