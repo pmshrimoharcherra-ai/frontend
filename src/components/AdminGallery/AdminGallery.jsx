@@ -410,12 +410,6 @@ const AdminGallery = () => {
       {/* Page Header */}
       <div className="admin-gallery-header">
         <div className="header-left">
-          <div className="gallery-badge-row">
-            <span className="badge-tag">Cloudinary Media Hub</span>
-            <span className="cloud-status-pill">
-              <Cloud size={13} /> Cloud: xf7qftdz
-            </span>
-          </div>
           <h2>School Media & Event Gallery</h2>
           <p className="gallery-subtitle">
             Create albums/folders and upload high-resolution campus photos and event videos directly to Cloudinary.
