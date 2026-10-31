@@ -974,18 +974,20 @@ const AdminGallery = () => {
               {folderForm.parentId && (
                 <div className="parent-folder-pill-card">
                   <div className="parent-pill-icon">
-                    <FolderOpen size={16} />
+                    <FolderOpen size={18} />
                   </div>
                   <div className="parent-pill-content">
                     <span className="parent-pill-label">Parent Folder:</span>
                     <strong className="parent-pill-name">{folderForm.parentName}</strong>
                   </div>
+                  <span className="parent-pill-sub-tag">Subfolder</span>
                 </div>
               )}
 
               <div className="form-group">
                 <label className="form-label">
-                  {folderForm.parentId ? 'Campaign / Subfolder Name' : 'Folder / Event Name'}{' '}
+                  <FolderPlus size={14} className="label-icon" />
+                  <span>{folderForm.parentId ? 'Campaign / Subfolder Name' : 'Folder / Event Name'}</span>
                   <span className="req">*</span>
                 </label>
                 <input
@@ -1003,25 +1005,31 @@ const AdminGallery = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Category / Filter Section</label>
-                <select
-                  className="form-input form-select"
-                  value={folderForm.category}
-                  onChange={(e) => setFolderForm({ ...folderForm, category: e.target.value })}
-                >
-                  <option value="Clubs & Activities">Clubs & Activities</option>
-                  <option value="Campus & Infrastructure">Campus & Infrastructure</option>
-                  <option value="Events & Celebrations">Events & Celebrations</option>
-                  <option value="Sports & Athletics">Sports & Athletics</option>
-                  <option value="Academics & Labs">Academics & Labs</option>
-                  <option value="General">General</option>
-                </select>
+                <label className="form-label">
+                  <Layers size={14} className="label-icon" />
+                  <span>Category / Filter Section</span>
+                </label>
+                <div className="select-input-wrap">
+                  <select
+                    className="form-input form-select"
+                    value={folderForm.category}
+                    onChange={(e) => setFolderForm({ ...folderForm, category: e.target.value })}
+                  >
+                    <option value="Clubs & Activities">Clubs & Activities</option>
+                    <option value="Campus & Infrastructure">Campus & Infrastructure</option>
+                    <option value="Events & Celebrations">Events & Celebrations</option>
+                    <option value="Sports & Athletics">Sports & Athletics</option>
+                    <option value="Academics & Labs">Academics & Labs</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
               </div>
 
               {/* FOLDER THUMBNAIL / COVER SECTION */}
               <div className="form-group thumbnail-edit-group">
                 <label className="form-label">
-                  Folder Thumbnail / Cover Image
+                  <ImageIcon size={14} className="label-icon" />
+                  <span>Folder Thumbnail / Cover Image</span>
                 </label>
                 <p className="form-sub-hint">
                   This picture appears on the folder card in the Admin Panel and public gallery.
@@ -1139,7 +1147,10 @@ const AdminGallery = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Description / Summary</label>
+                <label className="form-label">
+                  <Sparkles size={14} className="label-icon" />
+                  <span>Description / Summary</span>
+                </label>
                 <textarea
                   rows="3"
                   placeholder="Optional brief description of the event or campus facility..."
@@ -1162,10 +1173,12 @@ const AdminGallery = () => {
                   {folderSaving ? (
                     <span className="btn-loading-content">
                       <Loader2 size={16} className="spin-icon" />
-                      <span>Saving Thumbnail...</span>
+                      <span>Saving...</span>
                     </span>
                   ) : editingFolder ? (
-                    'Update Folder & Thumbnail'
+                    editingFolder.parentId ? 'Update Campaign' : 'Update Folder & Thumbnail'
+                  ) : folderForm.parentId ? (
+                    'Create Campaign Subfolder'
                   ) : (
                     'Create Folder'
                   )}
