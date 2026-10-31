@@ -86,15 +86,7 @@ const Navbar = ({
     { 
       label: 'About', 
       id: 'about',
-      hasDropdown: true,
-      active: currentPage === 'about',
-      subItems: [
-        { label: 'Overview', target: 'about-overview', page: 'about' },
-        { label: "Teacher-In-Charge's Message", target: 'teacher-desk', page: 'about' },
-        { label: 'Vision & Mission', target: 'vision-mission', page: 'about' },
-        { label: 'School Management', target: 'about-overview', page: 'about' },
-        { label: 'Faculty & Staff', target: 'teacher-desk', page: 'about' }
-      ] 
+      active: currentPage === 'about'
     },
     { 
       label: 'Academics', 
