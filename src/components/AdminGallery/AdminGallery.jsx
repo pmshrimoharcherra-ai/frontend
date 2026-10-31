@@ -64,6 +64,16 @@ const AdminGallery = () => {
     fileType: 'image'
   });
 
+  // Edit Media Item Modal state
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [itemSaving, setItemSaving] = useState(false);
+  const [itemEditForm, setItemEditForm] = useState({
+    title: '',
+    caption: '',
+    folderId: ''
+  });
+
   const [previewItem, setPreviewItem] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -466,6 +476,60 @@ const AdminGallery = () => {
       showToast('Media item removed successfully.');
     } catch (err) {
       showToast(`Error: ${err.message}`);
+    }
+  };
+
+  // Open Edit Media Modal
+  const handleOpenEditItemModal = (item, e) => {
+    if (e) e.stopPropagation();
+    setEditingItem(item);
+    setItemEditForm({
+      title: item.title || '',
+      caption: item.caption || '',
+      folderId: item.folderId || (selectedFolder ? (selectedFolder.id || selectedFolder._id) : '')
+    });
+    setShowEditItemModal(true);
+  };
+
+  // Save Edited Media Title / Details
+  const handleSaveItemEdit = async (e) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    try {
+      setItemSaving(true);
+      const itemId = editingItem.id || editingItem._id;
+      const res = await fetch(`${API_BASE_URL}/api/gallery/items/${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: itemEditForm.title,
+          caption: itemEditForm.caption,
+          folderId: itemEditForm.folderId
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to update media details');
+      const data = await res.json();
+      const updated = data.item;
+
+      // Update in items state
+      setItems((prev) =>
+        prev.map((it) => ((it.id || it._id) === itemId ? { ...it, ...updated } : it))
+      );
+
+      // Update previewItem if currently open
+      if (previewItem && (previewItem.id || previewItem._id) === itemId) {
+        setPreviewItem((prev) => ({ ...prev, ...updated }));
+      }
+
+      showToast(`Media title updated to "${updated.title}"!`);
+      setShowEditItemModal(false);
+    } catch (err) {
+      console.error('Error saving media:', err);
+      showToast(`Error: ${err.message}`);
+    } finally {
+      setItemSaving(false);
     }
   };
 
@@ -953,18 +1017,40 @@ const AdminGallery = () => {
                         </button>
                       )}
 
-                      <button
-                        type="button"
-                        className="media-delete-btn"
-                        onClick={(e) => handleDeleteItem(item, e)}
-                        title="Delete from Gallery and Cloudinary"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="media-top-action-btns">
+                        <button
+                          type="button"
+                          className="media-card-action-btn edit"
+                          onClick={(e) => handleOpenEditItemModal(item, e)}
+                          title="Edit Image Title & Details"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          className="media-card-action-btn delete"
+                          onClick={(e) => handleDeleteItem(item, e)}
+                          title="Delete from Gallery and Cloudinary"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="media-info-box">
-                      <h5 className="media-title">{item.title || 'Untitled Media'}</h5>
+                      <div className="media-title-row">
+                        <h5 className="media-title" title={item.title}>
+                          {item.title || 'Untitled Media'}
+                        </h5>
+                        <button
+                          type="button"
+                          className="quick-edit-title-btn"
+                          onClick={(e) => handleOpenEditItemModal(item, e)}
+                          title="Edit Title"
+                        >
+                          <Pencil size={11} />
+                        </button>
+                      </div>
                       {item.caption && <p className="media-caption">{item.caption}</p>}
                     </div>
                   </div>
@@ -1432,15 +1518,151 @@ const AdminGallery = () => {
                 {previewItem.caption && <p>{previewItem.caption}</p>}
                 <span className="lightbox-folder-tag">Album: {previewItem.folderName}</span>
               </div>
-              <a
-                href={previewItem.url}
-                target="_blank"
-                rel="noreferrer"
-                className="view-original-btn"
-              >
-                Open Original
-              </a>
+              <div className="lightbox-actions-group">
+                <button
+                  type="button"
+                  className="lightbox-edit-btn"
+                  onClick={() => handleOpenEditItemModal(previewItem)}
+                >
+                  <Pencil size={13} />
+                  <span>Edit Title</span>
+                </button>
+                <a
+                  href={previewItem.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="view-original-btn"
+                >
+                  Open Original
+                </a>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: EDIT MEDIA TITLE & DETAILS */}
+      {showEditItemModal && editingItem && (
+        <div className="gallery-modal-backdrop" onClick={() => !itemSaving && setShowEditItemModal(false)}>
+          <div className="gallery-dialog-card edit-media-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <div>
+                <h4>Edit Media Title & Details</h4>
+                <p>Customize the headline title and caption for this media item</p>
+              </div>
+              <button
+                type="button"
+                className="close-dialog-btn"
+                disabled={itemSaving}
+                onClick={() => setShowEditItemModal(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveItemEdit} className="dialog-form">
+              {/* Media Preview Box */}
+              <div className="edit-media-preview-row">
+                <div className="edit-media-preview-box">
+                  {editingItem.mediaType === 'video' ? (
+                    <video src={editingItem.url} className="edit-preview-img" preload="metadata" />
+                  ) : (
+                    <img src={editingItem.url} alt={editingItem.title} className="edit-preview-img" />
+                  )}
+                  <span className="edit-preview-badge">
+                    {editingItem.mediaType === 'video' ? 'Video' : editingItem.format?.toUpperCase() || 'Photo'}
+                  </span>
+                </div>
+                <div className="edit-media-meta">
+                  <span className="meta-folder-name">📁 {editingItem.folderName}</span>
+                  <span className="meta-filename">{editingItem.title || 'Untitled Media'}</span>
+                </div>
+              </div>
+
+              {/* Title Input */}
+              <div className="form-group">
+                <label className="form-label">
+                  <Pencil size={14} className="label-icon" />
+                  <span>Media Title / Headline</span>
+                  <span className="req">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Special Campaign 6: E-Waste Warriors Drive..."
+                  className="form-input"
+                  value={itemEditForm.title}
+                  onChange={(e) => setItemEditForm({ ...itemEditForm, title: e.target.value })}
+                  autoFocus
+                />
+              </div>
+
+              {/* Caption Input */}
+              <div className="form-group">
+                <label className="form-label">
+                  <Sparkles size={14} className="label-icon" />
+                  <span>Caption / Description</span>
+                </label>
+                <textarea
+                  rows="3"
+                  placeholder="Optional brief description of this photo or event..."
+                  className="form-textarea"
+                  value={itemEditForm.caption}
+                  onChange={(e) => setItemEditForm({ ...itemEditForm, caption: e.target.value })}
+                />
+              </div>
+
+              {/* Destination Folder Selector */}
+              <div className="form-group">
+                <label className="form-label">
+                  <Folder size={14} className="label-icon" />
+                  <span>Album / Folder Location</span>
+                </label>
+                <div className="select-input-wrap">
+                  <select
+                    className="form-input form-select"
+                    value={itemEditForm.folderId}
+                    onChange={(e) => setItemEditForm({ ...itemEditForm, folderId: e.target.value })}
+                  >
+                    {rootFolders.map((root) => {
+                      const rId = root.id || root._id;
+                      const subList = folders.filter((f) => f.parentId === rId);
+                      return (
+                        <optgroup key={rId} label={`📁 ${root.name}`}>
+                          <option value={rId}>📁 {root.name}</option>
+                          {subList.map((sub) => (
+                            <option key={sub.id || sub._id} value={sub.id || sub._id}>
+                              &nbsp;&nbsp;&nbsp;&nbsp;↳ 📂 {sub.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
+
+              <div className="dialog-footer">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  disabled={itemSaving}
+                  onClick={() => setShowEditItemModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn" disabled={itemSaving}>
+                  {itemSaving ? (
+                    <span className="btn-loading-content">
+                      <span className="upload-btn-spinner"></span>
+                      <span>Saving...</span>
+                    </span>
+                  ) : (
+                    'Save Title & Details'
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
