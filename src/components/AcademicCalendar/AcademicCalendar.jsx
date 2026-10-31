@@ -225,13 +225,11 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
         <div
           key={`prev-${i}`}
           className={`cal-grid-cell other-month ${isToday ? 'is-today' : ''}`}
-          title={isToday ? `Today (${dayNum} ${monthsData.find((m) => m.key === prevMonthKey)?.name || ''} ${prevMonthYear})` : undefined}
           onClick={() => {
             if (isToday) setSelectedMonthKey(prevMonthKey);
           }}
         >
           <span className="cal-cell-number">{dayNum}</span>
-          {isToday && <span className="cal-today-tag">TODAY</span>}
         </div>
       );
     }
@@ -260,15 +258,12 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
             }
           }}
           title={
-            isToday
-              ? `Today (${day} ${activeMonthObj.name} ${activeMonthObj.year})${dayEvent ? ` • ${dayEvent.title}` : ''}`
-              : dayEvent
+            dayEvent
               ? `${dayEvent.title} (${dayEvent.category})`
               : `Day ${day}`
           }
         >
           <span className="cal-cell-number">{day}</span>
-          {isToday && <span className="cal-today-tag">TODAY</span>}
           {dayEvent && (
             <span
               className="cal-cell-dot"
@@ -295,13 +290,11 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
         <div
           key={`next-${nextDay}`}
           className={`cal-grid-cell other-month ${isToday ? 'is-today' : ''}`}
-          title={isToday ? `Today (${nextDay} ${monthsData.find((m) => m.key === nextMonthKey)?.name || ''} ${nextMonthYear})` : undefined}
           onClick={() => {
             if (isToday) setSelectedMonthKey(nextMonthKey);
           }}
         >
           <span className="cal-cell-number">{nextDay}</span>
-          {isToday && <span className="cal-today-tag">TODAY</span>}
         </div>
       );
     }
@@ -582,19 +575,9 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
               >
                 <ChevronLeft size={18} />
               </button>
-              <div className="cal-grid-month-title-wrap">
-                <span className="cal-grid-month-title">
-                  {activeMonthObj.name || activeMonthObj.nameFull || activeMonthObj.label} {activeMonthObj.year}
-                </span>
-                <button
-                  type="button"
-                  className="cal-today-jump-btn"
-                  onClick={() => setSelectedMonthKey(new Date().getMonth())}
-                  title="Jump to today's date"
-                >
-                  Today
-                </button>
-              </div>
+              <span className="cal-grid-month-title">
+                {activeMonthObj.name || activeMonthObj.nameFull || activeMonthObj.label} {activeMonthObj.year}
+              </span>
               <button
                 className="cal-grid-nav-btn"
                 onClick={handleNextMonth}
@@ -621,10 +604,6 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
 
             {/* Legend Bar */}
             <div className="cal-legend-bar">
-              <div className="cal-legend-item">
-                <span className="cal-legend-today-indicator"></span>
-                <span>Today</span>
-              </div>
               <div className="cal-legend-item">
                 <span className="cal-legend-dot dot-academic"></span>
                 <span>Academic Event</span>
