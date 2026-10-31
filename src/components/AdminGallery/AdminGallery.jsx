@@ -47,7 +47,9 @@ const AdminGallery = () => {
     description: '',
     coverImage: '',
     coverFile: null,
-    previewCover: ''
+    previewCover: '',
+    parentId: null,
+    parentName: ''
   });
   const coverFileInputRef = useRef(null);
 
@@ -105,7 +107,7 @@ const AdminGallery = () => {
   }, [folders]);
 
   // Handle Create / Edit Folder
-  const handleOpenFolderModal = (folderToEdit = null) => {
+  const handleOpenFolderModal = (folderToEdit = null, parentForSubfolder = null) => {
     if (folderToEdit) {
       setEditingFolder(folderToEdit);
       setFolderForm({
@@ -114,7 +116,21 @@ const AdminGallery = () => {
         description: folderToEdit.description || '',
         coverImage: folderToEdit.coverImage || '',
         coverFile: null,
-        previewCover: folderToEdit.coverImage || ''
+        previewCover: folderToEdit.coverImage || '',
+        parentId: folderToEdit.parentId || null,
+        parentName: folderToEdit.parentName || ''
+      });
+    } else if (parentForSubfolder) {
+      setEditingFolder(null);
+      setFolderForm({
+        name: '',
+        category: parentForSubfolder.category || 'Clubs & Activities',
+        description: '',
+        coverImage: '',
+        coverFile: null,
+        previewCover: '',
+        parentId: parentForSubfolder.id || parentForSubfolder._id,
+        parentName: parentForSubfolder.name
       });
     } else {
       setEditingFolder(null);
@@ -124,7 +140,9 @@ const AdminGallery = () => {
         description: '',
         coverImage: '',
         coverFile: null,
-        previewCover: ''
+        previewCover: '',
+        parentId: null,
+        parentName: ''
       });
     }
     setShowFolderModal(true);
@@ -207,7 +225,8 @@ const AdminGallery = () => {
           name: folderForm.name,
           category: folderForm.category,
           description: folderForm.description,
-          coverImage: finalCoverUrl
+          coverImage: finalCoverUrl,
+          parentId: folderForm.parentId || null
         })
       });
 
@@ -224,6 +243,16 @@ const AdminGallery = () => {
         showToast(`Folder "${saved.name}" updated!`);
       } else {
         setFolders((prev) => [saved, ...prev]);
+        // Also update subfolderCount of parent if it was a subfolder
+        if (saved.parentId) {
+          setFolders((prev) =>
+            prev.map((f) =>
+              (f.id || f._id) === saved.parentId
+                ? { ...f, subfolderCount: (f.subfolderCount || 0) + 1 }
+                : f
+            )
+          );
+        }
         showToast(`Folder "${saved.name}" created successfully!`);
       }
 
@@ -239,7 +268,12 @@ const AdminGallery = () => {
   // Handle Delete Folder
   const handleDeleteFolder = async (folder, e) => {
     e.stopPropagation();
-    if (!window.confirm(`Are you sure you want to delete folder "${folder.name}" and all its photos & videos? This action cannot be undone.`)) {
+    const isSub = Boolean(folder.parentId);
+    const confirmPrompt = isSub
+      ? `Are you sure you want to delete campaign subfolder "${folder.name}" and all its photos & videos? This action cannot be undone.`
+      : `Are you sure you want to delete folder "${folder.name}", all its subfolders/campaigns, and all associated media? This action cannot be undone.`;
+
+    if (!window.confirm(confirmPrompt)) {
       return;
     }
 
@@ -250,11 +284,35 @@ const AdminGallery = () => {
       });
       if (!res.ok) throw new Error('Failed to delete folder');
 
-      setFolders((prev) => prev.filter((f) => (f.id || f._id) !== folderId));
-      setItems((prev) => prev.filter((it) => it.folderId !== folderId));
+      // Find all IDs to remove (the folder itself and any child subfolders)
+      const subfolderIds = folders
+        .filter((f) => f.parentId === folderId)
+        .map((f) => f.id || f._id);
+      const allRemovedIds = new Set([folderId, ...subfolderIds]);
 
-      if (selectedFolder && (selectedFolder.id || selectedFolder._id) === folderId) {
-        setSelectedFolder(null);
+      setFolders((prev) =>
+        prev
+          .filter((f) => !allRemovedIds.has(f.id || f._id))
+          .map((f) => {
+            if (folder.parentId && (f.id || f._id) === folder.parentId) {
+              return {
+                ...f,
+                subfolderCount: Math.max(0, (f.subfolderCount || 1) - 1)
+              };
+            }
+            return f;
+          })
+      );
+
+      setItems((prev) => prev.filter((it) => !allRemovedIds.has(it.folderId)));
+
+      if (selectedFolder && allRemovedIds.has(selectedFolder.id || selectedFolder._id)) {
+        if (folder.parentId) {
+          const parentF = folders.find((f) => (f.id || f._id) === folder.parentId);
+          setSelectedFolder(parentF || null);
+        } else {
+          setSelectedFolder(null);
+        }
       }
       showToast(`Folder "${folder.name}" deleted successfully.`);
     } catch (err) {
@@ -382,6 +440,15 @@ const AdminGallery = () => {
     }
   };
 
+  // Root folders vs subfolders
+  const rootFolders = folders.filter((f) => !f.parentId);
+  const parentFolder = selectedFolder?.parentId
+    ? folders.find((f) => (f.id || f._id) === selectedFolder.parentId)
+    : null;
+  const currentSubfolders = selectedFolder
+    ? folders.filter((f) => f.parentId === (selectedFolder.id || selectedFolder._id))
+    : [];
+
   // Filter items for currently selected folder
   const displayedItems = items.filter((item) => {
     if (selectedFolder) {
@@ -420,16 +487,16 @@ const AdminGallery = () => {
           <button
             type="button"
             className="action-btn-outline"
-            onClick={() => handleOpenFolderModal()}
+            onClick={() => handleOpenFolderModal(null, selectedFolder && !selectedFolder.parentId ? selectedFolder : null)}
           >
             <FolderPlus size={16} />
-            <span>New Folder / Album</span>
+            <span>{selectedFolder && !selectedFolder.parentId ? 'New Campaign Subfolder' : 'New Folder / Album'}</span>
           </button>
 
           <button
             type="button"
             className="action-btn-primary"
-            onClick={() => handleOpenUploadModal()}
+            onClick={() => handleOpenUploadModal(selectedFolder)}
           >
             <Upload size={16} />
             <span>Upload Media</span>
@@ -444,7 +511,7 @@ const AdminGallery = () => {
             <Folder size={20} />
           </div>
           <div className="metric-info">
-            <span className="metric-num">{folders.length}</span>
+            <span className="metric-num">{rootFolders.length}</span>
             <span className="metric-name">Event Albums / Folders</span>
           </div>
         </div>
@@ -492,9 +559,35 @@ const AdminGallery = () => {
               <ArrowLeft size={16} />
               <span>All Folders</span>
             </button>
+            {parentFolder && (
+              <>
+                <span className="nav-separator">/</span>
+                <button
+                  type="button"
+                  className="breadcrumb-parent-btn"
+                  onClick={() => setSelectedFolder(parentFolder)}
+                >
+                  <FolderOpen size={14} />
+                  <span>{parentFolder.name}</span>
+                </button>
+              </>
+            )}
             <span className="nav-separator">/</span>
             <div className="active-folder-meta">
-              <h3>{selectedFolder.name}</h3>
+              <div className="active-folder-title-row">
+                <h3>{selectedFolder.name}</h3>
+                {selectedFolder.parentId ? (
+                  <span className="subfolder-tag">
+                    <Sparkles size={11} /> Campaign Subfolder
+                  </span>
+                ) : (
+                  currentSubfolders.length > 0 && (
+                    <span className="subfolder-count-pill">
+                      {currentSubfolders.length} {currentSubfolders.length === 1 ? 'Campaign' : 'Campaigns'}
+                    </span>
+                  )
+                )}
+              </div>
               {selectedFolder.description && (
                 <p>{selectedFolder.description}</p>
               )}
@@ -502,6 +595,17 @@ const AdminGallery = () => {
           </div>
 
           <div className="folder-actions-right">
+            {!selectedFolder.parentId && (
+              <button
+                type="button"
+                className="action-btn-subfolder"
+                onClick={() => handleOpenFolderModal(null, selectedFolder)}
+              >
+                <FolderPlus size={15} />
+                <span>New Campaign Subfolder</span>
+              </button>
+            )}
+
             {/* Filter pills: All, Photos, Videos */}
             <div className="media-type-pills">
               <button
@@ -541,8 +645,8 @@ const AdminGallery = () => {
         /* Folder Grid View */
         <div className="folders-section">
           <div className="section-title-row">
-            <h4>Gallery Folders ({folders.length})</h4>
-            <span className="section-hint">Select a folder to view and upload respective media</span>
+            <h4>Gallery Folders ({rootFolders.length})</h4>
+            <span className="section-hint">Select a folder to view campaigns and upload respective media</span>
           </div>
 
           {loading ? (
@@ -552,9 +656,10 @@ const AdminGallery = () => {
             </div>
           ) : (
             <div className="folders-grid">
-              {folders.map((folder) => {
+              {rootFolders.map((folder) => {
                 const fId = folder.id || folder._id;
                 const count = folder.itemCount || 0;
+                const subCount = folder.subfolderCount || 0;
                 return (
                   <div
                     key={fId}
@@ -570,18 +675,27 @@ const AdminGallery = () => {
                       />
                       <div className="folder-cover-overlay">
                         <span className="open-folder-pill">
-                          <FolderOpen size={14} /> Open Album
+                          <FolderOpen size={14} /> Open Folder
                         </span>
                       </div>
-                      <span className="folder-count-badge">
-                        {count} {count === 1 ? 'Item' : 'Items'}
-                      </span>
+                      <div className="folder-badges-top-right">
+                        {subCount > 0 && (
+                          <span className="folder-sub-count-badge">
+                            📂 {subCount} {subCount === 1 ? 'Campaign' : 'Campaigns'}
+                          </span>
+                        )}
+                        <span className="folder-count-badge">
+                          {count} {count === 1 ? 'Item' : 'Items'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="folder-content">
                       <h4 className="folder-name">{folder.name}</h4>
-                      {folder.description && (
+                      {folder.description ? (
                         <p className="folder-desc">{folder.description}</p>
+                      ) : (
+                        <p className="folder-desc empty">Click to explore albums and campaigns</p>
                       )}
                     </div>
 
@@ -612,7 +726,7 @@ const AdminGallery = () => {
                         type="button"
                         className="folder-btn delete"
                         onClick={(e) => handleDeleteFolder(folder, e)}
-                        title="Delete Folder"
+                        title="Delete Folder and Subfolders"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -620,6 +734,116 @@ const AdminGallery = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Inside Folder View: Subfolders / Campaigns Section (If this is a parent folder) */}
+      {selectedFolder && !selectedFolder.parentId && (
+        <div className="subfolders-section">
+          <div className="subfolders-header">
+            <div className="subfolders-header-left">
+              <FolderOpen size={18} className="subfolder-header-icon" />
+              <h4>Campaigns & Subfolders ({currentSubfolders.length})</h4>
+              <span className="subfolders-header-hint">
+                Organized events & drives under {selectedFolder.name}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="action-btn-outline mini"
+              onClick={() => handleOpenFolderModal(null, selectedFolder)}
+            >
+              <FolderPlus size={14} />
+              <span>+ New Campaign Subfolder</span>
+            </button>
+          </div>
+
+          {currentSubfolders.length > 0 ? (
+            <div className="subfolders-grid">
+              {currentSubfolders.map((sub) => {
+                const subId = sub.id || sub._id;
+                const subItemCount = sub.itemCount || 0;
+                return (
+                  <div
+                    key={subId}
+                    className="subfolder-card"
+                    onClick={() => setSelectedFolder(sub)}
+                  >
+                    <div className="subfolder-thumb-wrap">
+                      <img
+                        src={
+                          sub.coverImage ||
+                          'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80'
+                        }
+                        alt={sub.name}
+                        className="subfolder-thumb-img"
+                        loading="lazy"
+                      />
+                      <div className="subfolder-overlay">
+                        <span className="subfolder-open-pill">
+                          <FolderOpen size={13} /> Open Campaign
+                        </span>
+                      </div>
+                      <span className="subfolder-badge">
+                        {subItemCount} {subItemCount === 1 ? 'Item' : 'Items'}
+                      </span>
+                    </div>
+
+                    <div className="subfolder-info">
+                      <h5 className="subfolder-title">{sub.name}</h5>
+                      {sub.description ? (
+                        <p className="subfolder-desc">{sub.description}</p>
+                      ) : (
+                        <p className="subfolder-desc empty">Campaign folder</p>
+                      )}
+                    </div>
+
+                    <div className="subfolder-card-footer">
+                      <button
+                        type="button"
+                        className="subfolder-action-btn edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenFolderModal(sub);
+                        }}
+                        title="Edit Campaign Details"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        className="subfolder-action-btn delete"
+                        onClick={(e) => handleDeleteFolder(sub, e)}
+                        title="Delete Campaign"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-subfolders-prompt">
+              <div className="empty-subfolders-icon-box">
+                <FolderPlus size={24} />
+              </div>
+              <div className="empty-subfolders-text">
+                <h5>Organize by Campaigns or Activities</h5>
+                <p>
+                  You can create campaign subfolders (e.g., "Tree Plantation Drive 2026", "Clean Campus Campaign") to organize photos and videos inside {selectedFolder.name}.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="create-first-subfolder-btn"
+                onClick={() => handleOpenFolderModal(null, selectedFolder)}
+              >
+                <Plus size={14} />
+                <span>Create Campaign Subfolder</span>
+              </button>
             </div>
           )}
         </div>
@@ -721,8 +945,20 @@ const AdminGallery = () => {
           <div className="gallery-dialog-card" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <div>
-                <h4>{editingFolder ? 'Edit Folder & Thumbnail' : 'Create New Gallery Folder'}</h4>
-                <p>Organize campus photos and video albums with custom cover art</p>
+                <h4>
+                  {editingFolder
+                    ? editingFolder.parentId
+                      ? 'Edit Campaign Subfolder'
+                      : 'Edit Folder & Thumbnail'
+                    : folderForm.parentId
+                    ? 'Create Campaign Subfolder'
+                    : 'Create New Gallery Folder'}
+                </h4>
+                <p>
+                  {folderForm.parentId
+                    ? `Organize activity & campaign media under "${folderForm.parentName}"`
+                    : 'Organize campus photos and video albums with custom cover art'}
+                </p>
               </div>
               <button
                 type="button"
@@ -735,14 +971,31 @@ const AdminGallery = () => {
             </div>
 
             <form onSubmit={handleSaveFolder} className="dialog-form">
+              {folderForm.parentId && (
+                <div className="parent-folder-pill-card">
+                  <div className="parent-pill-icon">
+                    <FolderOpen size={16} />
+                  </div>
+                  <div className="parent-pill-content">
+                    <span className="parent-pill-label">Parent Folder:</span>
+                    <strong className="parent-pill-name">{folderForm.parentName}</strong>
+                  </div>
+                </div>
+              )}
+
               <div className="form-group">
                 <label className="form-label">
-                  Folder / Event Name <span className="req">*</span>
+                  {folderForm.parentId ? 'Campaign / Subfolder Name' : 'Folder / Event Name'}{' '}
+                  <span className="req">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Annual Sports Meet 2026, DNA Club..."
+                  placeholder={
+                    folderForm.parentId
+                      ? 'e.g. Tree Plantation Drive 2026, Clean Campus Mission...'
+                      : 'e.g. Eco Club, Annual Sports Meet 2026, DNA Club...'
+                  }
                   className="form-input"
                   value={folderForm.name}
                   onChange={(e) => setFolderForm({ ...folderForm, name: e.target.value })}
@@ -955,11 +1208,22 @@ const AdminGallery = () => {
                   value={uploadData.folderId}
                   onChange={(e) => setUploadData({ ...uploadData, folderId: e.target.value })}
                 >
-                  {folders.map((f) => (
-                    <option key={f.id || f._id} value={f.id || f._id}>
-                      📁 {f.name} ({f.itemCount || 0} items)
-                    </option>
-                  ))}
+                  {rootFolders.map((root) => {
+                    const rId = root.id || root._id;
+                    const subList = folders.filter((f) => f.parentId === rId);
+                    return (
+                      <optgroup key={rId} label={`📁 ${root.name}`}>
+                        <option value={rId}>
+                          📁 {root.name} (Direct Media — {root.itemCount || 0} items)
+                        </option>
+                        {subList.map((sub) => (
+                          <option key={sub.id || sub._id} value={sub.id || sub._id}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;↳ 📂 {sub.name} ({sub.itemCount || 0} items)
+                          </option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
                 </select>
               </div>
 

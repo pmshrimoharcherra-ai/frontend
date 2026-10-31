@@ -78,10 +78,13 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
     fetchData();
   }, [initialFolderSlug]);
 
-  // Extract distinct categories from folders for the filter bar
+  // Root folders only for the main directory
+  const rootFolders = useMemo(() => folders.filter((f) => !f.parentId), [folders]);
+
+  // Extract distinct categories from root folders for the filter bar
   const categories = useMemo(() => {
     const set = new Set();
-    folders.forEach((f) => {
+    rootFolders.forEach((f) => {
       if (f.category && f.category.trim()) {
         set.add(f.category.trim());
       }
@@ -91,11 +94,11 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
       return ['All', 'Clubs & Activities', 'Campus & Infrastructure', 'Events & Celebrations', 'Sports & Athletics'];
     }
     return ['All', ...Array.from(set)];
-  }, [folders]);
+  }, [rootFolders]);
 
-  // Filter folders by category and search keyword
+  // Filter root folders by category and search keyword
   const filteredFolders = useMemo(() => {
-    return folders.filter((f) => {
+    return rootFolders.filter((f) => {
       // Category filter
       if (selectedCategory !== 'All') {
         const cat = f.category || 'Clubs & Activities';
@@ -113,7 +116,20 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
       }
       return true;
     });
-  }, [folders, selectedCategory, folderSearchQuery]);
+  }, [rootFolders, selectedCategory, folderSearchQuery]);
+
+  // Subfolders under currently selected folder
+  const subfolders = useMemo(() => {
+    if (!selectedFolder) return [];
+    const fId = selectedFolder.id || selectedFolder._id;
+    return folders.filter((f) => f.parentId === fId);
+  }, [folders, selectedFolder]);
+
+  // Parent folder if currently inside a subfolder
+  const parentFolder = useMemo(() => {
+    if (!selectedFolder || !selectedFolder.parentId) return null;
+    return folders.find((f) => (f.id || f._id) === selectedFolder.parentId) || null;
+  }, [folders, selectedFolder]);
 
   // Items inside the currently selected folder
   const currentFolderItems = useMemo(() => {
@@ -378,6 +394,11 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                           <span className="folder-cat-badge">
                             <Sparkles size={11} /> {categoryName}
                           </span>
+                          {folder.subfolderCount > 0 && (
+                            <span className="folder-campaign-count-badge">
+                              📂 {folder.subfolderCount} {folder.subfolderCount === 1 ? 'Campaign' : 'Campaigns'}
+                            </span>
+                          )}
                           <span className="folder-count-badge">
                             <Layers size={11} /> {count} {count === 1 ? 'Item' : 'Items'}
                           </span>
@@ -420,10 +441,10 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
               <button
                 type="button"
                 className="back-btn"
-                onClick={handleBackToAllFolders}
+                onClick={parentFolder ? () => handleOpenFolder(parentFolder) : handleBackToAllFolders}
               >
                 <ArrowLeft size={16} />
-                <span>Back to All Folders</span>
+                <span>{parentFolder ? `Back to ${parentFolder.name}` : 'Back to All Folders'}</span>
               </button>
 
               <div className="breadcrumbs-track">
@@ -431,11 +452,28 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                   All Albums
                 </span>
                 <span className="crumb-sep">/</span>
-                <span className="crumb-category">
-                  {selectedFolder.category || 'Clubs & Activities'}
-                </span>
-                <span className="crumb-sep">/</span>
+                {parentFolder ? (
+                  <>
+                    <span
+                      className="crumb-category clickable-crumb"
+                      onClick={() => handleOpenFolder(parentFolder)}
+                    >
+                      📁 {parentFolder.name}
+                    </span>
+                    <span className="crumb-sep">/</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="crumb-category">
+                      {selectedFolder.category || 'Clubs & Activities'}
+                    </span>
+                    <span className="crumb-sep">/</span>
+                  </>
+                )}
                 <span className="crumb-current">{selectedFolder.name}</span>
+                {selectedFolder.parentId && (
+                  <span className="crumb-campaign-badge">Campaign</span>
+                )}
               </div>
             </div>
 
@@ -505,6 +543,64 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
                 </button>
               </div>
             </div>
+
+            {/* Subfolders / Campaigns Grid inside Parent Folder */}
+            {subfolders.length > 0 && (
+              <div className="public-subfolders-section">
+                <div className="public-subfolders-header">
+                  <div className="header-icon-title">
+                    <FolderOpen size={20} className="section-title-icon" />
+                    <h3>Campaigns & Activities ({subfolders.length})</h3>
+                  </div>
+                  <p>Browse specific initiatives, campaigns, and events organised under {selectedFolder.name}</p>
+                </div>
+
+                <div className="public-subfolders-grid">
+                  {subfolders.map((sub) => {
+                    const subId = sub.id || sub._id;
+                    const subCount = sub.itemCount || 0;
+                    const subCover =
+                      sub.coverImage ||
+                      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80';
+                    return (
+                      <div
+                        key={subId}
+                        className="public-subfolder-card"
+                        onClick={() => handleOpenFolder(sub)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            handleOpenFolder(sub);
+                          }
+                        }}
+                      >
+                        <div className="subfolder-visual">
+                          <img src={subCover} alt={sub.name} loading="lazy" />
+                          <div className="subfolder-hover-overlay">
+                            <span className="open-subfolder-pill">
+                              <FolderOpen size={14} /> Open Campaign
+                            </span>
+                          </div>
+                          <span className="subfolder-items-tag">
+                            {subCount} {subCount === 1 ? 'Item' : 'Items'}
+                          </span>
+                        </div>
+                        <div className="subfolder-details">
+                          <h4>{sub.name}</h4>
+                          {sub.description ? (
+                            <p>{sub.description}</p>
+                          ) : (
+                            <p className="empty">Click to view campaign photos & videos</p>
+                          )}
+                          <span className="view-campaign-link">Open Campaign Photos →</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Folder Media Grid */}
             {displayedItems.length === 0 ? (
