@@ -733,63 +733,6 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
           </section>
         </div>
 
-        {/* ==================================================================
-            08 — Download Complete Academic Calendar (Banner CTA)
-            ================================================================== */}
-        <section className="cal-download-banner">
-          {/* Left Decorative Illustration */}
-          <div className="cal-download-decor-left">
-            <svg
-              className="cal-download-illustration"
-              viewBox="0 0 160 140"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Stack of books */}
-              <rect x="25" y="80" width="90" height="16" rx="4" fill="#ea580c" />
-              <rect x="22" y="76" width="96" height="6" rx="2" fill="#fed7aa" />
-              <rect x="18" y="94" width="105" height="18" rx="4" fill="#0b1528" />
-              <rect x="15" y="90" width="111" height="6" rx="2" fill="#94a3b8" />
-              <rect x="10" y="110" width="120" height="20" rx="5" fill="#f59e0b" />
-              <rect x="8" y="106" width="124" height="6" rx="2" fill="#fef3c7" />
-
-              {/* Standup Desk Calendar */}
-              <path d="M75 25 L145 25 L155 85 L65 85 Z" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" />
-              <path d="M75 25 L145 25 L145 42 L75 42 Z" fill="#ea580c" />
-              <circle cx="95" cy="20" r="3" fill="#cbd5e1" />
-              <circle cx="125" cy="20" r="3" fill="#cbd5e1" />
-              {/* Calendar Grid Lines */}
-              <circle cx="90" cy="55" r="2.5" fill="#0b1528" />
-              <circle cx="110" cy="55" r="2.5" fill="#0b1528" />
-              <circle cx="130" cy="55" r="2.5" fill="#ea580c" />
-              <circle cx="90" cy="70" r="2.5" fill="#0b1528" />
-              <circle cx="110" cy="70" r="2.5" fill="#0284c7" />
-              <circle cx="130" cy="70" r="2.5" fill="#16a34a" />
-
-              {/* Plants/Leaf decorative */}
-              <path d="M30 45 C20 30 15 15 35 20 C35 30 32 40 30 45 Z" fill="#16a34a" opacity="0.8" />
-              <path d="M40 50 C48 35 58 25 50 20 C42 25 38 40 40 50 Z" fill="#22c55e" opacity="0.8" />
-            </svg>
-          </div>
-
-          {/* Center Content */}
-          <div className="cal-download-center">
-            <h3 className="cal-download-title">Download Complete Academic Calendar</h3>
-            <p className="cal-download-desc">
-              Get the full academic calendar for the academic session {selectedYear} with all events, examinations and holidays.
-            </p>
-            <button className="cal-btn-download-banner" onClick={handleDownloadPDF}>
-              <Download size={18} />
-              <span>Download PDF ({selectedYear})</span>
-            </button>
-          </div>
-
-          {/* Right Decorative Watermark */}
-          <div className="cal-download-decor-right">
-            <FileText size={90} />
-          </div>
-        </section>
-
       </div>
 
       {/* ====================================================================
