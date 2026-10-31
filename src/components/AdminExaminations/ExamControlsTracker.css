@@ -111,8 +111,26 @@
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   min-width: 240px;
-  overflow: hidden;
+  max-height: 360px;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: dropdownSlideIn 0.15s ease;
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.subject-dropdown-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.subject-dropdown-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subject-dropdown-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
 }
 
 @keyframes dropdownSlideIn {
