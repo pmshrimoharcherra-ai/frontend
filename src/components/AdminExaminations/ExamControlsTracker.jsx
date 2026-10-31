@@ -86,55 +86,32 @@ const ExamControlsTracker = ({
             value={selectedSubject}
             onChange={(e) => onSelectSubject(e.target.value)}
           >
-            <option value="all">★ All Subjects (Consolidated Marksheet)</option>
+            <option value="all">All Subjects</option>
 
             {isSecondary && (
               <>
-                <optgroup label="Secondary Science">
-                  <option value="Science">
-                    🔬 Science ({scienceBreakdownMeta?.total || maxMarks} Marks)
-                  </option>
-                  <option value="Science (Life Science)">
-                    🌱 Science (Life Science) — {getTeacherForSubject('Science (Life Science)')} ({scienceBreakdownMeta?.life.max} Marks)
-                  </option>
-                  <option value="Science (Physics)">
-                    ⚡ Science (Physics) — {getTeacherForSubject('Science (Physics)')} ({scienceBreakdownMeta?.physics.max} Marks)
-                  </option>
-                  <option value="Science (Chemistry)">
-                    🧪 Science (Chemistry) — {getTeacherForSubject('Science (Chemistry)')} ({scienceBreakdownMeta?.chem.max} Marks)
-                  </option>
-                </optgroup>
-
-                <optgroup label="Secondary Social Science">
-                  <option value="Social Science">
-                    📚 Social Science ({socialBreakdownMeta?.total || maxMarks} Marks)
-                  </option>
-                  <option value="Social Science (History)">
-                    📜 Social Science (History) — {getTeacherForSubject('Social Science (History)')} ({socialBreakdownMeta?.history.max} Marks)
-                  </option>
-                  <option value="Social Science (Geography)">
-                    🌍 Social Science (Geography) — {getTeacherForSubject('Social Science (Geography)')} ({socialBreakdownMeta?.geography.max} Marks)
-                  </option>
-                  <option value="Social Science (Economics)">
-                    📊 Social Science (Economics) — {getTeacherForSubject('Social Science (Economics)')} ({socialBreakdownMeta?.economics.max} Marks)
-                  </option>
-                </optgroup>
+                <option value="Science">Science</option>
+                <option value="Science (Life Science)">Life Science</option>
+                <option value="Science (Physics)">Physics</option>
+                <option value="Science (Chemistry)">Chemistry</option>
+                <option value="Social Science">Social Science</option>
+                <option value="Social Science (History)">History</option>
+                <option value="Social Science (Geography)">Geography</option>
+                <option value="Social Science (Economics)">Economics</option>
               </>
             )}
 
-            <optgroup label="Other Curriculum Subjects">
-              {curriculumSubjects
-                .filter(
-                  (s) =>
-                    !isSecondarySciencePart(selectedClassId, s) &&
-                    !isSecondarySocialSciencePart(selectedClassId, s)
-                )
-                .map((s, idx) => (
-                  <option key={idx} value={s}>
-                    {s} ({getTeacherForSubject(s)})
-                  </option>
-                ))}
-            </optgroup>
+            {curriculumSubjects
+              .filter(
+                (s) =>
+                  !isSecondarySciencePart(selectedClassId, s) &&
+                  !isSecondarySocialSciencePart(selectedClassId, s)
+              )
+              .map((s, idx) => (
+                <option key={idx} value={s}>
+                  {s}
+                </option>
+              ))}
           </select>
         </div>
 
