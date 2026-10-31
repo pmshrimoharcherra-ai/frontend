@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config/api';
 import './AcademicCalendar.css';
 import {
@@ -46,46 +46,100 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
   const [isHolidaysModalOpen, setIsHolidaysModalOpen] = useState(false);
   const [selectedDayEvent, setSelectedDayEvent] = useState(null);
   const [downloadToast, setDownloadToast] = useState(false);
-  const [liveHolidays, setLiveHolidays] = useState(null);
+
+  // Live data from API
+  const [allApiHolidays, setAllApiHolidays] = useState([]); // raw array from /api/holidays
+  const [apiLoading, setApiLoading] = useState(true);
 
   useEffect(() => {
+    setApiLoading(true);
     fetch(`${API_BASE_URL}/api/holidays`)
       .then((res) => {
         if (!res.ok) throw new Error('API unavailable');
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          const categorized = { national: [], state: [], school: [], special: [] };
-          data.forEach((item) => {
-            const cat = item.type || 'school';
-            const monthObj = monthsData.find((m) => m.key === Number(item.month));
-            const monthShort = monthObj?.label?.toUpperCase() || 'OCT';
-            if (categorized[cat]) {
-              categorized[cat].push({
-                id: item.id || item._id,
-                date: item.dateDisplay || (item.date < 10 ? `0${item.date}` : String(item.date)),
-                month: monthShort,
-                name: item.name,
-                type: item.category || 'School Holiday',
-                day: item.dayOfWeek,
-                description: item.description
-              });
-            }
-          });
-          setLiveHolidays(categorized);
+        if (Array.isArray(data)) {
+          setAllApiHolidays(data);
         }
       })
       .catch(() => {
-        // Fall back gracefully to static holidaysData
-      });
+        // Fall back gracefully to static data
+      })
+      .finally(() => setApiLoading(false));
   }, []);
 
-  const currentHolidaysData = liveHolidays || holidaysData;
+  // ── Derived: categorized holidays for the "Holidays & Observances" card ──
+  const currentHolidaysData = (() => {
+    if (allApiHolidays.length === 0) return holidaysData; // static fallback
+    const categorized = { national: [], state: [], school: [], special: [] };
+    allApiHolidays.forEach((item) => {
+      const cat = item.type || 'school';
+      const monthObj = monthsData.find((m) => m.key === Number(item.month));
+      const monthShort = monthObj?.label?.toUpperCase() || 'OCT';
+      if (categorized[cat]) {
+        categorized[cat].push({
+          id: item.id || item._id,
+          date: item.dateDisplay || (item.date < 10 ? `0${item.date}` : String(item.date)),
+          month: monthShort,
+          name: item.name,
+          type: item.category || 'School Holiday',
+          day: item.dayOfWeek,
+          description: item.description
+        });
+      }
+    });
+    return categorized;
+  })();
+
+  // ── Derived: events for the selected month (Important Dates + Calendar grid) ──
+  const typeColorMap = {
+    national: '#dc2626',
+    state:    '#2563eb',
+    school:   '#ea580c',
+    special:  '#7c3aed',
+  };
+
+  const activeEvents = (() => {
+    if (allApiHolidays.length === 0) return monthlyEvents[selectedMonthKey] || [];
+    return allApiHolidays
+      .filter((h) => Number(h.month) === selectedMonthKey)
+      .map((h) => ({
+        id: h.id || h._id,
+        date: Number(h.date),
+        month: (monthsData.find((m) => m.key === Number(h.month))?.label || '').toUpperCase(),
+        title: h.name,
+        description: h.description || h.category || 'Holiday',
+        category: h.category || h.type || 'Holiday',
+        color: typeColorMap[h.type] || '#ea580c',
+        isClosed: h.isClosed,
+        endDate: h.endDate ? Number(h.endDate) : null,
+      }));
+  })();
 
   const selectedYear = academicYears[selectedYearIndex];
   const activeMonthObj = monthsData.find((m) => m.key === selectedMonthKey) || monthsData[9];
-  const activeEvents = monthlyEvents[selectedMonthKey] || [];
+
+  // Refs for horizontal month tabs scrolling
+  const monthsTrackRef = useRef(null);
+  const activeMonthPillRef = useRef(null);
+
+  const scrollMonths = (direction) => {
+    if (monthsTrackRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      monthsTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    if (activeMonthPillRef.current) {
+      activeMonthPillRef.current.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+  }, [selectedMonthKey]);
 
   // Switch to Previous/Next Year
   const handlePrevYear = () => {
@@ -162,7 +216,12 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
 
     // Current month active days
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayEvent = activeEvents.find((e) => e.date === day);
+      // Match event on this day (including multi-day spans)
+      const dayEvent = activeEvents.find((e) => {
+        const start = Number(e.date);
+        const end = e.endDate ? Number(e.endDate) : start;
+        return day >= start && day <= end;
+      });
       const isSelected = selectedDayEvent && selectedDayEvent.date === day;
 
       cells.push(
@@ -171,7 +230,7 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
           className={`cal-grid-cell ${dayEvent ? 'has-event' : ''} ${isSelected ? 'selected-day' : ''}`}
           onClick={() => {
             if (dayEvent) {
-              setSelectedDayEvent(dayEvent);
+              setSelectedDayEvent({ ...dayEvent, date: day });
             }
           }}
           title={dayEvent ? `${dayEvent.title} (${dayEvent.category})` : `Day ${day}`}
@@ -357,17 +416,52 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
               </div>
             </div>
 
-            {/* Horizontal Month Navigation Pills */}
-            <div className="cal-month-tabs-wrap">
-              {monthsData.map((m) => (
-                <button
-                  key={m.key}
-                  className={`cal-month-pill ${selectedMonthKey === m.key ? 'active' : ''}`}
-                  onClick={() => setSelectedMonthKey(m.key)}
-                >
-                  {m.label}
-                </button>
-              ))}
+            {/* Horizontal Month Navigation Bar with Smooth Scroll & Arrow Controls */}
+            <div className="cal-month-nav-container">
+              <button
+                type="button"
+                className="cal-month-nav-btn left"
+                onClick={() => scrollMonths('left')}
+                aria-label="Scroll months left"
+                title="Scroll months left"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="cal-month-tabs-wrap" ref={monthsTrackRef}>
+                {monthsData.map((m) => {
+                  const eventCount = allApiHolidays.length > 0
+                    ? allApiHolidays.filter((h) => Number(h.month) === m.key).length
+                    : (monthlyEvents[m.key]?.length || 0);
+                  const isActive = selectedMonthKey === m.key;
+
+                  return (
+                    <button
+                      key={m.key}
+                      ref={isActive ? activeMonthPillRef : null}
+                      type="button"
+                      className={`cal-month-pill ${isActive ? 'active' : ''}`}
+                      onClick={() => setSelectedMonthKey(m.key)}
+                      title={`${m.name || m.label} ${m.year}${eventCount > 0 ? ` (${eventCount} scheduled event${eventCount > 1 ? 's' : ''})` : ''}`}
+                    >
+                      <span>{m.label}</span>
+                      {eventCount > 0 && (
+                        <span className="cal-month-pill-dot" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="cal-month-nav-btn right"
+                onClick={() => scrollMonths('right')}
+                aria-label="Scroll months right"
+                title="Scroll months right"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
 
             {/* Active Month Header */}
@@ -672,50 +766,87 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
               </button>
             </div>
             <div className="cal-modal-body">
-              {Object.keys(monthlyEvents).map((mKey) => {
-                const mObj = monthsData.find((m) => m.key === parseInt(mKey));
-                const evts = monthlyEvents[mKey];
-                return (
-                  <div key={mKey} style={{ marginBottom: '16px' }}>
-                    <h4 style={{
-                      fontSize: '15px',
-                      fontWeight: 800,
-                      color: '#ea580c',
-                      marginBottom: '8px',
-                      borderBottom: '1.5px solid #fed7aa',
-                      paddingBottom: '4px'
-                    }}>
-                      {mObj?.name || mObj?.nameFull || mObj?.label} {mObj?.year}
-                    </h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {evts.map((evt) => (
-                        <div key={evt.id} className="cal-modal-item">
-                          <div className="cal-event-date-box" style={{ minWidth: '40px' }}>
-                            <span className="cal-date-num" style={{ fontSize: '18px' }}>
-                              {evt.date < 10 ? `0${evt.date}` : evt.date}
-                            </span>
-                            <span className="cal-date-mon">{evt.month}</span>
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <h5 style={{ fontSize: '14px', fontWeight: 700, color: '#0b1528', margin: 0 }}>
-                              {evt.title}
-                            </h5>
-                            <p style={{ fontSize: '12.5px', color: '#64748b', margin: '2px 0 0 0' }}>
-                              {evt.description}
-                            </p>
-                            {evt.time && (
-                              <div style={{ display: 'flex', gap: '12px', marginTop: '4px', fontSize: '11.5px', color: '#ea580c' }}>
-                                <span>🕒 {evt.time}</span>
-                                <span>📍 {evt.venue}</span>
+              {(() => {
+                // Group all API holidays by month, sorted chronologically
+                const source = allApiHolidays.length > 0 ? allApiHolidays : null;
+                if (!source) {
+                  // fallback: show static
+                  return Object.keys(monthlyEvents).map((mKey) => {
+                    const mObj = monthsData.find((m) => m.key === parseInt(mKey));
+                    const evts = monthlyEvents[mKey];
+                    return (
+                      <div key={mKey} style={{ marginBottom: '16px' }}>
+                        <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#ea580c', marginBottom: '8px', borderBottom: '1.5px solid #fed7aa', paddingBottom: '4px' }}>
+                          {mObj?.name || mObj?.label} {mObj?.year}
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {evts.map((evt) => (
+                            <div key={evt.id} className="cal-modal-item">
+                              <div className="cal-event-date-box" style={{ minWidth: '40px' }}>
+                                <span className="cal-date-num" style={{ fontSize: '18px' }}>{evt.date < 10 ? `0${evt.date}` : evt.date}</span>
+                                <span className="cal-date-mon">{evt.month}</span>
                               </div>
-                            )}
-                          </div>
+                              <div style={{ flex: 1 }}>
+                                <h5 style={{ fontSize: '14px', fontWeight: 700, color: '#0b1528', margin: 0 }}>{evt.title}</h5>
+                                <p style={{ fontSize: '12.5px', color: '#64748b', margin: '2px 0 0 0' }}>{evt.description}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
+                    );
+                  });
+                }
+
+                // Sort and group live API holidays by month
+                const grouped = {};
+                [...source]
+                  .sort((a, b) => Number(a.month) - Number(b.month) || Number(a.date) - Number(b.date))
+                  .forEach((h) => {
+                    const mKey = Number(h.month);
+                    if (!grouped[mKey]) grouped[mKey] = [];
+                    grouped[mKey].push(h);
+                  });
+
+                return Object.keys(grouped).map((mKey) => {
+                  const mObj = monthsData.find((m) => m.key === parseInt(mKey));
+                  return (
+                    <div key={mKey} style={{ marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#ea580c', marginBottom: '8px', borderBottom: '1.5px solid #fed7aa', paddingBottom: '4px' }}>
+                        {mObj?.name || mObj?.label} {mObj?.year}
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {grouped[mKey].map((h) => {
+                          const color = typeColorMap[h.type] || '#ea580c';
+                          const dateStr = h.endDate
+                            ? `${h.date}–${h.endDate}`
+                            : (h.date < 10 ? `0${h.date}` : String(h.date));
+                          return (
+                            <div key={h.id || h._id} className="cal-modal-item">
+                              <div className="cal-event-date-box" style={{ minWidth: '40px' }}>
+                                <span className="cal-date-num" style={{ fontSize: '16px' }}>{dateStr}</span>
+                                <span className="cal-date-mon">{mObj?.label?.toUpperCase()}</span>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
+                                  <h5 style={{ fontSize: '14px', fontWeight: 700, color: '#0b1528', margin: 0 }}>{h.name}</h5>
+                                </div>
+                                <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0 8px' }}>
+                                  {h.category || h.type} {h.dayOfWeek ? `• ${h.dayOfWeek}` : ''} {!h.isClosed ? '• Observance' : '• School Closed'}
+                                </p>
+                                {h.description && (
+                                  <p style={{ fontSize: '11.5px', color: '#94a3b8', margin: '2px 0 0 8px', fontStyle: 'italic' }}>{h.description}</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
             <div className="cal-modal-footer">
               <button className="cal-modal-btn-close" onClick={() => setIsEventsModalOpen(false)}>

@@ -339,48 +339,109 @@
 }
 
 /* Month Tabs Navigation in Important Dates */
+.cal-month-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 5px 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  position: relative;
+}
+
+.cal-month-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.cal-month-nav-btn:hover {
+  background: #ffffff;
+  color: #ea580c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.cal-month-nav-btn:active {
+  transform: scale(0.95);
+}
+
 .cal-month-tabs-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 12px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #f1f5f9;
-  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  flex: 1;
+  padding: 2px 2px;
+  /* Completely hide ugly browser scrollbars across all browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
 }
 
 .cal-month-tabs-wrap::-webkit-scrollbar {
-  height: 4px;
-}
-
-.cal-month-tabs-wrap::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  display: none; /* Chrome, Safari, Edge */
+  width: 0;
+  height: 0;
 }
 
 .cal-month-pill {
-  padding: 6px 12px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 14px;
   border-radius: 8px;
-  background-color: #f1f5f9;
+  background-color: transparent;
   color: #475569;
   font-size: 13px;
   font-weight: 600;
-  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  user-select: none;
 }
 
 .cal-month-pill:hover {
-  background-color: #e2e8f0;
+  background-color: #ffffff;
   color: #0b1528;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .cal-month-pill.active {
-  background-color: #ea580c;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: #ffffff;
-  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.3);
   font-weight: 700;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.35);
+}
+
+.cal-month-pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #ea580c;
+  transition: background-color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.cal-month-pill.active .cal-month-pill-dot {
+  background-color: #ffffff;
 }
 
 /* Active Month Title */
