@@ -159,34 +159,58 @@
 
 @media (max-width: 900px) {
   .gallery-hero-banner {
-    min-height: 400px;
+    min-height: auto;
     background-position: 70% center;
-    padding: 55px 20px 60px;
+    padding: 105px 20px 50px;
   }
   .gallery-hero-content h1 {
-    font-size: 34px;
+    font-size: 32px;
   }
 }
 
 @media (max-width: 640px) {
   .gallery-hero-banner {
-    min-height: 380px;
-    padding: 50px 16px 55px;
+    min-height: auto;
+    padding: 100px 16px 36px;
     background-image: 
-      linear-gradient(180deg, rgba(10, 20, 40, 0.94) 0%, rgba(10, 20, 40, 0.85) 100%),
+      linear-gradient(180deg, rgba(10, 20, 40, 0.94) 0%, rgba(10, 20, 40, 0.88) 100%),
       url("/PM%20SHRI%20Moharcherra%20School%20in%20Sunlight.png");
   }
+  .gallery-hero-content {
+    gap: 12px;
+  }
   .gallery-hero-content h1 {
-    font-size: 28px;
+    font-size: 25px;
+    line-height: 1.22;
   }
   .gallery-hero-desc {
-    font-size: 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
   }
   .gallery-hero-highlights {
-    gap: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .hero-highlight-item {
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  .highlight-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
   }
   .highlight-number {
-    font-size: 18px;
+    font-size: 16px;
+  }
+  .highlight-label {
+    font-size: 11px;
   }
 }
 
@@ -1173,32 +1197,237 @@
 /* ========================================================= */
 /* 7. LOADING & EMPTY STATES                                 */
 /* ========================================================= */
-.public-gallery-loading,
+/* Professional Modern Loading Animation */
+.public-gallery-loading-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.professional-loader-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.professional-loader-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f97316, #ea580c, #f59e0b, #10b981);
+}
+
+.loader-orbit-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.loader-orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+}
+
+.loader-orbit-ring.ring-outer {
+  inset: 0;
+  border-width: 3px;
+  border-color: #ffedd5 #ea580c #ea580c #ffedd5;
+  animation: orbitSpin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.loader-orbit-ring.ring-inner {
+  inset: 6px;
+  border-width: 2.5px;
+  border-color: #fef3c7 transparent #f59e0b transparent;
+  animation: orbitSpinReverse 1.5s linear infinite;
+}
+
+.loader-center-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1.5px solid #fed7aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+}
+
+.loader-center-icon {
+  color: #ea580c;
+  animation: pulseIcon 1.8s ease-in-out infinite;
+}
+
+@keyframes orbitSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes orbitSpinReverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.loader-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  max-width: 360px;
+}
+
+.loader-main-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.loader-sub-text {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.loader-progress-track {
+  width: 130px;
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+  position: relative;
+}
+
+.loader-progress-glow {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, #ea580c, #f59e0b);
+  border-radius: 4px;
+  position: absolute;
+  animation: indeterminateSlide 1.4s ease-in-out infinite;
+}
+
+@keyframes indeterminateSlide {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+/* Skeleton Loading Grid */
+.gallery-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.gallery-skeleton-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-thumb {
+  width: 100%;
+  height: 200px;
+  background: #e2e8f0;
+}
+
+.skeleton-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: #e2e8f0;
+  border-radius: 6px;
+}
+
+.skeleton-line.title {
+  width: 65%;
+  height: 18px;
+}
+
+.skeleton-line.desc {
+  width: 85%;
+}
+
+.skeleton-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.skeleton-pill {
+  width: 70px;
+  height: 20px;
+  border-radius: 10px;
+  background: #e2e8f0;
+}
+
+.skeleton-pill.action {
+  width: 90px;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #f8fafc 0%,
+    #e2e8f0 40%,
+    #ffffff 60%,
+    #f8fafc 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerAnim 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmerAnim {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .public-empty-gallery {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 70px 20px;
+  padding: 60px 20px;
   text-align: center;
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
-}
-
-.gallery-spinner {
-  width: 44px;
-  height: 44px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #ea580c;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 .public-empty-gallery .empty-icon {
@@ -1442,4 +1671,130 @@
 .lightbox-direct-link:hover {
   background: #ea580c;
   border-color: #ea580c;
+}
+
+/* ========================================================= */
+/* 8. COMPREHENSIVE MOBILE RESPONSIVENESS (< 768px)          */
+/* ========================================================= */
+@media (max-width: 768px) {
+  .gallery-main-container {
+    margin: -16px auto 0;
+    padding: 0 14px 40px;
+    gap: 16px;
+    min-height: calc(100vh - 380px);
+  }
+
+  /* Filter bar */
+  .albums-filter-bar {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .folder-search-box {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .categories-scroll-track {
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .category-pill-btn {
+    padding: 7px 12px;
+    font-size: 12.5px;
+  }
+
+  /* Grid Layouts on Mobile */
+  .public-folders-grid,
+  .gallery-skeleton-grid,
+  .public-subfolders-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .public-media-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Inside Folder Bar on Mobile */
+  .inside-folder-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .back-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 14px;
+  }
+
+  .breadcrumbs-track {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Inside Folder Hero Card on Mobile */
+  .folder-detail-hero {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .folder-hero-thumb {
+    width: 100%;
+    height: 170px;
+  }
+
+  .folder-hero-content {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .folder-hero-content h2 {
+    font-size: 20px;
+  }
+
+  .folder-hero-stats {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .stat-pill {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .folder-media-toggles {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .toggle-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  /* Professional Loader on Mobile */
+  .professional-loader-box {
+    padding: 30px 16px;
+  }
+
+  .loader-main-title {
+    font-size: 16px;
+  }
+
+  .loader-sub-text {
+    font-size: 12.5px;
+  }
 }

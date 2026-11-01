@@ -745,7 +745,7 @@ const AdminGallery = () => {
           {loading ? (
             <div className="gallery-loading">
               <Loader2 size={32} className="spin-icon" />
-              <p>Loading school albums from Cloudinary & database...</p>
+              <p>Loading gallery albums & media archive...</p>
             </div>
           ) : (
             <div className="folders-grid">
@@ -950,7 +950,7 @@ const AdminGallery = () => {
             <div className="empty-media-state">
               <ImageIcon size={48} className="empty-icon" />
               <h5>No Media in this Folder Yet</h5>
-              <p>Upload photos and videos directly into "{selectedFolder.name}" using Cloudinary.</p>
+              <p>Upload photos and videos directly into "{selectedFolder.name}" .</p>
               <button
                 type="button"
                 className="action-btn-primary"

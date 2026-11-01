@@ -332,9 +332,40 @@ const Gallery = ({ onNavigate = () => {}, initialFolderSlug = null }) => {
       {/* Main Content Area */}
       <div className="gallery-main-container">
         {loading ? (
-          <div className="public-gallery-loading">
-            <div className="gallery-spinner"></div>
-            <p>Loading school albums from Cloudinary & database...</p>
+          <div className="public-gallery-loading-card">
+            <div className="professional-loader-box">
+              <div className="loader-orbit-wrapper">
+                <div className="loader-orbit-ring ring-outer"></div>
+                <div className="loader-orbit-ring ring-inner"></div>
+                <div className="loader-center-badge">
+                  <ImageIcon size={22} className="loader-center-icon" />
+                </div>
+              </div>
+              <div className="loader-text-group">
+                <h4 className="loader-main-title">Loading School Gallery</h4>
+                <p className="loader-sub-text">Curating photos, videos, and campus memories...</p>
+                <div className="loader-progress-track">
+                  <div className="loader-progress-glow"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Skeleton Previews */}
+            <div className="gallery-skeleton-grid">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="gallery-skeleton-card">
+                  <div className="skeleton-thumb shimmer"></div>
+                  <div className="skeleton-body">
+                    <div className="skeleton-line shimmer title"></div>
+                    <div className="skeleton-line shimmer desc"></div>
+                    <div className="skeleton-footer">
+                      <div className="skeleton-pill shimmer"></div>
+                      <div className="skeleton-pill shimmer action"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : !selectedFolder ? (
           /* ========================================================= */
