@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import './EditStudentModal.css';
 import GenderSelect from '../GenderSelect/GenderSelect';
+import { getSelectableSubjectsForClass, SUBJECT_COLOR_MAP } from '../../data/curriculumData';
 import {
   X,
   User,
@@ -16,7 +17,10 @@ import {
   Calendar,
   Award,
   MapPin,
-  Fingerprint
+  Fingerprint,
+  BookOpen,
+  Check,
+  Plus
 } from 'lucide-react';
 
 // Helpers for Date of Birth calendar conversions (DD/MM/YYYY <-> YYYY-MM-DD)
@@ -75,11 +79,68 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     dob: student.dob || '',
     phone: student.phone || '',
     status: student.status || 'Enrolled',
+    subjects: Array.isArray(student.subjects) && student.subjects.length > 0
+      ? [...student.subjects]
+      : getSelectableSubjectsForClass(student.classId || 'class-11-arts'),
     id: student.id || student.studentId || ''
   });
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [customSubject, setCustomSubject] = useState('');
+
+  // Available subjects based on selected class/stream
+  const selectableSubjects = useMemo(() => {
+    return getSelectableSubjectsForClass(formData.classId);
+  }, [formData.classId]);
+
+  // Combine standard stream subjects with any existing non-standard subjects
+  const displayedSubjectOptions = useMemo(() => {
+    const list = [...selectableSubjects];
+    (formData.subjects || []).forEach(s => {
+      if (s && !list.includes(s)) {
+        list.push(s);
+      }
+    });
+    return list;
+  }, [selectableSubjects, formData.subjects]);
+
+  const handleToggleSubject = (subj) => {
+    setFormData(prev => {
+      const current = prev.subjects || [];
+      const updated = current.includes(subj)
+        ? current.filter(s => s !== subj)
+        : [...current, subj];
+      return { ...prev, subjects: updated };
+    });
+  };
+
+  const handleSelectAllSubjects = () => {
+    setFormData(prev => ({
+      ...prev,
+      subjects: [...selectableSubjects]
+    }));
+  };
+
+  const handleClearAllSubjects = () => {
+    setFormData(prev => ({
+      ...prev,
+      subjects: []
+    }));
+  };
+
+  const handleAddCustomSubject = (e) => {
+    e?.preventDefault();
+    const clean = customSubject.trim();
+    if (!clean) return;
+    if (!formData.subjects.includes(clean)) {
+      setFormData(prev => ({
+        ...prev,
+        subjects: [...(prev.subjects || []), clean]
+      }));
+    }
+    setCustomSubject('');
+  };
 
   const handleChange = (field, value) => {
     setFormData(prev => ({
@@ -122,6 +183,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       dob: formData.dob?.trim() || '',
       phone: formData.phone?.trim() || '',
       status: formData.status || 'Enrolled',
+      subjects: formData.subjects || [],
       id: formData.id
     };
 
@@ -538,6 +600,109 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 </div>
               </>
             )}
+
+            {/* Section Divider: Registered Subjects & Electives */}
+            <div className="edit-section-header full-width">
+              <div className="edit-section-header-title">
+                <BookOpen size={15} />
+                <span>Registered Subjects &amp; Electives</span>
+              </div>
+              <div className="edit-subjects-header-actions">
+                <span className="edit-subject-count-badge">
+                  {(formData.subjects || []).length} Selected
+                </span>
+                <button
+                  type="button"
+                  className="edit-subject-action-btn"
+                  onClick={handleSelectAllSubjects}
+                  title="Select all standard subjects for this stream"
+                >
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  className="edit-subject-action-btn"
+                  onClick={handleClearAllSubjects}
+                  title="Clear selected subjects"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <div className="edit-subjects-container full-width">
+              <div className="edit-subjects-helper-row">
+                <span className="edit-subjects-stream-tag">
+                  {formData.classId?.includes('sci')
+                    ? '🔬 Science Stream Curriculum'
+                    : (formData.classId?.includes('arts') ? '🎨 Arts Stream Curriculum' : '📚 Class Curriculum')}
+                </span>
+                <span className="edit-subjects-hint">
+                  Click on any subject below to add or remove it from this student
+                </span>
+              </div>
+
+              <div className="edit-subjects-chip-grid">
+                {displayedSubjectOptions.map((subj) => {
+                  const isSelected = (formData.subjects || []).includes(subj);
+                  const color = SUBJECT_COLOR_MAP[subj] || {
+                    bg: '#f1f5f9',
+                    border: '#94a3b8',
+                    text: '#334155',
+                    dot: '#94a3b8'
+                  };
+
+                  return (
+                    <button
+                      key={subj}
+                      type="button"
+                      onClick={() => handleToggleSubject(subj)}
+                      className={`edit-subject-chip ${isSelected ? 'selected' : 'unselected'}`}
+                      style={isSelected ? {
+                        backgroundColor: color.bg,
+                        borderColor: color.border,
+                        color: color.text
+                      } : {}}
+                      title={isSelected ? `Click to remove ${subj}` : `Click to add ${subj}`}
+                    >
+                      <span
+                        className="edit-chip-indicator"
+                        style={{ backgroundColor: isSelected ? color.dot : '#cbd5e1' }}
+                      >
+                        {isSelected ? <Check size={11} strokeWidth={3} color="#ffffff" /> : <Plus size={11} strokeWidth={2.5} color="#ffffff" />}
+                      </span>
+                      <span className="edit-chip-name">{subj}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Add Custom Elective Input */}
+              <div className="edit-custom-subject-row">
+                <input
+                  type="text"
+                  value={customSubject}
+                  onChange={(e) => setCustomSubject(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddCustomSubject();
+                    }
+                  }}
+                  placeholder="Add other elective (e.g. Geography, Economics, Sanskrit)..."
+                  className="edit-custom-subject-input"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomSubject}
+                  disabled={!customSubject.trim()}
+                  className="edit-add-subject-btn"
+                >
+                  <Plus size={14} />
+                  <span>Add Elective</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Modal Footer */}

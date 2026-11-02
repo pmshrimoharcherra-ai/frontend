@@ -319,3 +319,59 @@ export const getSubjectsForClass = (classId) => {
     'Physical Education'
   ];
 };
+
+export const SENIOR_STREAM_SUBJECTS = {
+  arts: [
+    'English',
+    'Bengali',
+    'History',
+    'Education',
+    'Political Science',
+    'Philosophy',
+    'IT/ITeS'
+  ],
+  science: [
+    'English',
+    'Bengali',
+    'Biology',
+    'Chemistry',
+    'Physics',
+    'Mathematics',
+    'Philosophy',
+    'IT/ITeS'
+  ]
+};
+
+export const SUBJECT_COLOR_MAP = {
+  'Bengali':           { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', dot: '#f59e0b' },
+  'English':           { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', dot: '#3b82f6' },
+  'Mathematics':       { bg: '#dcfce7', border: '#22c55e', text: '#166534', dot: '#22c55e' },
+  'Political Science': { bg: '#ede9fe', border: '#8b5cf6', text: '#5b21b6', dot: '#8b5cf6' },
+  'History':           { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
+  'Education':         { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
+  'Geography':         { bg: '#d1fae5', border: '#10b981', text: '#065f46', dot: '#10b981' },
+  'Philosophy':        { bg: '#fef9c3', border: '#eab308', text: '#713f12', dot: '#eab308' },
+  'Physics':           { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
+  'Chemistry':         { bg: '#fee2e2', border: '#ef4444', text: '#991b1b', dot: '#ef4444' },
+  'Biology':           { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
+  'Science':           { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
+  'Social Science':    { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
+  'IT/ITeS':           { bg: '#f3e8ff', border: '#a855f7', text: '#6b21a8', dot: '#a855f7' },
+};
+
+export const getSelectableSubjectsForClass = (classId = '') => {
+  const cid = (classId || '').toLowerCase();
+  if (cid.includes('sci')) {
+    return SENIOR_STREAM_SUBJECTS.science;
+  }
+  if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') {
+    return SENIOR_STREAM_SUBJECTS.arts;
+  }
+  return (CLASS_CURRICULUM[classId] || [
+    'English',
+    'Bengali',
+    'Mathematics',
+    'Science',
+    'Social Science'
+  ]).filter(s => s !== 'Physical Education' && s !== 'Art & Craft' && s !== 'Work Education');
+};
