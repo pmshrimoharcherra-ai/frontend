@@ -43,11 +43,22 @@ const ACADEMIC_MONTHS = [
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+export const getCurrentAcademicMonth = () => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const match = ACADEMIC_MONTHS.find((m) => m.key === currentMonth && m.year === currentYear);
+  if (match) return match;
+  const byMonth = ACADEMIC_MONTHS.find((m) => m.key === currentMonth);
+  if (byMonth) return byMonth;
+  return ACADEMIC_MONTHS.find((m) => m.key === 10) || ACADEMIC_MONTHS[0];
+};
+
 const AdminAcademicCalendar = () => {
   const [holidays, setHolidays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedMonthKey, setSelectedMonthKey] = useState(9); // Default to October (key 9)
+  const [selectedMonthKey, setSelectedMonthKey] = useState(() => getCurrentAcademicMonth().key);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -59,21 +70,24 @@ const AdminAcademicCalendar = () => {
   const [confirmDeleteInModal, setConfirmDeleteInModal] = useState(false);
 
   // Form Fields State
-  const [formData, setFormData] = useState({
-    name: '',
-    isDateRange: false,
-    date: 1,
-    endDate: '',
-    month: 9,
-    year: 2026,
-    type: 'school',
-    category: 'School Holiday',
-    isClosed: true,
-    description: ''
+  const [formData, setFormData] = useState(() => {
+    const cur = getCurrentAcademicMonth();
+    return {
+      name: '',
+      isDateRange: false,
+      date: 1,
+      endDate: '',
+      month: cur.key,
+      year: cur.year,
+      type: 'school',
+      category: 'School Holiday',
+      isClosed: true,
+      description: ''
+    };
   });
 
   const activeMonth = useMemo(() => {
-    return ACADEMIC_MONTHS.find((m) => m.key === selectedMonthKey) || ACADEMIC_MONTHS[6];
+    return ACADEMIC_MONTHS.find((m) => m.key === selectedMonthKey) || getCurrentAcademicMonth();
   }, [selectedMonthKey]);
 
   // Fetch holidays from API

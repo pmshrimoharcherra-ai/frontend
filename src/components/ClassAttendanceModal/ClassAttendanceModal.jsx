@@ -13,7 +13,8 @@ import {
 import {
   getAcademicMonthsWithWorkingDays,
   fetchCalendarHolidays,
-  ACADEMIC_MONTHS_BASE
+  ACADEMIC_MONTHS_BASE,
+  getCurrentAcademicMonthId
 } from '../../utils/calendarAttendance';
 
 const ClassAttendanceModal = ({
@@ -48,7 +49,7 @@ const ClassAttendanceModal = ({
     );
   };
 
-  const [selectedMonthId, setSelectedMonthId] = useState('2026-10');
+  const [selectedMonthId, setSelectedMonthId] = useState(getCurrentAcademicMonthId);
   const [holidays, setHolidays] = useState([]);
 
   // Fetch live holidays from Academic Calendar
@@ -65,7 +66,7 @@ const ClassAttendanceModal = ({
     return getAcademicMonthsWithWorkingDays(holidays);
   }, [holidays]);
 
-  const monthConfig = academicMonths.find(m => m.id === selectedMonthId) || academicMonths[6];
+  const monthConfig = academicMonths.find(m => m.id === selectedMonthId) || academicMonths.find(m => m.id === getCurrentAcademicMonthId()) || academicMonths[0];
   const [workingDays, setWorkingDays] = useState(monthConfig.workingDays);
 
   // Keep workingDays in sync when calendar holidays or active month changes

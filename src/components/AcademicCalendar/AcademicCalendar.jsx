@@ -35,10 +35,20 @@ import {
   holidaysData
 } from './academicCalendarData';
 
+const getCurrentCalendarMonthKey = () => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const match = monthsData.find((m) => m.key === currentMonth && m.year === currentYear);
+  if (match) return match.key;
+  const byMonth = monthsData.find((m) => m.key === currentMonth);
+  return byMonth ? byMonth.key : 10;
+};
+
 const AcademicCalendar = ({ onNavigate = () => {} }) => {
   // State
   const [selectedYearIndex, setSelectedYearIndex] = useState(0); // 0 = 2026 – 2027
-  const [selectedMonthKey, setSelectedMonthKey] = useState(9); // Default to October (key 9)
+  const [selectedMonthKey, setSelectedMonthKey] = useState(getCurrentCalendarMonthKey);
   const [activeHolidayTab, setActiveHolidayTab] = useState('national'); // 'national', 'state', 'school', 'special'
   
   // Modals & Popovers
@@ -118,7 +128,7 @@ const AcademicCalendar = ({ onNavigate = () => {} }) => {
   })();
 
   const selectedYear = academicYears[selectedYearIndex];
-  const activeMonthObj = monthsData.find((m) => m.key === selectedMonthKey) || monthsData[9];
+  const activeMonthObj = monthsData.find((m) => m.key === selectedMonthKey) || monthsData.find((m) => m.key === getCurrentCalendarMonthKey()) || monthsData[0];
 
   // Refs for horizontal month tabs scrolling
   const monthsTrackRef = useRef(null);

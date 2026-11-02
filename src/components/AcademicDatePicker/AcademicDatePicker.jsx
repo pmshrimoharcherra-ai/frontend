@@ -34,8 +34,16 @@ const ACADEMIC_SESSION_MONTHS = [
  * Interactive attendance date picker adhering strictly to the school's official 2026–2027 Academic Calendar.
  * Fully scoped with 'adp-' prefix to eliminate any CSS collisions.
  */
+const getTodayIso = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 const AcademicDatePicker = ({
-  value = '2026-10-30',
+  value = getTodayIso(),
   onChange = () => {},
   holidays: propHolidays = null
 }) => {
@@ -240,9 +248,11 @@ const AcademicDatePicker = ({
   };
 
   const handleSetToday = () => {
-    onChange('2026-10-30');
-    setViewMonth(9);
-    setViewYear(2026);
+    const today = getTodayIso();
+    const now = new Date();
+    onChange(today);
+    setViewMonth(now.getMonth());
+    setViewYear(now.getFullYear());
     setIsOpen(false);
   };
 
@@ -383,7 +393,7 @@ const AcademicDatePicker = ({
               const cellIso = `${viewYear}-${mStr}-${dStr}`;
 
               const isSelected = value === cellIso;
-              const isToday = cellIso === '2026-10-30';
+              const isToday = cellIso === getTodayIso();
 
               let cellStatusClass = 'working';
               if (status.isSunday) cellStatusClass = 'sunday';

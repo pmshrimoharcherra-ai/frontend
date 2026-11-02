@@ -2,6 +2,15 @@ import { API_BASE_URL } from '../config/api';
 
 // Utility for synchronizing Attendance with the Academic Calendar Holidays
 
+export const getCurrentAcademicMonthId = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const targetId = `${y}-${m}`;
+  const found = ACADEMIC_MONTHS_BASE.find(item => item.id === targetId);
+  return found ? found.id : '2026-11';
+};
+
 export const ACADEMIC_MONTHS_BASE = [
   { id: '2026-04', monthKey: 3, year: 2026, name: 'April 2026', shortName: 'Apr', defaultWorking: 22 },
   { id: '2026-05', monthKey: 4, year: 2026, name: 'May 2026', shortName: 'May', defaultWorking: 18 },
@@ -9,7 +18,7 @@ export const ACADEMIC_MONTHS_BASE = [
   { id: '2026-07', monthKey: 6, year: 2026, name: 'July 2026', shortName: 'Jul', defaultWorking: 25 },
   { id: '2026-08', monthKey: 7, year: 2026, name: 'August 2026', shortName: 'Aug', defaultWorking: 23 },
   { id: '2026-09', monthKey: 8, year: 2026, name: 'September 2026', shortName: 'Sep', defaultWorking: 24 },
-  { id: '2026-10', monthKey: 9, year: 2026, name: 'October 2026 (Current)', shortName: 'Oct', defaultWorking: 24, isCurrent: true },
+  { id: '2026-10', monthKey: 9, year: 2026, name: 'October 2026', shortName: 'Oct', defaultWorking: 24 },
   { id: '2026-11', monthKey: 10, year: 2026, name: 'November 2026', shortName: 'Nov', defaultWorking: 22 },
   { id: '2026-12', monthKey: 11, year: 2026, name: 'December 2026', shortName: 'Dec', defaultWorking: 20 },
   { id: '2027-01', monthKey: 0, year: 2027, name: 'January 2027', shortName: 'Jan', defaultWorking: 23 },
@@ -68,10 +77,14 @@ export const computeMonthWorkingDays = (monthKey, year, holidays = []) => {
  * Returns the academic months list with live working days computed from holidays.
  */
 export const getAcademicMonthsWithWorkingDays = (holidays = []) => {
+  const currentMonthId = getCurrentAcademicMonthId();
   return ACADEMIC_MONTHS_BASE.map((m) => {
+    const isCurrent = m.id === currentMonthId;
     const computed = computeMonthWorkingDays(m.monthKey, m.year, holidays);
     return {
       ...m,
+      name: isCurrent ? `${m.shortName} ${m.year} (Current)` : m.name,
+      isCurrent,
       workingDays: holidays.length > 0 ? computed.workingDays : m.defaultWorking,
       totalDays: computed.totalDays,
       closedHolidayCount: computed.closedHolidayCount,

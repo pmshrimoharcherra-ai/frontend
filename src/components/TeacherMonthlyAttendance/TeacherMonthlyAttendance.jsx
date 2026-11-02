@@ -23,7 +23,8 @@ import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import {
   getAcademicMonthsWithWorkingDays,
   fetchCalendarHolidays,
-  ACADEMIC_MONTHS_BASE
+  ACADEMIC_MONTHS_BASE,
+  getCurrentAcademicMonthId
 } from '../../utils/calendarAttendance';
 
 /**
@@ -41,7 +42,7 @@ const TeacherMonthlyAttendance = ({
   onSaveMonthlyAttendance = async () => {}
 }) => {
   // Selected Academic Month (defaults to October 2026 - Current)
-  const [selectedMonthId, setSelectedMonthId] = useState('2026-10');
+  const [selectedMonthId, setSelectedMonthId] = useState(getCurrentAcademicMonthId);
   const [holidays, setHolidays] = useState([]);
 
   // Search & Filters

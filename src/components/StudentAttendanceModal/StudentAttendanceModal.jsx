@@ -19,14 +19,15 @@ import {
 import {
   getAcademicMonthsWithWorkingDays,
   fetchCalendarHolidays,
-  ACADEMIC_MONTHS_BASE
+  ACADEMIC_MONTHS_BASE,
+  getCurrentAcademicMonthId
 } from '../../utils/calendarAttendance';
 
 const StudentAttendanceModal = ({ student, className, onClose, onSave }) => {
   if (!student) return null;
 
   // Selected month state
-  const [selectedMonthId, setSelectedMonthId] = useState('2026-10');
+  const [selectedMonthId, setSelectedMonthId] = useState(getCurrentAcademicMonthId);
   const [activeTab, setActiveTab] = useState('quick'); // 'quick' or 'calendar'
   const [holidays, setHolidays] = useState([]);
 
