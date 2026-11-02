@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './StudentDetailsModal.css';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { getSubjectsForClass } from '../../data/curriculumData';
 import {
   X,
   User,
@@ -17,6 +18,7 @@ import {
   Check,
   Hash,
   AlertCircle,
+  BookOpen,
   Clock
 } from 'lucide-react';
 
@@ -377,7 +379,78 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
             </div>
           </div>
 
-          {/* SECTION 4: Contact Information */}
+          {/* SECTION 4: Subjects */}
+          {(() => {
+            // Use per-student subjects saved in DB; fallback to class curriculum
+            const classId = student.classId || currentClass?.id || '';
+            const subjects = (student.subjects && student.subjects.length > 0)
+              ? student.subjects
+              : getSubjectsForClass(classId).filter(
+                  s => s !== 'Physical Education' && s !== 'Art & Craft' && s !== 'Work Education'
+                );
+            if (!subjects || subjects.length === 0) return null;
+
+            // Subject color map
+            const subjectColors = {
+              'Bengali':          { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', dot: '#f59e0b' },
+              'English':          { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', dot: '#3b82f6' },
+              'Mathematics':      { bg: '#dcfce7', border: '#22c55e', text: '#166534', dot: '#22c55e' },
+              'Political Science':{ bg: '#ede9fe', border: '#8b5cf6', text: '#5b21b6', dot: '#8b5cf6' },
+              'History':          { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
+              'Education':        { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
+              'Geography':        { bg: '#d1fae5', border: '#10b981', text: '#065f46', dot: '#10b981' },
+              'Philosophy':       { bg: '#fef9c3', border: '#eab308', text: '#713f12', dot: '#eab308' },
+              'Physics':          { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
+              'Chemistry':        { bg: '#fee2e2', border: '#ef4444', text: '#991b1b', dot: '#ef4444' },
+              'Biology':          { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
+              'Science':          { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
+              'Social Science':   { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
+              'IT/ITeS':          { bg: '#f3e8ff', border: '#a855f7', text: '#6b21a8', dot: '#a855f7' },
+            };
+            const defaultColor = { bg: '#f1f5f9', border: '#94a3b8', text: '#334155', dot: '#94a3b8' };
+
+            return (
+              <div className="details-section-card">
+                <div className="section-header-row">
+                  <div className="section-icon-wrap" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                    <BookOpen size={16} />
+                  </div>
+                  <h3>Subjects &amp; Curriculum</h3>
+                  <span style={{
+                    marginLeft: 'auto',
+                    background: '#f0fdf4',
+                    color: '#16a34a',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '20px',
+                    padding: '2px 10px',
+                    fontSize: '11px',
+                    fontWeight: 700
+                  }}>{subjects.length} Subjects</span>
+                </div>
+                <div className="sdm-subjects-grid">
+                  {subjects.map((subj) => {
+                    const c = subjectColors[subj] || defaultColor;
+                    return (
+                      <div
+                        key={subj}
+                        className="sdm-subject-pill"
+                        style={{
+                          background: c.bg,
+                          border: `1.5px solid ${c.border}`,
+                          color: c.text,
+                        }}
+                      >
+                        <span className="sdm-subject-dot" style={{ background: c.dot }} />
+                        {subj}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* SECTION 5: Contact Information */}
           <div className="details-section-card">
             <div className="section-header-row">
               <div className="section-icon-wrap phone-theme">
