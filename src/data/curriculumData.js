@@ -320,6 +320,21 @@ export const getSubjectsForClass = (classId) => {
   ];
 };
 
+export const STREAM_RULES = {
+  arts: {
+    mandatory: ['English', 'Bengali', 'History', 'Education', 'Political Science'],
+    optionalElectives: ['Philosophy', 'IT/ITeS'],
+    maxSubjects: 6,
+    minSubjects: 5
+  },
+  science: {
+    mandatory: ['English', 'Bengali', 'Biology', 'Chemistry', 'Physics'],
+    optionalElectives: ['Mathematics', 'Philosophy', 'IT/ITeS'],
+    maxSubjects: 6,
+    minSubjects: 5
+  }
+};
+
 export const SENIOR_STREAM_SUBJECTS = {
   arts: [
     'English',

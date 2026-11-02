@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import './EditStudentModal.css';
 import GenderSelect from '../GenderSelect/GenderSelect';
-import { getSelectableSubjectsForClass, SUBJECT_COLOR_MAP } from '../../data/curriculumData';
+import { getSelectableSubjectsForClass, SUBJECT_COLOR_MAP, STREAM_RULES } from '../../data/curriculumData';
 import {
   X,
   User,
@@ -20,7 +20,9 @@ import {
   Fingerprint,
   BookOpen,
   Check,
-  Plus
+  Plus,
+  Lock,
+  Info
 } from 'lucide-react';
 
 // Helpers for Date of Birth calendar conversions (DD/MM/YYYY <-> YYYY-MM-DD)
@@ -59,6 +61,28 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     ? '2024' 
     : (['class-12-arts', 'class-12-sci'].includes(student.classId) ? '2023' : '2026');
 
+  // Stream classification & rules
+  const currentStream = useMemo(() => {
+    const cid = (student.classId || '').toLowerCase();
+    if (cid.includes('sci')) return 'science';
+    if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') return 'arts';
+    return null;
+  }, [student.classId]);
+
+  const streamRule = currentStream ? STREAM_RULES[currentStream] : null;
+
+  // Initial subjects: ensure the 5 mandatory core subjects are always present
+  const initialSubjects = useMemo(() => {
+    const existing = Array.isArray(student.subjects) ? student.subjects : [];
+    if (streamRule) {
+      const mandatory = streamRule.mandatory;
+      const optionals = existing.filter(s => !mandatory.includes(s));
+      const sixth = optionals[0] || (existing.includes('IT/ITeS') ? 'IT/ITeS' : (existing.includes('Philosophy') ? 'Philosophy' : null));
+      return sixth ? [...mandatory, sixth] : [...mandatory];
+    }
+    return existing.length > 0 ? existing : getSelectableSubjectsForClass(student.classId || 'class-11-arts');
+  }, [student, streamRule]);
+
   const [formData, setFormData] = useState({
     name: student.name || '',
     roll: student.roll || '',
@@ -79,9 +103,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     dob: student.dob || '',
     phone: student.phone || '',
     status: student.status || 'Enrolled',
-    subjects: Array.isArray(student.subjects) && student.subjects.length > 0
-      ? [...student.subjects]
-      : getSelectableSubjectsForClass(student.classId || 'class-11-arts'),
+    subjects: initialSubjects,
     id: student.id || student.studentId || ''
   });
 
@@ -89,50 +111,83 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [customSubject, setCustomSubject] = useState('');
 
-  // Available subjects based on selected class/stream
-  const selectableSubjects = useMemo(() => {
-    return getSelectableSubjectsForClass(formData.classId);
+  // Available subjects based on active classId
+  const activeStream = useMemo(() => {
+    const cid = (formData.classId || '').toLowerCase();
+    if (cid.includes('sci')) return 'science';
+    if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') return 'arts';
+    return null;
   }, [formData.classId]);
 
-  // Combine standard stream subjects with any existing non-standard subjects
-  const displayedSubjectOptions = useMemo(() => {
-    const list = [...selectableSubjects];
-    (formData.subjects || []).forEach(s => {
-      if (s && !list.includes(s)) {
-        list.push(s);
-      }
-    });
-    return list;
-  }, [selectableSubjects, formData.subjects]);
+  const activeStreamRule = activeStream ? STREAM_RULES[activeStream] : null;
 
   const handleToggleSubject = (subj) => {
+    if (!activeStreamRule) {
+      // General classes
+      setFormData(prev => {
+        const current = prev.subjects || [];
+        if (current.includes(subj)) {
+          return { ...prev, subjects: current.filter(s => s !== subj) };
+        }
+        if (current.length >= 6) {
+          setErrorMessage('A student can take a maximum of 6 subjects.');
+          return prev;
+        }
+        return { ...prev, subjects: [...current, subj] };
+      });
+      return;
+    }
+
+    // Senior Secondary (Arts / Science)
+    const isMandatory = activeStreamRule.mandatory.includes(subj);
+    if (isMandatory) {
+      setErrorMessage(`"${subj}" is one of the 5 mandatory core subjects and cannot be removed.`);
+      return;
+    }
+
+    // It is an optional 6th subject (Philosophy or IT/ITeS)
     setFormData(prev => {
       const current = prev.subjects || [];
-      const updated = current.includes(subj)
-        ? current.filter(s => s !== subj)
-        : [...current, subj];
-      return { ...prev, subjects: updated };
+      const isAlreadySelected = current.includes(subj);
+
+      if (isAlreadySelected) {
+        // Deselect the 6th subject, leaving the 5 mandatory core subjects
+        return {
+          ...prev,
+          subjects: current.filter(s => s !== subj)
+        };
+      }
+
+      // User selects this subject as their 6th subject.
+      // Retain the 5 mandatory subjects and set this subject as the 6th (swapping any other elective).
+      const newSubjects = [...activeStreamRule.mandatory, subj];
+      return {
+        ...prev,
+        subjects: newSubjects
+      };
     });
+    if (errorMessage) setErrorMessage('');
   };
 
-  const handleSelectAllSubjects = () => {
-    setFormData(prev => ({
-      ...prev,
-      subjects: [...selectableSubjects]
-    }));
-  };
-
-  const handleClearAllSubjects = () => {
-    setFormData(prev => ({
-      ...prev,
-      subjects: []
-    }));
+  const handleResetToCore = () => {
+    if (activeStreamRule) {
+      setFormData(prev => ({
+        ...prev,
+        subjects: [...activeStreamRule.mandatory]
+      }));
+    }
   };
 
   const handleAddCustomSubject = (e) => {
     e?.preventDefault();
     const clean = customSubject.trim();
     if (!clean) return;
+
+    if ((formData.subjects || []).length >= 6) {
+      setErrorMessage('Maximum 6 subjects allowed. Remove or swap the 6th subject first.');
+      return;
+    }
+
     if (!formData.subjects.includes(clean)) {
       setFormData(prev => ({
         ...prev,
@@ -160,6 +215,19 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     if (!String(formData.roll).trim()) {
       setErrorMessage('Roll Number is required.');
       return;
+    }
+
+    // Validation for 5 mandatory core subjects + max 6 subjects
+    if (activeStreamRule) {
+      const missingMandatory = activeStreamRule.mandatory.filter(m => !(formData.subjects || []).includes(m));
+      if (missingMandatory.length > 0) {
+        setErrorMessage(`All 5 core subjects are mandatory: ${missingMandatory.join(', ')} must be included.`);
+        return;
+      }
+      if ((formData.subjects || []).length > 6) {
+        setErrorMessage('A student can only take a maximum of 6 subjects (5 mandatory core + 1 elective).');
+        return;
+      }
     }
 
     const updatedStudent = {
@@ -608,100 +676,223 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 <span>Registered Subjects &amp; Electives</span>
               </div>
               <div className="edit-subjects-header-actions">
-                <span className="edit-subject-count-badge">
-                  {(formData.subjects || []).length} Selected
+                <span className={`edit-subject-count-badge ${(formData.subjects || []).length === 6 ? 'full' : ''}`}>
+                  {(formData.subjects || []).length} / 6 Subjects
                 </span>
-                <button
-                  type="button"
-                  className="edit-subject-action-btn"
-                  onClick={handleSelectAllSubjects}
-                  title="Select all standard subjects for this stream"
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  className="edit-subject-action-btn"
-                  onClick={handleClearAllSubjects}
-                  title="Clear selected subjects"
-                >
-                  Clear
-                </button>
+                {activeStreamRule && (
+                  <button
+                    type="button"
+                    className="edit-subject-action-btn"
+                    onClick={handleResetToCore}
+                    title="Reset to the 5 mandatory core subjects"
+                  >
+                    Reset to 5 Core
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="edit-subjects-container full-width">
-              <div className="edit-subjects-helper-row">
-                <span className="edit-subjects-stream-tag">
-                  {formData.classId?.includes('sci')
-                    ? '🔬 Science Stream Curriculum'
-                    : (formData.classId?.includes('arts') ? '🎨 Arts Stream Curriculum' : '📚 Class Curriculum')}
-                </span>
-                <span className="edit-subjects-hint">
-                  Click on any subject below to add or remove it from this student
-                </span>
-              </div>
+              {activeStreamRule ? (
+                <>
+                  {/* Group 1: 5 Mandatory Core Subjects */}
+                  <div className="edit-subject-group">
+                    <div className="edit-subject-group-header">
+                      <div className="edit-group-title">
+                        <Lock size={13} className="lock-icon" />
+                        <strong>5 Mandatory Core Subjects</strong>
+                        <span className="mandatory-badge">Compulsory</span>
+                      </div>
+                      <span className="edit-group-hint">All 5 subjects are required for board registration</span>
+                    </div>
 
-              <div className="edit-subjects-chip-grid">
-                {displayedSubjectOptions.map((subj) => {
-                  const isSelected = (formData.subjects || []).includes(subj);
-                  const color = SUBJECT_COLOR_MAP[subj] || {
-                    bg: '#f1f5f9',
-                    border: '#94a3b8',
-                    text: '#334155',
-                    dot: '#94a3b8'
-                  };
+                    <div className="edit-subjects-chip-grid">
+                      {activeStreamRule.mandatory.map((subj) => {
+                        const color = SUBJECT_COLOR_MAP[subj] || {
+                          bg: '#f1f5f9',
+                          border: '#94a3b8',
+                          text: '#334155',
+                          dot: '#94a3b8'
+                        };
 
-                  return (
-                    <button
-                      key={subj}
-                      type="button"
-                      onClick={() => handleToggleSubject(subj)}
-                      className={`edit-subject-chip ${isSelected ? 'selected' : 'unselected'}`}
-                      style={isSelected ? {
-                        backgroundColor: color.bg,
-                        borderColor: color.border,
-                        color: color.text
-                      } : {}}
-                      title={isSelected ? `Click to remove ${subj}` : `Click to add ${subj}`}
-                    >
-                      <span
-                        className="edit-chip-indicator"
-                        style={{ backgroundColor: isSelected ? color.dot : '#cbd5e1' }}
-                      >
-                        {isSelected ? <Check size={11} strokeWidth={3} color="#ffffff" /> : <Plus size={11} strokeWidth={2.5} color="#ffffff" />}
+                        return (
+                          <div
+                            key={subj}
+                            className="edit-subject-chip mandatory-chip"
+                            style={{
+                              backgroundColor: color.bg,
+                              borderColor: color.border,
+                              color: color.text
+                            }}
+                            title={`${subj} is a mandatory core subject and cannot be removed`}
+                          >
+                            <span
+                              className="edit-chip-indicator"
+                              style={{ backgroundColor: color.dot }}
+                            >
+                              <Check size={11} strokeWidth={3} color="#ffffff" />
+                            </span>
+                            <span className="edit-chip-name">{subj}</span>
+                            <span className="chip-lock-tag">Mandatory</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Group 2: 6th Subject / Optional Elective */}
+                  <div className="edit-subject-group elective-group">
+                    <div className="edit-subject-group-header">
+                      <div className="edit-group-title">
+                        <Sparkles size={13} className="sparkle-icon" />
+                        <strong>6th Subject Elective</strong>
+                        <span className="optional-badge">Pick 1 Optional</span>
+                      </div>
+                      <span className="edit-group-hint">
+                        Choose <strong>Philosophy</strong> or <strong>IT/ITeS</strong> as the 6th subject (Max 6 subjects total)
                       </span>
-                      <span className="edit-chip-name">{subj}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
 
-              {/* Add Custom Elective Input */}
-              <div className="edit-custom-subject-row">
-                <input
-                  type="text"
-                  value={customSubject}
-                  onChange={(e) => setCustomSubject(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddCustomSubject();
-                    }
-                  }}
-                  placeholder="Add other elective (e.g. Geography, Economics, Sanskrit)..."
-                  className="edit-custom-subject-input"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddCustomSubject}
-                  disabled={!customSubject.trim()}
-                  className="edit-add-subject-btn"
-                >
-                  <Plus size={14} />
-                  <span>Add Elective</span>
-                </button>
-              </div>
+                    <div className="edit-subjects-chip-grid">
+                      {activeStreamRule.optionalElectives.map((subj) => {
+                        const isSelected = (formData.subjects || []).includes(subj);
+                        const color = SUBJECT_COLOR_MAP[subj] || {
+                          bg: '#f1f5f9',
+                          border: '#94a3b8',
+                          text: '#334155',
+                          dot: '#94a3b8'
+                        };
+
+                        return (
+                          <button
+                            key={subj}
+                            type="button"
+                            onClick={() => handleToggleSubject(subj)}
+                            className={`edit-subject-chip elective-chip ${isSelected ? 'selected' : 'unselected'}`}
+                            style={isSelected ? {
+                              backgroundColor: color.bg,
+                              borderColor: color.border,
+                              color: color.text
+                            } : {}}
+                            title={isSelected ? `6th Subject: Click to remove ${subj}` : `Click to choose ${subj} as 6th subject`}
+                          >
+                            <span
+                              className="edit-chip-indicator"
+                              style={{ backgroundColor: isSelected ? color.dot : '#cbd5e1' }}
+                            >
+                              {isSelected ? (
+                                <Check size={11} strokeWidth={3} color="#ffffff" />
+                              ) : (
+                                <Plus size={11} strokeWidth={2.5} color="#ffffff" />
+                              )}
+                            </span>
+                            <span className="edit-chip-name">{subj}</span>
+                            {isSelected && <span className="chip-sixth-tag">6th Subject</span>}
+                          </button>
+                        );
+                      })}
+
+                      {/* Any existing non-standard elective (e.g. Geography) */}
+                      {(formData.subjects || [])
+                        .filter(s => !activeStreamRule.mandatory.includes(s) && !activeStreamRule.optionalElectives.includes(s))
+                        .map((subj) => {
+                          const color = SUBJECT_COLOR_MAP[subj] || {
+                            bg: '#f1f5f9',
+                            border: '#94a3b8',
+                            text: '#334155',
+                            dot: '#94a3b8'
+                          };
+                          return (
+                            <button
+                              key={subj}
+                              type="button"
+                              onClick={() => handleToggleSubject(subj)}
+                              className="edit-subject-chip elective-chip selected"
+                              style={{
+                                backgroundColor: color.bg,
+                                borderColor: color.border,
+                                color: color.text
+                              }}
+                              title={`Click to remove ${subj}`}
+                            >
+                              <span
+                                className="edit-chip-indicator"
+                                style={{ backgroundColor: color.dot }}
+                              >
+                                <Check size={11} strokeWidth={3} color="#ffffff" />
+                              </span>
+                              <span className="edit-chip-name">{subj}</span>
+                              <span className="chip-sixth-tag">6th Subject</span>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Non-Senior general classes */
+                <div className="edit-subjects-chip-grid">
+                  {getSelectableSubjectsForClass(formData.classId).map((subj) => {
+                    const isSelected = (formData.subjects || []).includes(subj);
+                    const color = SUBJECT_COLOR_MAP[subj] || {
+                      bg: '#f1f5f9',
+                      border: '#94a3b8',
+                      text: '#334155',
+                      dot: '#94a3b8'
+                    };
+
+                    return (
+                      <button
+                        key={subj}
+                        type="button"
+                        onClick={() => handleToggleSubject(subj)}
+                        className={`edit-subject-chip ${isSelected ? 'selected' : 'unselected'}`}
+                        style={isSelected ? {
+                          backgroundColor: color.bg,
+                          borderColor: color.border,
+                          color: color.text
+                        } : {}}
+                      >
+                        <span
+                          className="edit-chip-indicator"
+                          style={{ backgroundColor: isSelected ? color.dot : '#cbd5e1' }}
+                        >
+                          {isSelected ? <Check size={11} strokeWidth={3} color="#ffffff" /> : <Plus size={11} strokeWidth={2.5} color="#ffffff" />}
+                        </span>
+                        <span className="edit-chip-name">{subj}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Add Custom Elective Input if less than 6 subjects */}
+              {(formData.subjects || []).length < 6 && (
+                <div className="edit-custom-subject-row">
+                  <input
+                    type="text"
+                    value={customSubject}
+                    onChange={(e) => setCustomSubject(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCustomSubject();
+                      }
+                    }}
+                    placeholder="Add other elective as 6th subject (e.g. Geography)..."
+                    className="edit-custom-subject-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomSubject}
+                    disabled={!customSubject.trim()}
+                    className="edit-add-subject-btn"
+                  >
+                    <Plus size={14} />
+                    <span>Set as 6th Subject</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
