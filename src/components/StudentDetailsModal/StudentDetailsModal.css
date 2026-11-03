@@ -729,6 +729,52 @@
 /* ============================================================
    SUBJECTS GRID — inside Student Details Modal
    ============================================================ */
+.sdm-section-badges {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sdm-pill-badge-mandatory {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.sdm-pill-badge-optional {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.sdm-curriculum-notice {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #3b82f6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.sdm-curriculum-notice strong {
+  color: #1e293b;
+}
+
 .sdm-subjects-grid {
   display: flex;
   flex-wrap: wrap;
@@ -739,7 +785,7 @@
 .sdm-subject-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 12.5px;
@@ -759,4 +805,24 @@
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.sdm-subject-tag-label {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  margin-left: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sdm-subject-tag-label.mandatory {
+  background: rgba(22, 101, 52, 0.12);
+  color: #14532d;
+}
+
+.sdm-subject-tag-label.optional {
+  background: rgba(107, 33, 168, 0.12);
+  color: #581c87;
 }

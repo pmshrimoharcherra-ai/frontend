@@ -66,6 +66,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     const cid = (student.classId || '').toLowerCase();
     if (cid.includes('sci')) return 'science';
     if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') return 'arts';
+    if (cid === 'class-9' || cid === 'class-10') return 'secondary';
     return null;
   }, [student.classId]);
 
@@ -116,6 +117,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     const cid = (formData.classId || '').toLowerCase();
     if (cid.includes('sci')) return 'science';
     if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') return 'arts';
+    if (cid === 'class-9' || cid === 'class-10') return 'secondary';
     return null;
   }, [formData.classId]);
 
@@ -749,7 +751,11 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                         <span className="optional-badge">Pick 1 Optional</span>
                       </div>
                       <span className="edit-group-hint">
-                        Choose <strong>Philosophy</strong> or <strong>IT/ITeS</strong> as the 6th subject (Max 6 subjects total)
+                        {activeStream === 'secondary' ? (
+                          <>5 mandatory subjects are compulsory. You may add <strong>IT/ITeS</strong> as the 6th optional subject (Max 6 total).</>
+                        ) : (
+                          <>Choose <strong>Philosophy</strong> or <strong>IT/ITeS</strong> as the 6th subject (Max 6 subjects total)</>
+                        )}
                       </span>
                     </div>
 

@@ -5,6 +5,7 @@ import './AdminExaminations.css';
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
 import {
   getSubjectsForClass,
+  getExamSubjectsForClass,
   getConsolidatedSubjectsForClass,
   isSecondarySciencePart,
   isSecondarySocialSciencePart,
@@ -82,7 +83,7 @@ const AdminExaminations = () => {
 
   // Official curriculum subjects evaluated in examinations (excludes co-curricular: Art, Work Ed, Physical Ed)
   const curriculumSubjects = useMemo(() => {
-    const list = getSubjectsForClass(selectedClassId);
+    const list = getExamSubjectsForClass ? getExamSubjectsForClass(selectedClassId) : getSubjectsForClass(selectedClassId);
     return list.filter(
       (s) => s !== 'Art & Craft' && s !== 'Work Education' && s !== 'Physical Education'
     );

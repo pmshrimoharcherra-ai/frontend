@@ -232,30 +232,22 @@ export const CLASS_CURRICULUM = {
   'class-7': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
   'class-8': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
 
-  // Secondary Wing (Class IX & X) - Science & Social Science with component sub-subjects
+  // Secondary Wing (Class IX & X) - 5 Mandatory Core + 1 Optional (IT/ITeS)
   'class-9': [
     'English',
     'Bengali',
+    'Science',
+    'Social Science',
     'Mathematics',
-    'Science (Physics)',
-    'Science (Chemistry)',
-    'Science (Life Science)',
-    'Social Science (History)',
-    'Social Science (Geography)',
-    'Social Science (Economics)',
     'IT/ITeS',
     'Physical Education'
   ],
   'class-10': [
     'English',
     'Bengali',
+    'Science',
+    'Social Science',
     'Mathematics',
-    'Science (Physics)',
-    'Science (Chemistry)',
-    'Science (Life Science)',
-    'Social Science (History)',
-    'Social Science (Geography)',
-    'Social Science (Economics)',
     'IT/ITeS',
     'Physical Education'
   ],
@@ -320,20 +312,61 @@ export const getSubjectsForClass = (classId) => {
   ];
 };
 
+// Sub-component breakdown used strictly for examination evaluations
+export const SECONDARY_EXAM_SUBJECTS = [
+  'English',
+  'Bengali',
+  'Mathematics',
+  'Science (Physics)',
+  'Science (Chemistry)',
+  'Science (Life Science)',
+  'Social Science (History)',
+  'Social Science (Geography)',
+  'Social Science (Economics)',
+  'IT/ITeS'
+];
+
+export const getExamSubjectsForClass = (classId) => {
+  if (classId === 'class-9' || classId === 'class-10') {
+    return SECONDARY_EXAM_SUBJECTS;
+  }
+  return getSubjectsForClass(classId).filter(
+    (s) => s !== 'Art & Craft' && s !== 'Work Education' && s !== 'Physical Education'
+  );
+};
+
 export const STREAM_RULES = {
+  secondary: {
+    title: 'Secondary Curriculum (Classes IX & X)',
+    mandatory: ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics'],
+    optionalElectives: ['IT/ITeS'],
+    maxSubjects: 6,
+    minSubjects: 5
+  },
   arts: {
+    title: 'Higher Secondary — Arts Stream',
     mandatory: ['English', 'Bengali', 'History', 'Education', 'Political Science'],
     optionalElectives: ['Philosophy', 'IT/ITeS'],
     maxSubjects: 6,
     minSubjects: 5
   },
   science: {
+    title: 'Higher Secondary — Science Stream',
     mandatory: ['English', 'Bengali', 'Biology', 'Chemistry', 'Physics'],
     optionalElectives: ['Mathematics', 'Philosophy', 'IT/ITeS'],
     maxSubjects: 6,
     minSubjects: 5
   }
 };
+
+export const SECONDARY_STREAM_SUBJECTS = [
+  'English',
+  'Bengali',
+  'Science',
+  'Social Science',
+  'Mathematics',
+  'IT/ITeS'
+];
 
 export const SENIOR_STREAM_SUBJECTS = {
   arts: [
@@ -361,6 +394,8 @@ export const SUBJECT_COLOR_MAP = {
   'Bengali':           { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', dot: '#f59e0b' },
   'English':           { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', dot: '#3b82f6' },
   'Mathematics':       { bg: '#dcfce7', border: '#22c55e', text: '#166534', dot: '#22c55e' },
+  'Science':           { bg: '#ecfdf5', border: '#10b981', text: '#065f46', dot: '#10b981' },
+  'Social Science':    { bg: '#fff7ed', border: '#f97316', text: '#9a3412', dot: '#f97316' },
   'Political Science': { bg: '#ede9fe', border: '#8b5cf6', text: '#5b21b6', dot: '#8b5cf6' },
   'History':           { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
   'Education':         { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
@@ -369,8 +404,6 @@ export const SUBJECT_COLOR_MAP = {
   'Physics':           { bg: '#e0f2fe', border: '#0ea5e9', text: '#075985', dot: '#0ea5e9' },
   'Chemistry':         { bg: '#fee2e2', border: '#ef4444', text: '#991b1b', dot: '#ef4444' },
   'Biology':           { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
-  'Science':           { bg: '#dcfce7', border: '#16a34a', text: '#14532d', dot: '#16a34a' },
-  'Social Science':    { bg: '#fce7f3', border: '#ec4899', text: '#9d174d', dot: '#ec4899' },
   'IT/ITeS':           { bg: '#f3e8ff', border: '#a855f7', text: '#6b21a8', dot: '#a855f7' },
 };
 
@@ -381,6 +414,9 @@ export const getSelectableSubjectsForClass = (classId = '') => {
   }
   if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') {
     return SENIOR_STREAM_SUBJECTS.arts;
+  }
+  if (cid === 'class-9' || cid === 'class-10') {
+    return SECONDARY_STREAM_SUBJECTS;
   }
   return (CLASS_CURRICULUM[classId] || [
     'English',
