@@ -150,10 +150,10 @@ const PendingStatusModal = ({
     setQuickFillStudent(st);
     setQuickFillClass(classObj);
     setQuickFillData({
-      apaarId: st.apaarId || '',
-      penNumber: st.penNumber || '',
-      aadhaar: st.aadhaar || '',
-      phone: st.phone || ''
+      apaarId: isFieldPending(st.apaarId) ? '' : String(st.apaarId || '').trim(),
+      penNumber: isFieldPending(st.penNumber) ? '' : String(st.penNumber || '').trim(),
+      aadhaar: isFieldPending(st.aadhaar) ? '' : String(st.aadhaar || '').trim(),
+      phone: isFieldPending(st.phone) ? '' : String(st.phone || '').trim()
     });
     setShowAllFieldsInQuickFill(false);
   };
@@ -167,9 +167,10 @@ const PendingStatusModal = ({
         key: 'apaarId',
         label: 'APAAR ID (12-Digit One Nation Student ID)',
         icon: Sparkles,
-        placeholder: 'e.g. 848550333051 (12 Digits)',
-        theme: 'apaar',
-        type: 'text'
+        placeholder: 'Not Available',
+        helper: '12-digit integer credential mandated by Ministry of Education',
+        maxLength: 12,
+        theme: 'apaar'
       });
     }
     if (isFieldPending(quickFillStudent.penNumber)) {
@@ -177,9 +178,10 @@ const PendingStatusModal = ({
         key: 'penNumber',
         label: 'PEN Number (UDISE+ Permanent Education Number)',
         icon: Hash,
-        placeholder: 'e.g. 21921734264 (11 Digits)',
-        theme: 'pen',
-        type: 'text'
+        placeholder: 'Not Available',
+        helper: '11-digit integer credential allotted by UDISE+ portal',
+        maxLength: 11,
+        theme: 'pen'
       });
     }
     if (isFieldPending(quickFillStudent.aadhaar)) {
@@ -187,9 +189,10 @@ const PendingStatusModal = ({
         key: 'aadhaar',
         label: 'Aadhaar Card Number (12-Digit UIDAI)',
         icon: Fingerprint,
-        placeholder: 'e.g. 5729 3588 8580 (12 Digits)',
-        theme: 'aadhaar',
-        type: 'text'
+        placeholder: 'Not Available',
+        helper: '12-digit integer UIDAI citizen identification number',
+        maxLength: 12,
+        theme: 'aadhaar'
       });
     }
     if (isFieldPending(quickFillStudent.phone)) {
@@ -197,9 +200,10 @@ const PendingStatusModal = ({
         key: 'phone',
         label: 'Contact Phone Number (Parent / Guardian)',
         icon: Phone,
-        placeholder: 'e.g. 9876543210 (10 Digits)',
-        theme: 'phone',
-        type: 'tel'
+        placeholder: 'Not Available',
+        helper: '10-digit integer mobile number for communication',
+        maxLength: 10,
+        theme: 'phone'
       });
     }
     return fields;
@@ -210,31 +214,62 @@ const PendingStatusModal = ({
     if (!quickFillStudent) return [];
     const fields = [];
     if (!isFieldPending(quickFillStudent.apaarId)) {
-      fields.push({ key: 'apaarId', label: 'APAAR ID', icon: Sparkles, value: quickFillStudent.apaarId });
+      fields.push({ key: 'apaarId', label: 'APAAR ID', icon: Sparkles, value: quickFillStudent.apaarId, maxLength: 12 });
     }
     if (!isFieldPending(quickFillStudent.penNumber)) {
-      fields.push({ key: 'penNumber', label: 'PEN Number', icon: Hash, value: quickFillStudent.penNumber });
+      fields.push({ key: 'penNumber', label: 'PEN Number', icon: Hash, value: quickFillStudent.penNumber, maxLength: 11 });
     }
     if (!isFieldPending(quickFillStudent.aadhaar)) {
-      fields.push({ key: 'aadhaar', label: 'Aadhaar Card Number', icon: Fingerprint, value: quickFillStudent.aadhaar });
+      fields.push({ key: 'aadhaar', label: 'Aadhaar Card Number', icon: Fingerprint, value: quickFillStudent.aadhaar, maxLength: 12 });
     }
     if (!isFieldPending(quickFillStudent.phone)) {
-      fields.push({ key: 'phone', label: 'Contact Phone Number', icon: Phone, value: quickFillStudent.phone });
+      fields.push({ key: 'phone', label: 'Contact Phone Number', icon: Phone, value: quickFillStudent.phone, maxLength: 10 });
     }
     return fields;
   }, [quickFillStudent]);
+
+  // Handle typing input: accepts only digits (integers)
+  const handleCredentialInputChange = (key, rawValue, maxLength) => {
+    const digitsOnly = String(rawValue || '').replace(/\D/g, '');
+    const finalVal = maxLength ? digitsOnly.slice(0, maxLength) : digitsOnly;
+    setQuickFillData((prev) => ({
+      ...prev,
+      [key]: finalVal
+    }));
+  };
 
   const handleSaveQuickFill = async (e) => {
     e.preventDefault();
     if (!quickFillStudent) return;
 
+    // Check if at least one pending field has an integer entered, or recorded field was changed
+    const hasAnyFilled = pendingFieldsForQuickFill.some(
+      (f) => (quickFillData[f.key] || '').trim().length > 0
+    ) || recordedFieldsForQuickFill.some(
+      (rf) => (quickFillData[rf.key] || '').trim() !== String(rf.value || '').trim()
+    );
+
+    if (!hasAnyFilled) {
+      alert('Please enter at least one integer value before saving.');
+      return;
+    }
+
     const updated = {
-      ...quickFillStudent,
-      apaarId: (quickFillData.apaarId || '').trim(),
-      penNumber: (quickFillData.penNumber || '').trim(),
-      aadhaar: (quickFillData.aadhaar || '').trim(),
-      phone: (quickFillData.phone || '').trim()
+      ...quickFillStudent
     };
+
+    if (quickFillData.apaarId !== undefined && quickFillData.apaarId.trim() !== '') {
+      updated.apaarId = quickFillData.apaarId.trim();
+    }
+    if (quickFillData.penNumber !== undefined && quickFillData.penNumber.trim() !== '') {
+      updated.penNumber = quickFillData.penNumber.trim();
+    }
+    if (quickFillData.aadhaar !== undefined && quickFillData.aadhaar.trim() !== '') {
+      updated.aadhaar = quickFillData.aadhaar.trim();
+    }
+    if (quickFillData.phone !== undefined && quickFillData.phone.trim() !== '') {
+      updated.phone = quickFillData.phone.trim();
+    }
 
     setQuickFillSaving(true);
     try {
@@ -955,6 +990,8 @@ const PendingStatusModal = ({
                 {pendingFieldsForQuickFill.length > 0 ? (
                   pendingFieldsForQuickFill.map((field, idx) => {
                     const FieldIcon = field.icon;
+                    const currentVal = quickFillData[field.key] || '';
+                    const isComplete = field.maxLength && currentVal.length === field.maxLength;
                     return (
                       <div key={field.key} className={`qf-field-group ${field.theme}`}>
                         <label className="qf-field-label">
@@ -964,15 +1001,35 @@ const PendingStatusModal = ({
                           </span>
                           <span className="qf-required-tag">Missing / Required</span>
                         </label>
-                        <input
-                          type={field.type}
-                          autoFocus={idx === 0}
-                          placeholder={field.placeholder}
-                          value={quickFillData[field.key] || ''}
-                          onChange={(e) => setQuickFillData({ ...quickFillData, [field.key]: e.target.value })}
-                          className="qf-input"
-                          required
-                        />
+                        <div className="qf-input-wrapper">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            autoFocus={idx === 0}
+                            placeholder={field.placeholder}
+                            value={currentVal}
+                            onChange={(e) => handleCredentialInputChange(field.key, e.target.value, field.maxLength)}
+                            className={`qf-input ${isComplete ? 'is-complete' : ''}`}
+                            maxLength={field.maxLength}
+                            autoComplete="off"
+                          />
+                          {currentVal ? (
+                            <button
+                              type="button"
+                              className="qf-input-clear-btn"
+                              title="Clear entry"
+                              onClick={() => handleCredentialInputChange(field.key, '', field.maxLength)}
+                            >
+                              <X size={13} />
+                            </button>
+                          ) : null}
+                        </div>
+                        <div className="qf-field-hint-line">
+                          <span className="qf-helper-text">{field.helper}</span>
+                          <span className={`qf-char-counter ${isComplete ? 'complete' : ''}`}>
+                            {currentVal.length > 0 ? `${currentVal.length} / ${field.maxLength} digits` : `Integer value required`}
+                          </span>
+                        </div>
                       </div>
                     );
                   })
@@ -999,6 +1056,7 @@ const PendingStatusModal = ({
                       <div className="qf-recorded-fields-grid">
                         {recordedFieldsForQuickFill.map((rf) => {
                           const RIcon = rf.icon;
+                          const rVal = quickFillData[rf.key] || '';
                           return (
                             <div key={rf.key} className="qf-recorded-field-item">
                               <label className="qf-recorded-label">
@@ -1008,9 +1066,11 @@ const PendingStatusModal = ({
                               </label>
                               <input
                                 type="text"
-                                value={quickFillData[rf.key] || ''}
-                                onChange={(e) => setQuickFillData({ ...quickFillData, [rf.key]: e.target.value })}
+                                inputMode="numeric"
+                                value={rVal}
+                                onChange={(e) => handleCredentialInputChange(rf.key, e.target.value, rf.maxLength)}
                                 className="qf-input small"
+                                maxLength={rf.maxLength}
                               />
                             </div>
                           );

@@ -1404,19 +1404,89 @@
   letter-spacing: 0.3px;
 }
 
+.qf-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .qf-input {
   width: 100%;
   height: 42px;
   border-radius: 9px;
-  border: 1px solid #cbd5e1;
-  padding: 0 14px;
-  font-size: 13.5px;
+  border: 1.5px solid #cbd5e1;
+  padding: 0 38px 0 14px;
+  font-size: 14px;
   font-weight: 600;
   color: #0f172a;
   outline: none;
   background: #ffffff;
   transition: all 0.2s ease;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.5px;
+}
+
+.qf-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0;
+  opacity: 0.85;
+}
+
+.qf-input.is-complete {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.qf-input-clear-btn {
+  position: absolute;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.qf-input-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.qf-field-hint-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.qf-helper-text {
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+.qf-char-counter {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
   font-family: ui-monospace, SFMono-Regular, monospace;
+  flex-shrink: 0;
+}
+
+.qf-char-counter.complete {
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .qf-field-group.apaar .qf-input:focus {
