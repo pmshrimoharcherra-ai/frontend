@@ -433,54 +433,21 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   </div>
                   <h3>Subjects &amp; Curriculum</h3>
                   <div className="sdm-section-badges">
-                    {isSecondary ? (
-                      <>
-                        <span className="sdm-pill-badge-mandatory">
-                          5 Mandatory Core
-                        </span>
-                        {subjects.includes('IT/ITeS') && (
-                          <span className="sdm-pill-badge-optional">
-                            + 1 Optional (IT/ITeS)
-                          </span>
-                        )}
-                      </>
-                    ) : streamRule ? (
-                      <>
-                        <span className="sdm-pill-badge-mandatory">
-                          5 Mandatory
-                        </span>
-                        {subjects.length > 5 && (
-                          <span className="sdm-pill-badge-optional">
-                            + 1 Optional
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="sdm-pill-badge-mandatory">
-                        {subjects.length} Subjects
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {isSecondary && (
-                  <div className="sdm-curriculum-notice">
-                    <span>
-                      <strong>Class {classId === 'class-10' ? 'X' : 'IX'} Scheme:</strong> 5 mandatory subjects (English, Bengali, Science, Social Science, Mathematics) are compulsory. <strong>IT/ITeS</strong> is offered as an optional 6th subject.
+                    <span className="sdm-pill-badge-mandatory">
+                      {subjects.length} Subjects
                     </span>
                   </div>
-                )}
+                </div>
 
                 <div className="sdm-subjects-grid">
                   {subjects.map((subj) => {
                     const c = SUBJECT_COLOR_MAP[subj] || defaultColor;
-                    const isMandatory = mandatoryList.includes(subj);
                     const isOptional = optionalList.includes(subj);
 
                     return (
                       <div
                         key={subj}
-                        className={`sdm-subject-pill ${isMandatory ? 'mandatory-pill' : ''} ${isOptional ? 'optional-pill' : ''}`}
+                        className={`sdm-subject-pill ${isOptional ? 'optional-pill' : ''}`}
                         style={{
                           background: c.bg,
                           border: `1.5px solid ${c.border}`,
@@ -489,11 +456,8 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                       >
                         <span className="sdm-subject-dot" style={{ background: c.dot }} />
                         <span className="sdm-subject-name">{subj}</span>
-                        {isMandatory && (
-                          <span className="sdm-subject-tag-label mandatory">Mandatory</span>
-                        )}
                         {isOptional && (
-                          <span className="sdm-subject-tag-label optional">Optional · 6th Subject</span>
+                          <span className="sdm-subject-tag-label optional">Optional</span>
                         )}
                       </div>
                     );
