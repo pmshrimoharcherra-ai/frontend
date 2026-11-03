@@ -22,6 +22,7 @@ import {
   GraduationCap,
   Users,
   ShieldAlert,
+  ShieldCheck,
   Printer
 } from 'lucide-react';
 
