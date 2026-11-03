@@ -1791,6 +1791,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             setPendingModalOpen(false);
             setPendingModalClass('ALL');
           }}
+          onSaveStudent={handleSaveEditedStudent}
           onEditStudent={(st) => {
             setEditingStudent(st);
           }}

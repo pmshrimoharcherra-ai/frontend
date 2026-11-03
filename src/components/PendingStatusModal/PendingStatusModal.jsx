@@ -23,7 +23,9 @@ import {
   Users,
   ShieldAlert,
   ShieldCheck,
-  Printer
+  Printer,
+  Save,
+  Loader2
 } from 'lucide-react';
 
 export const isFieldPending = (val) => {
@@ -121,6 +123,7 @@ const PendingStatusModal = ({
   students = [],
   classes = [],
   onClose,
+  onSaveStudent,
   onEditStudent,
   onViewStudent,
   onNavigateToClass
@@ -130,6 +133,124 @@ const PendingStatusModal = ({
   const [selectedClassFilter, setSelectedClassFilter] = useState(initialClassId || 'ALL');
   const [collapsedClasses, setCollapsedClasses] = useState({});
   const [copiedNotification, setCopiedNotification] = useState('');
+
+  // Quick Fill Modal State (Shows ONLY the fields that are missing)
+  const [quickFillStudent, setQuickFillStudent] = useState(null);
+  const [quickFillClass, setQuickFillClass] = useState(null);
+  const [quickFillData, setQuickFillData] = useState({
+    apaarId: '',
+    penNumber: '',
+    aadhaar: '',
+    phone: ''
+  });
+  const [quickFillSaving, setQuickFillSaving] = useState(false);
+  const [showAllFieldsInQuickFill, setShowAllFieldsInQuickFill] = useState(false);
+
+  const handleOpenQuickFill = (st, classObj) => {
+    setQuickFillStudent(st);
+    setQuickFillClass(classObj);
+    setQuickFillData({
+      apaarId: st.apaarId || '',
+      penNumber: st.penNumber || '',
+      aadhaar: st.aadhaar || '',
+      phone: st.phone || ''
+    });
+    setShowAllFieldsInQuickFill(false);
+  };
+
+  // Determine ONLY the fields that are pending/missing for quickFillStudent
+  const pendingFieldsForQuickFill = useMemo(() => {
+    if (!quickFillStudent) return [];
+    const fields = [];
+    if (isFieldPending(quickFillStudent.apaarId)) {
+      fields.push({
+        key: 'apaarId',
+        label: 'APAAR ID (12-Digit One Nation Student ID)',
+        icon: Sparkles,
+        placeholder: 'e.g. 848550333051 (12 Digits)',
+        theme: 'apaar',
+        type: 'text'
+      });
+    }
+    if (isFieldPending(quickFillStudent.penNumber)) {
+      fields.push({
+        key: 'penNumber',
+        label: 'PEN Number (UDISE+ Permanent Education Number)',
+        icon: Hash,
+        placeholder: 'e.g. 21921734264 (11 Digits)',
+        theme: 'pen',
+        type: 'text'
+      });
+    }
+    if (isFieldPending(quickFillStudent.aadhaar)) {
+      fields.push({
+        key: 'aadhaar',
+        label: 'Aadhaar Card Number (12-Digit UIDAI)',
+        icon: Fingerprint,
+        placeholder: 'e.g. 5729 3588 8580 (12 Digits)',
+        theme: 'aadhaar',
+        type: 'text'
+      });
+    }
+    if (isFieldPending(quickFillStudent.phone)) {
+      fields.push({
+        key: 'phone',
+        label: 'Contact Phone Number (Parent / Guardian)',
+        icon: Phone,
+        placeholder: 'e.g. 9876543210 (10 Digits)',
+        theme: 'phone',
+        type: 'tel'
+      });
+    }
+    return fields;
+  }, [quickFillStudent]);
+
+  // Already recorded fields (for optional review/adjustment)
+  const recordedFieldsForQuickFill = useMemo(() => {
+    if (!quickFillStudent) return [];
+    const fields = [];
+    if (!isFieldPending(quickFillStudent.apaarId)) {
+      fields.push({ key: 'apaarId', label: 'APAAR ID', icon: Sparkles, value: quickFillStudent.apaarId });
+    }
+    if (!isFieldPending(quickFillStudent.penNumber)) {
+      fields.push({ key: 'penNumber', label: 'PEN Number', icon: Hash, value: quickFillStudent.penNumber });
+    }
+    if (!isFieldPending(quickFillStudent.aadhaar)) {
+      fields.push({ key: 'aadhaar', label: 'Aadhaar Card Number', icon: Fingerprint, value: quickFillStudent.aadhaar });
+    }
+    if (!isFieldPending(quickFillStudent.phone)) {
+      fields.push({ key: 'phone', label: 'Contact Phone Number', icon: Phone, value: quickFillStudent.phone });
+    }
+    return fields;
+  }, [quickFillStudent]);
+
+  const handleSaveQuickFill = async (e) => {
+    e.preventDefault();
+    if (!quickFillStudent) return;
+
+    const updated = {
+      ...quickFillStudent,
+      apaarId: (quickFillData.apaarId || '').trim(),
+      penNumber: (quickFillData.penNumber || '').trim(),
+      aadhaar: (quickFillData.aadhaar || '').trim(),
+      phone: (quickFillData.phone || '').trim()
+    };
+
+    setQuickFillSaving(true);
+    try {
+      if (onSaveStudent) {
+        await onSaveStudent(updated);
+      }
+      setCopiedNotification(`Saved! Credentials updated for ${quickFillStudent.name}.`);
+      setTimeout(() => setCopiedNotification(''), 3000);
+      setQuickFillStudent(null);
+    } catch (err) {
+      console.error('Error saving quick fill credentials:', err);
+      alert('Failed to save student details. Please try again.');
+    } finally {
+      setQuickFillSaving(false);
+    }
+  };
 
   // Synchronize internal field with external prop if it changes
   React.useEffect(() => {
@@ -743,8 +864,8 @@ const PendingStatusModal = ({
                                       <button
                                         type="button"
                                         className="quick-edit-btn"
-                                        onClick={() => onEditStudent && onEditStudent(st)}
-                                        title={`Enter / update ${currentConfig.title} for ${st.name}`}
+                                        onClick={() => handleOpenQuickFill(st, cls)}
+                                        title={`Quick fill missing credentials for ${st.name}`}
                                       >
                                         <Pencil size={13} />
                                         <span>Fill Details</span>
@@ -786,6 +907,171 @@ const PendingStatusModal = ({
           </div>
         </div>
       </div>
+
+      {/* QUICK FILL PENDING DETAILS POPUP (Displays ONLY the missing fields!) */}
+      {quickFillStudent && (
+        <div className="quick-fill-overlay" onClick={() => !quickFillSaving && setQuickFillStudent(null)}>
+          <div className="quick-fill-card" onClick={(e) => e.stopPropagation()}>
+            {/* Quick Fill Header */}
+            <div className="quick-fill-header">
+              <div className="qf-header-left">
+                <div className="qf-avatar">{quickFillStudent.name?.charAt(0) || 'S'}</div>
+                <div>
+                  <div className="qf-badge-line">
+                    <span className="qf-roll-pill">Roll #{quickFillStudent.roll}</span>
+                    <span className="qf-class-pill">
+                      {quickFillClass?.name || quickFillStudent.className || 'Class'}
+                    </span>
+                    <span className={`qf-gender-pill ${quickFillStudent.gender?.toLowerCase() === 'girl' ? 'girl' : 'boy'}`}>
+                      {quickFillStudent.gender === 'Girl' ? <GirlIcon size={11} /> : <BoyIcon size={11} />}
+                      <span>{quickFillStudent.gender || 'Boy'}</span>
+                    </span>
+                  </div>
+                  <h3 className="qf-student-name">{quickFillStudent.name}</h3>
+                  <span className="qf-guardian-text">Guardian: {quickFillStudent.guardian || quickFillStudent.father || '—'}</span>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                className="qf-close-btn" 
+                onClick={() => !quickFillSaving && setQuickFillStudent(null)}
+                disabled={quickFillSaving}
+                title="Cancel"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Quick Fill Form */}
+            <form onSubmit={handleSaveQuickFill} className="quick-fill-form">
+              <div className="qf-notice-bar">
+                <AlertCircle size={15} className="qf-notice-icon" />
+                <span>
+                  <strong>Required Entry:</strong> Showing only fields that are missing for this student. Enter values and save.
+                </span>
+              </div>
+
+              <div className="qf-fields-list">
+                {pendingFieldsForQuickFill.length > 0 ? (
+                  pendingFieldsForQuickFill.map((field, idx) => {
+                    const FieldIcon = field.icon;
+                    return (
+                      <div key={field.key} className={`qf-field-group ${field.theme}`}>
+                        <label className="qf-field-label">
+                          <span className="qf-label-left">
+                            <FieldIcon size={14} className="qf-label-icon" />
+                            <strong>{field.label}</strong>
+                          </span>
+                          <span className="qf-required-tag">Missing / Required</span>
+                        </label>
+                        <input
+                          type={field.type}
+                          autoFocus={idx === 0}
+                          placeholder={field.placeholder}
+                          value={quickFillData[field.key] || ''}
+                          onChange={(e) => setQuickFillData({ ...quickFillData, [field.key]: e.target.value })}
+                          className="qf-input"
+                          required
+                        />
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="qf-all-filled-msg">
+                    <CheckCircle2 size={18} style={{ color: '#16a34a' }} />
+                    <span>All credentials are already filled for this student! You can review or edit below.</span>
+                  </div>
+                )}
+
+                {/* Optional toggle to show already recorded credentials */}
+                {recordedFieldsForQuickFill.length > 0 && (
+                  <div className="qf-recorded-section">
+                    <button
+                      type="button"
+                      className="qf-toggle-recorded-btn"
+                      onClick={() => setShowAllFieldsInQuickFill(!showAllFieldsInQuickFill)}
+                    >
+                      <span>{showAllFieldsInQuickFill ? 'Hide' : 'Show'} Already Recorded Credentials ({recordedFieldsForQuickFill.length})</span>
+                      {showAllFieldsInQuickFill ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+
+                    {showAllFieldsInQuickFill && (
+                      <div className="qf-recorded-fields-grid">
+                        {recordedFieldsForQuickFill.map((rf) => {
+                          const RIcon = rf.icon;
+                          return (
+                            <div key={rf.key} className="qf-recorded-field-item">
+                              <label className="qf-recorded-label">
+                                <RIcon size={13} />
+                                <span>{rf.label}</span>
+                                <span className="qf-recorded-ok-tag">Recorded ✓</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={quickFillData[rf.key] || ''}
+                                onChange={(e) => setQuickFillData({ ...quickFillData, [rf.key]: e.target.value })}
+                                className="qf-input small"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Form Actions */}
+              <div className="qf-form-actions">
+                <button
+                  type="button"
+                  className="qf-cancel-btn"
+                  onClick={() => setQuickFillStudent(null)}
+                  disabled={quickFillSaving}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="qf-save-btn"
+                  disabled={quickFillSaving}
+                >
+                  {quickFillSaving ? (
+                    <>
+                      <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={15} />
+                      <span>Save Details</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Link to Full Profile Editor */}
+              {onEditStudent && (
+                <div className="qf-full-edit-hint">
+                  <span>Need to edit other student fields (DOB, Father, Mother, Caste)?</span>
+                  <button
+                    type="button"
+                    className="qf-open-full-edit-link"
+                    onClick={() => {
+                      const st = quickFillStudent;
+                      setQuickFillStudent(null);
+                      onEditStudent(st);
+                    }}
+                  >
+                    Open Full Profile Editor →
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
