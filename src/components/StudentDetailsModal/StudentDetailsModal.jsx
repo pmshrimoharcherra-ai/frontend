@@ -367,6 +367,17 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                       </span>
                     </div>
                   </div>
+
+                  {student.registrationYear && (
+                    <div className="detail-item-box enr-box-highlight">
+                      <span className="detail-label">Registration Year</span>
+                      <div className="detail-value-row">
+                        <span className="reg-yr-pill font-bold">
+                          {student.registrationYear}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="detail-item-box">

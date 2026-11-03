@@ -92,6 +92,614 @@
   color: #ea580c;
 }
 
+/* Summary Caste Tag */
+.caste-summary-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.summary-caste-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+}
+
+.summary-caste-tag.sc {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.summary-caste-tag.obc {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.summary-caste-tag.ur {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.summary-caste-tag.st {
+  background: #faf5ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* Social Category / Caste Distribution Section */
+.caste-distribution-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+  margin-bottom: 32px;
+}
+
+.caste-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.caste-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.caste-header-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fed7aa;
+  flex-shrink: 0;
+}
+
+.caste-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.caste-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.caste-statutory-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.caste-section-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 3px 0 0 0;
+}
+
+/* Tab Toggle Group */
+.caste-tab-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.caste-toggle-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.caste-toggle-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.caste-toggle-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+/* Caste Cards Grid */
+.caste-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 18px;
+}
+
+.caste-dist-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.caste-dist-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.caste-dist-card.overall {
+  background: #ffffff;
+  border-color: #fed7aa;
+}
+
+.caste-dist-card.upper {
+  background: #ffffff;
+  border-color: #bfdbfe;
+}
+
+.caste-dist-card.primary {
+  background: #ffffff;
+  border-color: #fef08a;
+}
+
+.caste-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.caste-card-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.caste-wing-pill {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.caste-wing-pill.overall::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ea580c;
+}
+
+.caste-wing-pill.upper::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.caste-wing-pill.primary::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #eab308;
+}
+
+.caste-card-total-count {
+  font-size: 13px;
+  color: #475569;
+}
+
+.caste-card-total-count strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.caste-card-sub-info {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Ratio Bar */
+.caste-ratio-bar-wrap {
+  width: 100%;
+}
+
+.caste-ratio-segmented-bar {
+  display: flex;
+  height: 9px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.caste-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.caste-segment.sc {
+  background: #ea580c;
+}
+
+.caste-segment.obc {
+  background: #0284c7;
+}
+
+.caste-segment.ur {
+  background: #059669;
+}
+
+.caste-segment.st {
+  background: #9333ea;
+}
+
+.caste-segment.pending {
+  background: #94a3b8;
+}
+
+.caste-ratio-empty-bar {
+  height: 9px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.caste-ratio-empty-bar span {
+  display: none;
+}
+
+/* Metrics Grid */
+.caste-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+  gap: 8px;
+}
+
+.caste-metric-pill {
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease;
+}
+
+.caste-metric-pill.sc {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.caste-metric-pill.obc {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.caste-metric-pill.ur {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.caste-metric-pill.st {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.caste-metric-pill.pending {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.caste-metric-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.caste-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.caste-dot.sc {
+  background: #ea580c;
+}
+
+.caste-dot.obc {
+  background: #0284c7;
+}
+
+.caste-dot.ur {
+  background: #059669;
+}
+
+.caste-dot.st {
+  background: #9333ea;
+}
+
+.caste-dot.pending {
+  background: #94a3b8;
+}
+
+.caste-metric-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.caste-metric-pill.sc .caste-metric-name {
+  color: #c2410c;
+}
+
+.caste-metric-pill.obc .caste-metric-name {
+  color: #0369a1;
+}
+
+.caste-metric-pill.ur .caste-metric-name {
+  color: #047857;
+}
+
+.caste-metric-pill.st .caste-metric-name {
+  color: #6b21a8;
+}
+
+.caste-metric-pill.pending .caste-metric-name {
+  color: #475569;
+}
+
+.caste-metric-numbers {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.caste-count {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.caste-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Wing Caste Pill */
+.wing-caste-pill {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wing-caste-pill .mini-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.wing-caste-pill .mini-tag.sc {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.wing-caste-pill .mini-tag.obc {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.wing-caste-pill .mini-tag.ur {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.wing-caste-pill .mini-tag.st {
+  background: #faf5ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* Class Card Caste Mini Row */
+.card-caste-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.mini-caste-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
+.mini-caste-badge.sc {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.mini-caste-badge.obc {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.mini-caste-badge.ur {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.mini-caste-badge.st {
+  background: #faf5ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* Banner Meta Caste Split (View 2) */
+.banner-caste-split {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.banner-caste-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.banner-caste-tag.sc {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.banner-caste-tag.obc {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.banner-caste-tag.ur {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.banner-caste-tag.st {
+  background: #faf5ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* Quick Caste Filter Pills in Table Controls */
+.caste-filter-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.caste-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.caste-filter-btn {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.caste-filter-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.caste-filter-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+}
+
+.caste-filter-btn.sc.active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+}
+
+.caste-filter-btn.obc.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.caste-filter-btn.ur.active {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.caste-filter-btn.st.active {
+  background: #9333ea;
+  color: #ffffff;
+  border-color: #9333ea;
+}
+
 /* Wing Sections */
 .wing-section {
   margin-bottom: 32px;

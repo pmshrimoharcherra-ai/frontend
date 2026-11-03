@@ -28,9 +28,11 @@ import {
   Calendar,
   CalendarCheck,
   AlertCircle,
-  RefreshCw,
   Loader2,
-  Eye
+  Eye,
+  ShieldCheck,
+  Layers,
+  BarChart3
 } from 'lucide-react';
 
 // Classes Definition from Class 1 to 12 (Arts & Science for XI & XII only, no sections)
@@ -73,6 +75,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [casteFilter, setCasteFilter] = useState('ALL');
+  const [casteViewTab, setCasteViewTab] = useState('all'); // 'all', 'overall', 'upper', 'primary'
   const [showAddModal, setShowAddModal] = useState(initialOpenAdd);
 
   useEffect(() => {
@@ -94,6 +98,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     gender: 'Boy',
     enrollmentNo: '',
     enrollmentYear: '2026',
+    registrationYear: '',
     guardian: '',
     father: '',
     mother: '',
@@ -154,6 +159,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
   const getDefaultEnrollmentYear = (classId) => {
     if (classId === 'class-11-arts' || classId === 'class-11-sci') return '2024';
+    if (classId === 'class-12-arts' || classId === 'class-12-sci') return '2025';
     return '2026';
   };
 
@@ -232,10 +238,18 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     }
   };
 
-  // Filter students based on class selection and search query, strictly in roll no wise order
+  // Filter students based on class selection, caste filter, and search query, strictly in roll no wise order
   const displayedStudents = students
     .filter(s => {
       const matchesClass = selectedClassId ? s.classId === selectedClassId : true;
+
+      const c = (s.caste || '').trim().toUpperCase();
+      let matchesCaste = true;
+      if (casteFilter === 'SC') matchesCaste = c === 'SC';
+      else if (casteFilter === 'ST') matchesCaste = c === 'ST';
+      else if (casteFilter === 'OBC') matchesCaste = c === 'OBC';
+      else if (casteFilter === 'UR') matchesCaste = c === 'UR' || c === 'GEN' || c === 'GENERAL';
+
       const q = searchQuery.toLowerCase();
       const matchesSearch = (s.name || '').toLowerCase().includes(q) ||
                             String(s.roll || '').includes(searchQuery) ||
@@ -253,7 +267,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             (s.apaarId || '').toLowerCase().includes(q) ||
                             (s.dob || '').toLowerCase().includes(q) ||
                             (s.phone || '').includes(searchQuery);
-      return matchesClass && matchesSearch;
+      return matchesClass && matchesCaste && matchesSearch;
     })
     .sort((a, b) => {
       const rollA = parseInt(a.roll, 10) || 0;
@@ -297,8 +311,197 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const totalBoys = students.filter(s => (s.gender || '').trim().toLowerCase() !== 'girl').length;
   const totalGirls = students.filter(s => (s.gender || '').trim().toLowerCase() === 'girl').length;
 
+  // Helper to compute caste statistics for any subset of students
+  const getCasteStats = (studentList = []) => {
+    let sc = 0;
+    let st = 0;
+    let obc = 0;
+    let ur = 0;
+    let pending = 0;
+
+    studentList.forEach(s => {
+      const c = (s.caste || '').trim().toUpperCase();
+      if (c === 'SC') {
+        sc++;
+      } else if (c === 'ST') {
+        st++;
+      } else if (c === 'OBC') {
+        obc++;
+      } else if (c === 'UR' || c === 'GEN' || c === 'GENERAL') {
+        ur++;
+      } else {
+        pending++;
+      }
+    });
+
+    const recordedTotal = sc + st + obc + ur;
+    const total = studentList.length;
+
+    return {
+      total,
+      recordedTotal,
+      sc,
+      st,
+      obc,
+      ur,
+      pending,
+      scPercent: total > 0 ? ((sc / total) * 100).toFixed(1) : '0.0',
+      stPercent: total > 0 ? ((st / total) * 100).toFixed(1) : '0.0',
+      obcPercent: total > 0 ? ((obc / total) * 100).toFixed(1) : '0.0',
+      urPercent: total > 0 ? ((ur / total) * 100).toFixed(1) : '0.0',
+      pendingPercent: total > 0 ? ((pending / total) * 100).toFixed(1) : '0.0',
+    };
+  };
+
+  // Wing-wise and overall caste statistics
+  const overallCasteStats = getCasteStats(students);
+  const upperCasteStats = getCasteStats(
+    students.filter(s =>
+      ['class-6', 'class-7', 'class-8', 'class-9', 'class-10', 'class-11-sci', 'class-11-arts', 'class-12-sci', 'class-12-arts'].includes(s.classId)
+    )
+  );
+  const primaryCasteStats = getCasteStats(
+    students.filter(s =>
+      ['class-1', 'class-2', 'class-3', 'class-4', 'class-5'].includes(s.classId)
+    )
+  );
+  const elementaryCasteStats = getCasteStats(
+    students.filter(s => ['class-6', 'class-7', 'class-8'].includes(s.classId))
+  );
+  const secondaryCasteStats = getCasteStats(
+    students.filter(s => ['class-9', 'class-10'].includes(s.classId))
+  );
+  const seniorCasteStats = getCasteStats(
+    students.filter(s => ['class-11-sci', 'class-11-arts', 'class-12-sci', 'class-12-arts'].includes(s.classId))
+  );
+
+  // Render individual caste distribution card
+  const renderCasteCard = (title, subtitle, badgeClass, stats) => {
+    return (
+      <div className={`caste-dist-card ${badgeClass}`}>
+        <div className="caste-card-header">
+          <div className="caste-card-title-wrap">
+            <span className={`caste-wing-pill ${badgeClass}`}>{title}</span>
+            <span className="caste-card-total-count">
+              <strong>{stats.total}</strong> Students
+            </span>
+          </div>
+          <span className="caste-card-sub-info">{subtitle}</span>
+        </div>
+
+        {/* Visual Segmented Progress Bar */}
+        <div className="caste-ratio-bar-wrap">
+          {stats.total > 0 ? (
+            <div className="caste-ratio-segmented-bar">
+              {stats.sc > 0 && (
+                <div 
+                  className="caste-segment sc" 
+                  style={{ width: `${stats.scPercent}%` }} 
+                  title={`SC: ${stats.sc} (${stats.scPercent}%)`}
+                />
+              )}
+              {stats.obc > 0 && (
+                <div 
+                  className="caste-segment obc" 
+                  style={{ width: `${stats.obcPercent}%` }} 
+                  title={`OBC: ${stats.obc} (${stats.obcPercent}%)`}
+                />
+              )}
+              {stats.ur > 0 && (
+                <div 
+                  className="caste-segment ur" 
+                  style={{ width: `${stats.urPercent}%` }} 
+                  title={`UR / General: ${stats.ur} (${stats.urPercent}%)`}
+                />
+              )}
+              {stats.st > 0 && (
+                <div 
+                  className="caste-segment st" 
+                  style={{ width: `${stats.stPercent}%` }} 
+                  title={`ST: ${stats.st} (${stats.stPercent}%)`}
+                />
+              )}
+              {stats.pending > 0 && (
+                <div 
+                  className="caste-segment pending" 
+                  style={{ width: `${stats.pendingPercent}%` }} 
+                  title={`Pending / Unrecorded: ${stats.pending} (${stats.pendingPercent}%)`}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="caste-ratio-empty-bar" title="No enrolled records">
+              <span>No enrollments recorded</span>
+            </div>
+          )}
+        </div>
+
+        {/* Caste Stats Metrics Grid */}
+        <div className="caste-metrics-grid">
+          <div className="caste-metric-pill sc">
+            <div className="caste-metric-header">
+              <span className="caste-dot sc" />
+              <span className="caste-metric-name">SC</span>
+            </div>
+            <div className="caste-metric-numbers">
+              <strong className="caste-count">{stats.sc}</strong>
+              <span className="caste-pct">{stats.scPercent}%</span>
+            </div>
+          </div>
+
+          <div className="caste-metric-pill obc">
+            <div className="caste-metric-header">
+              <span className="caste-dot obc" />
+              <span className="caste-metric-name">OBC</span>
+            </div>
+            <div className="caste-metric-numbers">
+              <strong className="caste-count">{stats.obc}</strong>
+              <span className="caste-pct">{stats.obcPercent}%</span>
+            </div>
+          </div>
+
+          <div className="caste-metric-pill ur">
+            <div className="caste-metric-header">
+              <span className="caste-dot ur" />
+              <span className="caste-metric-name">UR / Gen</span>
+            </div>
+            <div className="caste-metric-numbers">
+              <strong className="caste-count">{stats.ur}</strong>
+              <span className="caste-pct">{stats.urPercent}%</span>
+            </div>
+          </div>
+
+          <div className="caste-metric-pill st">
+            <div className="caste-metric-header">
+              <span className="caste-dot st" />
+              <span className="caste-metric-name">ST</span>
+            </div>
+            <div className="caste-metric-numbers">
+              <strong className="caste-count">{stats.st}</strong>
+              <span className="caste-pct">{stats.stPercent}%</span>
+            </div>
+          </div>
+
+          {stats.pending > 0 && (
+            <div className="caste-metric-pill pending" title={`${stats.pending} records awaiting caste entry`}>
+              <div className="caste-metric-header">
+                <span className="caste-dot pending" />
+                <span className="caste-metric-name">Pending</span>
+              </div>
+              <div className="caste-metric-numbers">
+                <strong className="caste-count">{stats.pending}</strong>
+                <span className="caste-pct">{stats.pendingPercent}%</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderCardMiddle = (classId) => {
     const stats = getClassStats(classId);
+    const casteStats = getCasteStats(students.filter(s => s.classId === classId));
     return (
       <div className="class-card-middle">
         <h4 className="student-count-display">{stats.total}</h4>
@@ -328,6 +531,16 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             <div className="ratio-segment girl" style={{ width: `${stats.girlPercent}%` }} />
           </div>
         )}
+
+        {/* Caste breakdown mini tags inside class card */}
+        {stats.total > 0 && casteStats.recordedTotal > 0 && (
+          <div className="card-caste-mini-row" title={`Caste: SC: ${casteStats.sc}, OBC: ${casteStats.obc}, UR: ${casteStats.ur}, ST: ${casteStats.st}`}>
+            {casteStats.sc > 0 && <span className="mini-caste-badge sc">SC {casteStats.sc}</span>}
+            {casteStats.obc > 0 && <span className="mini-caste-badge obc">OBC {casteStats.obc}</span>}
+            {casteStats.ur > 0 && <span className="mini-caste-badge ur">UR {casteStats.ur}</span>}
+            {casteStats.st > 0 && <span className="mini-caste-badge st">ST {casteStats.st}</span>}
+          </div>
+        )}
       </div>
     );
   };
@@ -335,6 +548,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const handleClassClick = (classId) => {
     setSelectedClassId(classId);
     setSearchQuery('');
+    setCasteFilter('ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(`${basePath}/${classId}`);
   };
@@ -342,6 +556,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const handleBackToAllClasses = () => {
     setSelectedClassId(null);
     setSearchQuery('');
+    setCasteFilter('ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(basePath);
   };
@@ -355,6 +570,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       gender: 'Boy',
       enrollmentNo: '',
       enrollmentYear: getDefaultEnrollmentYear(targetClass),
+      registrationYear: '',
       guardian: '',
       father: '',
       mother: '',
@@ -378,6 +594,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       gender: newStudent.gender || 'Boy',
       enrollmentNo: newStudent.enrollmentNo?.trim() || '',
       enrollmentYear: newStudent.enrollmentYear?.trim() || getDefaultEnrollmentYear(newStudent.classId),
+      registrationYear: newStudent.registrationYear?.trim() || '',
       guardian: newStudent.guardian?.trim() || newStudent.father?.trim() || '',
       father: newStudent.father?.trim() || '',
       mother: newStudent.mother?.trim() || '',
@@ -434,16 +651,6 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <p>Select any grade from Class 1 to Class 12 to view and manage enrolled students</p>
             </div>
             <div className="header-actions">
-              <button 
-                type="button" 
-                className="attendance-sheet-btn-secondary" 
-                onClick={fetchStudents}
-                disabled={loading}
-                title="Refresh student records"
-              >
-                <RefreshCw size={15} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
-                <span>{loading ? 'Syncing...' : 'Sync DB'}</span>
-              </button>
               <button className="add-student-btn-primary" onClick={() => handleOpenAddModal('class-6')}>
                 <Plus size={16} />
                 <span>Enroll New Student</span>
@@ -474,8 +681,78 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               </span>
             </div>
             <div className="summary-item">
+              <span className="summary-label">Caste Breakdown (Overall)</span>
+              <span className="summary-val caste-summary-tags-row">
+                <span className="summary-caste-tag sc">SC: {overallCasteStats.sc}</span>
+                <span className="summary-caste-tag obc">OBC: {overallCasteStats.obc}</span>
+                <span className="summary-caste-tag ur">UR: {overallCasteStats.ur}</span>
+                {overallCasteStats.st > 0 && <span className="summary-caste-tag st">ST: {overallCasteStats.st}</span>}
+              </span>
+            </div>
+            <div className="summary-item">
               <span className="summary-label">Academic Session</span>
               <span className="summary-val">2026 - 2027</span>
+            </div>
+          </div>
+
+          {/* Social Category / Caste Distribution Section (Overall, Class VI - XII & I - V) */}
+          <div className="caste-distribution-section">
+            <div className="caste-section-header">
+              <div className="caste-header-left">
+                <div className="caste-header-icon-box">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <div className="caste-title-row">
+                    <h3 className="caste-section-title">Social Category & Caste Distribution</h3>
+                    <span className="caste-statutory-pill">UDISE+ Statutory Roster</span>
+                  </div>
+                  <p className="caste-section-subtitle">
+                    Distribution of overall enrolled students (Classes I – XII), Higher Secondary Section (Classes VI – XII), and Primary Section (Classes I – V)
+                  </p>
+                </div>
+              </div>
+
+              {/* View Toggle Tabs */}
+              <div className="caste-tab-toggle-group">
+                <button
+                  type="button"
+                  className={`caste-toggle-btn ${casteViewTab === 'all' ? 'active' : ''}`}
+                  onClick={() => setCasteViewTab('all')}
+                >
+                  All Sections
+                </button>
+                <button
+                  type="button"
+                  className={`caste-toggle-btn ${casteViewTab === 'overall' ? 'active' : ''}`}
+                  onClick={() => setCasteViewTab('overall')}
+                >
+                  Overall (I – XII)
+                </button>
+                <button
+                  type="button"
+                  className={`caste-toggle-btn ${casteViewTab === 'upper' ? 'active' : ''}`}
+                  onClick={() => setCasteViewTab('upper')}
+                >
+                  Class VI – XII
+                </button>
+                <button
+                  type="button"
+                  className={`caste-toggle-btn ${casteViewTab === 'primary' ? 'active' : ''}`}
+                  onClick={() => setCasteViewTab('primary')}
+                >
+                  Class I – V
+                </button>
+              </div>
+            </div>
+
+            <div className="caste-cards-grid">
+              {(casteViewTab === 'all' || casteViewTab === 'overall') &&
+                renderCasteCard('Overall Students', 'Classes 1 – 12 · Entire School', 'overall', overallCasteStats)}
+              {(casteViewTab === 'all' || casteViewTab === 'upper') &&
+                renderCasteCard('Classes VI – XII', 'Higher Secondary Section', 'upper', upperCasteStats)}
+              {(casteViewTab === 'all' || casteViewTab === 'primary') &&
+                renderCasteCard('Classes I – V', 'Primary Section', 'primary', primaryCasteStats)}
             </div>
           </div>
 
@@ -484,6 +761,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             <div className="wing-title-row">
               <div className="wing-badge primary">Primary Wing</div>
               <h3>Classes 1 to 5 (Foundational & Preparatory Stage)</h3>
+              <div className="wing-caste-pill" title="Primary Wing Caste Distribution">
+                <span className="mini-tag sc">SC: {primaryCasteStats.sc}</span>
+                <span className="mini-tag obc">OBC: {primaryCasteStats.obc}</span>
+                <span className="mini-tag ur">UR: {primaryCasteStats.ur}</span>
+                <span className="mini-tag st">ST: {primaryCasteStats.st}</span>
+              </div>
             </div>
             <div className="class-cards-grid">
               {SCHOOL_CLASSES.filter(c => c.category === 'primary').map((cls) => (
@@ -513,6 +796,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             <div className="wing-title-row">
               <div className="wing-badge middle">Elementary</div>
               <h3>Classes 6 to 8 (Elementary Stage)</h3>
+              <div className="wing-caste-pill" title="Elementary Wing Caste Distribution">
+                <span className="mini-tag sc">SC: {elementaryCasteStats.sc}</span>
+                <span className="mini-tag obc">OBC: {elementaryCasteStats.obc}</span>
+                <span className="mini-tag ur">UR: {elementaryCasteStats.ur}</span>
+                {elementaryCasteStats.st > 0 && <span className="mini-tag st">ST: {elementaryCasteStats.st}</span>}
+              </div>
             </div>
             <div className="class-cards-grid">
               {SCHOOL_CLASSES.filter(c => c.category === 'elementary').map((cls) => (
@@ -541,7 +830,13 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
           <div className="wing-section">
             <div className="wing-title-row">
               <div className="wing-badge secondary">Secondary</div>
-              <h3>Classes 9 & 10 (TBSE Madhyamik Board Foundation)</h3>
+              <h3>Classes 9 & 10</h3>
+              <div className="wing-caste-pill" title="Secondary Wing Caste Distribution">
+                <span className="mini-tag sc">SC: {secondaryCasteStats.sc}</span>
+                <span className="mini-tag obc">OBC: {secondaryCasteStats.obc}</span>
+                <span className="mini-tag ur">UR: {secondaryCasteStats.ur}</span>
+                {secondaryCasteStats.st > 0 && <span className="mini-tag st">ST: {secondaryCasteStats.st}</span>}
+              </div>
             </div>
             <div className="class-cards-grid">
               {SCHOOL_CLASSES.filter(c => c.category === 'secondary').map((cls) => (
@@ -570,7 +865,13 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
           <div className="wing-section">
             <div className="wing-title-row">
               <div className="wing-badge senior">Higher Secondary (10+2)</div>
-              <h3>Classes 11 & 12 (Specialized Science & Arts Streams)</h3>
+              <h3>Classes 11 & 12</h3>
+              <div className="wing-caste-pill" title="Higher Secondary Wing Caste Distribution">
+                <span className="mini-tag sc">SC: {seniorCasteStats.sc}</span>
+                <span className="mini-tag obc">OBC: {seniorCasteStats.obc}</span>
+                <span className="mini-tag ur">UR: {seniorCasteStats.ur}</span>
+                {seniorCasteStats.st > 0 && <span className="mini-tag st">ST: {seniorCasteStats.st}</span>}
+              </div>
             </div>
             <div className="class-cards-grid senior-grid">
               {SCHOOL_CLASSES.filter(c => c.category === 'senior').map((cls) => {
@@ -655,23 +956,27 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                         <GirlIcon size={14} /> {getClassStats(selectedClassId).girls} Girls
                       </span>
                     </span>
+                    {(() => {
+                      const cs = getCasteStats(students.filter(s => s.classId === selectedClassId));
+                      if (cs.recordedTotal === 0) return null;
+                      return (
+                        <>
+                          {' · '}
+                          <span className="banner-caste-split">
+                            {cs.sc > 0 && <span className="banner-caste-tag sc">SC: {cs.sc}</span>}
+                            {cs.obc > 0 && <span className="banner-caste-tag obc">OBC: {cs.obc}</span>}
+                            {cs.ur > 0 && <span className="banner-caste-tag ur">UR: {cs.ur}</span>}
+                            {cs.st > 0 && <span className="banner-caste-tag st">ST: {cs.st}</span>}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </>
                 )}
                 {' · '}Academic Year: 2026-2027
               </p>
             </div>
             <div className="banner-actions">
-              <button 
-                type="button"
-                className="attendance-sheet-btn-secondary" 
-                onClick={fetchStudents}
-                disabled={loading}
-                title="Refresh student records from database"
-              >
-                <RefreshCw size={15} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
-                <span>{loading ? 'Syncing...' : 'Sync DB'}</span>
-              </button>
-
               <button 
                 type="button"
                 className="attendance-sheet-btn-secondary" 
@@ -689,7 +994,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
           </div>
 
-          {/* Quick Search */}
+          {/* Quick Search & Caste Filter */}
           <div className="table-controls-bar">
             <div className="search-input-box">
               <Search size={18} className="search-icon" />
@@ -702,6 +1007,48 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               {searchQuery && (
                 <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
                   <X size={15} />
+                </button>
+              )}
+            </div>
+
+            {/* Quick Caste Filter Pills */}
+            <div className="caste-filter-pills-row">
+              <span className="caste-filter-label">Caste:</span>
+              <button
+                type="button"
+                className={`caste-filter-btn ${casteFilter === 'ALL' ? 'active' : ''}`}
+                onClick={() => setCasteFilter('ALL')}
+              >
+                All ({students.filter(s => s.classId === selectedClassId).length})
+              </button>
+              <button
+                type="button"
+                className={`caste-filter-btn sc ${casteFilter === 'SC' ? 'active' : ''}`}
+                onClick={() => setCasteFilter(casteFilter === 'SC' ? 'ALL' : 'SC')}
+              >
+                SC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'SC').length})
+              </button>
+              <button
+                type="button"
+                className={`caste-filter-btn obc ${casteFilter === 'OBC' ? 'active' : ''}`}
+                onClick={() => setCasteFilter(casteFilter === 'OBC' ? 'ALL' : 'OBC')}
+              >
+                OBC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'OBC').length})
+              </button>
+              <button
+                type="button"
+                className={`caste-filter-btn ur ${casteFilter === 'UR' ? 'active' : ''}`}
+                onClick={() => setCasteFilter(casteFilter === 'UR' ? 'ALL' : 'UR')}
+              >
+                UR ({students.filter(s => s.classId === selectedClassId && ['UR', 'GEN', 'GENERAL'].includes((s.caste || '').trim().toUpperCase())).length})
+              </button>
+              {students.some(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST') && (
+                <button
+                  type="button"
+                  className={`caste-filter-btn st ${casteFilter === 'ST' ? 'active' : ''}`}
+                  onClick={() => setCasteFilter(casteFilter === 'ST' ? 'ALL' : 'ST')}
+                >
+                  ST ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST').length})
                 </button>
               )}
             </div>
@@ -1064,13 +1411,13 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 </div>
               </div>
 
-              {['class-9', 'class-11-arts', 'class-11-sci'].includes(newStudent.classId) && (
+              {['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(newStudent.classId) && (
                 <div className="form-row-grid-2">
                   <div className="form-group-item">
                     <label>Enrollment / Reg No. *</label>
                     <input 
                       type="text" 
-                      placeholder="e.g. 321202805425 or Not found"
+                      placeholder="e.g. 31202508149 or Not found"
                       value={newStudent.enrollmentNo}
                       onChange={(e) => setNewStudent({ ...newStudent, enrollmentNo: e.target.value })}
                     />
