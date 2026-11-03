@@ -6,6 +6,8 @@ import StudentAttendanceModal from '../StudentAttendanceModal/StudentAttendanceM
 import ClassAttendanceModal from '../ClassAttendanceModal/ClassAttendanceModal';
 import EditStudentModal, { formatToIsoDate, formatToDisplayDate } from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
+import PendingStatusSection from '../PendingStatusSection/PendingStatusSection';
+import PendingStatusModal, { isFieldPending } from '../PendingStatusModal/PendingStatusModal';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import GenderSelect from '../GenderSelect/GenderSelect';
 import {
@@ -22,6 +24,9 @@ import {
   Phone,
   BookOpen,
   Sparkles,
+  Hash,
+  Fingerprint,
+  ShieldAlert,
   Download,
   X,
   CheckCircle2,
@@ -76,6 +81,10 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [casteFilter, setCasteFilter] = useState('ALL');
+  const [pendingFilter, setPendingFilter] = useState('ALL');
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
+  const [pendingModalField, setPendingModalField] = useState('apaarId');
+  const [pendingModalClass, setPendingModalClass] = useState('ALL');
   const [casteViewTab, setCasteViewTab] = useState('all'); // 'all', 'overall', 'upper', 'primary'
   const [showAddModal, setShowAddModal] = useState(initialOpenAdd);
 
@@ -250,6 +259,13 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       else if (casteFilter === 'OBC') matchesCaste = c === 'OBC';
       else if (casteFilter === 'UR') matchesCaste = c === 'UR' || c === 'GEN' || c === 'GENERAL';
 
+      let matchesPending = true;
+      if (pendingFilter === 'apaarId') matchesPending = isFieldPending(s.apaarId);
+      else if (pendingFilter === 'penNumber') matchesPending = isFieldPending(s.penNumber);
+      else if (pendingFilter === 'aadhaar') matchesPending = isFieldPending(s.aadhaar);
+      else if (pendingFilter === 'phone') matchesPending = isFieldPending(s.phone);
+      else if (pendingFilter === 'any') matchesPending = isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone);
+
       const q = searchQuery.toLowerCase();
       const matchesSearch = (s.name || '').toLowerCase().includes(q) ||
                             String(s.roll || '').includes(searchQuery) ||
@@ -267,7 +283,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             (s.apaarId || '').toLowerCase().includes(q) ||
                             (s.dob || '').toLowerCase().includes(q) ||
                             (s.phone || '').includes(searchQuery);
-      return matchesClass && matchesCaste && matchesSearch;
+      return matchesClass && matchesCaste && matchesPending && matchesSearch;
     })
     .sort((a, b) => {
       const rollA = parseInt(a.roll, 10) || 0;
@@ -502,6 +518,9 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const renderCardMiddle = (classId) => {
     const stats = getClassStats(classId);
     const casteStats = getCasteStats(students.filter(s => s.classId === classId));
+    const classPendingStudents = students.filter(s => s.classId === classId && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)));
+    const pendingCount = classPendingStudents.length;
+
     return (
       <div className="class-card-middle">
         <h4 className="student-count-display">{stats.total}</h4>
@@ -541,14 +560,30 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             {casteStats.st > 0 && <span className="mini-caste-badge st">ST {casteStats.st}</span>}
           </div>
         )}
+
+        {/* Pending documents mini tag */}
+        {stats.total > 0 && pendingCount > 0 && (
+          <div 
+            className="card-pending-mini-tag" 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenPendingModal('any', classId);
+            }}
+            title={`${pendingCount} students have pending documents in ${SCHOOL_CLASSES.find(c => c.id === classId)?.name || 'this class'}. Click to inspect class-wise.`}
+          >
+            <AlertCircle size={10} />
+            <span>{pendingCount} Pending Docs</span>
+          </div>
+        )}
       </div>
     );
   };
 
-  const handleClassClick = (classId) => {
+  const handleClassClick = (classId, filterPending = 'ALL') => {
     setSelectedClassId(classId);
     setSearchQuery('');
     setCasteFilter('ALL');
+    setPendingFilter(filterPending || 'ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(`${basePath}/${classId}`);
   };
@@ -557,8 +592,20 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     setSelectedClassId(null);
     setSearchQuery('');
     setCasteFilter('ALL');
+    setPendingFilter('ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(basePath);
+  };
+
+  const handleOpenPendingModal = (fieldKey = 'apaarId', classId = 'ALL') => {
+    setPendingModalField(fieldKey);
+    setPendingModalClass(classId || 'ALL');
+    setPendingModalOpen(true);
+  };
+
+  const handleNavigateFromPendingModal = (classId, pendingField) => {
+    setPendingModalOpen(false);
+    handleClassClick(classId, pendingField);
   };
 
   const handleOpenAddModal = (classId) => {
@@ -689,6 +736,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 {overallCasteStats.st > 0 && <span className="summary-caste-tag st">ST: {overallCasteStats.st}</span>}
               </span>
             </div>
+            <div 
+              className="summary-item clickable-summary-item"
+              onClick={() => handleOpenPendingModal('apaarId')}
+              title="Click to view and audit pending student credentials (APAAR, PEN, Aadhaar, Contact)"
+            >
+              <span className="summary-label">Pending Credentials</span>
+              <span className="summary-val" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#dc2626', cursor: 'pointer' }}>
+                <AlertCircle size={14} />
+                <span>{students.filter(s => isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)).length} Incomplete</span>
+              </span>
+            </div>
             <div className="summary-item">
               <span className="summary-label">Academic Session</span>
               <span className="summary-val">2026 - 2027</span>
@@ -755,6 +813,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 renderCasteCard('Classes I – V', 'Primary Section', 'primary', primaryCasteStats)}
             </div>
           </div>
+
+          {/* SECTION 2: STUDENT DOCUMENTATION & PENDING STATUS TRACKER */}
+          <PendingStatusSection
+            students={students}
+            onOpenModal={handleOpenPendingModal}
+          />
 
           {/* WING 1: PRIMARY WING (Classes 1 - 5) */}
           <div className="wing-section">
@@ -1011,46 +1075,97 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               )}
             </div>
 
-            {/* Quick Caste Filter Pills */}
-            <div className="caste-filter-pills-row">
-              <span className="caste-filter-label">Caste:</span>
-              <button
-                type="button"
-                className={`caste-filter-btn ${casteFilter === 'ALL' ? 'active' : ''}`}
-                onClick={() => setCasteFilter('ALL')}
-              >
-                All ({students.filter(s => s.classId === selectedClassId).length})
-              </button>
-              <button
-                type="button"
-                className={`caste-filter-btn sc ${casteFilter === 'SC' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'SC' ? 'ALL' : 'SC')}
-              >
-                SC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'SC').length})
-              </button>
-              <button
-                type="button"
-                className={`caste-filter-btn obc ${casteFilter === 'OBC' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'OBC' ? 'ALL' : 'OBC')}
-              >
-                OBC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'OBC').length})
-              </button>
-              <button
-                type="button"
-                className={`caste-filter-btn ur ${casteFilter === 'UR' ? 'active' : ''}`}
-                onClick={() => setCasteFilter(casteFilter === 'UR' ? 'ALL' : 'UR')}
-              >
-                UR ({students.filter(s => s.classId === selectedClassId && ['UR', 'GEN', 'GENERAL'].includes((s.caste || '').trim().toUpperCase())).length})
-              </button>
-              {students.some(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST') && (
+            {/* Table Filters: Caste & Pending Documentation */}
+            <div className="table-filters-container">
+              {/* Quick Caste Filter Pills */}
+              <div className="caste-filter-pills-row">
+                <span className="caste-filter-label">Caste:</span>
                 <button
                   type="button"
-                  className={`caste-filter-btn st ${casteFilter === 'ST' ? 'active' : ''}`}
-                  onClick={() => setCasteFilter(casteFilter === 'ST' ? 'ALL' : 'ST')}
+                  className={`caste-filter-btn ${casteFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setCasteFilter('ALL')}
                 >
-                  ST ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST').length})
+                  All ({students.filter(s => s.classId === selectedClassId).length})
                 </button>
-              )}
+                <button
+                  type="button"
+                  className={`caste-filter-btn sc ${casteFilter === 'SC' ? 'active' : ''}`}
+                  onClick={() => setCasteFilter(casteFilter === 'SC' ? 'ALL' : 'SC')}
+                >
+                  SC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'SC').length})
+                </button>
+                <button
+                  type="button"
+                  className={`caste-filter-btn obc ${casteFilter === 'OBC' ? 'active' : ''}`}
+                  onClick={() => setCasteFilter(casteFilter === 'OBC' ? 'ALL' : 'OBC')}
+                >
+                  OBC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'OBC').length})
+                </button>
+                <button
+                  type="button"
+                  className={`caste-filter-btn ur ${casteFilter === 'UR' ? 'active' : ''}`}
+                  onClick={() => setCasteFilter(casteFilter === 'UR' ? 'ALL' : 'UR')}
+                >
+                  UR ({students.filter(s => s.classId === selectedClassId && ['UR', 'GEN', 'GENERAL'].includes((s.caste || '').trim().toUpperCase())).length})
+                </button>
+                {students.some(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST') && (
+                  <button
+                    type="button"
+                    className={`caste-filter-btn st ${casteFilter === 'ST' ? 'active' : ''}`}
+                    onClick={() => setCasteFilter(casteFilter === 'ST' ? 'ALL' : 'ST')}
+                  >
+                    ST ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST').length})
+                  </button>
+                )}
+              </div>
+
+              {/* Quick Pending Status Filter Pills */}
+              <div className="pending-filter-pills-row">
+                <span className="pending-filter-label">Pending:</span>
+                <button
+                  type="button"
+                  className={`pending-class-pill ${pendingFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setPendingFilter('ALL')}
+                >
+                  All Status
+                </button>
+                <button
+                  type="button"
+                  className={`pending-class-pill apaar ${pendingFilter === 'apaarId' ? 'active' : ''}`}
+                  onClick={() => setPendingFilter(pendingFilter === 'apaarId' ? 'ALL' : 'apaarId')}
+                  title="Filter students missing APAAR ID"
+                >
+                  <Sparkles size={12} />
+                  <span>APAAR ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.apaarId)).length})</span>
+                </button>
+                <button
+                  type="button"
+                  className={`pending-class-pill pen ${pendingFilter === 'penNumber' ? 'active' : ''}`}
+                  onClick={() => setPendingFilter(pendingFilter === 'penNumber' ? 'ALL' : 'penNumber')}
+                  title="Filter students missing PEN Number"
+                >
+                  <Hash size={12} />
+                  <span>PEN ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.penNumber)).length})</span>
+                </button>
+                <button
+                  type="button"
+                  className={`pending-class-pill aadhaar ${pendingFilter === 'aadhaar' ? 'active' : ''}`}
+                  onClick={() => setPendingFilter(pendingFilter === 'aadhaar' ? 'ALL' : 'aadhaar')}
+                  title="Filter students missing Aadhaar Card"
+                >
+                  <Fingerprint size={12} />
+                  <span>Aadhaar ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.aadhaar)).length})</span>
+                </button>
+                <button
+                  type="button"
+                  className={`pending-class-pill phone ${pendingFilter === 'phone' ? 'active' : ''}`}
+                  onClick={() => setPendingFilter(pendingFilter === 'phone' ? 'ALL' : 'phone')}
+                  title="Filter students missing contact phone"
+                >
+                  <Phone size={12} />
+                  <span>Phone ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.phone)).length})</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1111,6 +1226,21 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                               {st.caste && (
                                 <span className="student-caste-pill font-mono" style={{ fontSize: '10.5px', padding: '1px 6px', borderRadius: '4px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', fontWeight: 600 }}>
                                   {st.caste}
+                                </span>
+                              )}
+                              {isFieldPending(st.apaarId) && (
+                                <span className="table-pending-mini-badge apaar" title="APAAR ID Pending / Unrecorded">
+                                  No APAAR
+                                </span>
+                              )}
+                              {isFieldPending(st.penNumber) && (
+                                <span className="table-pending-mini-badge pen" title="PEN Number Pending / Unrecorded">
+                                  No PEN
+                                </span>
+                              )}
+                              {isFieldPending(st.aadhaar) && (
+                                <span className="table-pending-mini-badge aadhaar" title="Aadhaar Pending / Unrecorded">
+                                  No Aadhaar
                                 </span>
                               )}
                             </div>
@@ -1230,6 +1360,21 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             <span className={`student-gender-pill mini ${st.gender?.toLowerCase() === 'girl' ? 'girl' : 'boy'}`}>
                               {st.gender === 'Girl' ? 'Girl' : 'Boy'}
                             </span>
+                            {isFieldPending(st.apaarId) && (
+                              <span className="table-pending-mini-badge apaar" title="APAAR ID Pending">
+                                No APAAR
+                              </span>
+                            )}
+                            {isFieldPending(st.penNumber) && (
+                              <span className="table-pending-mini-badge pen" title="PEN Number Pending">
+                                No PEN
+                              </span>
+                            )}
+                            {isFieldPending(st.aadhaar) && (
+                              <span className="table-pending-mini-badge aadhaar" title="Aadhaar Pending">
+                                No Aadhaar
+                              </span>
+                            )}
                           </div>
                           <span className="m-tap-hint">Tap to view details →</span>
                           {showStudentId && <span className="m-student-id">{st.id || st.studentId}</span>}
@@ -1631,6 +1776,28 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             setViewingStudent(null);
             setSelectedAttendanceStudent(st);
           }}
+        />
+      )}
+
+      {/* MODAL 5: CLASS-WISE PENDING STATUS MODAL */}
+      {pendingModalOpen && (
+        <PendingStatusModal
+          activeField={pendingModalField}
+          setActiveField={setPendingModalField}
+          initialClassId={pendingModalClass}
+          students={students}
+          classes={SCHOOL_CLASSES}
+          onClose={() => {
+            setPendingModalOpen(false);
+            setPendingModalClass('ALL');
+          }}
+          onEditStudent={(st) => {
+            setEditingStudent(st);
+          }}
+          onViewStudent={(st, cls) => {
+            setViewingStudent(st);
+          }}
+          onNavigateToClass={handleNavigateFromPendingModal}
         />
       )}
     </div>
