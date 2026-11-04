@@ -1496,6 +1496,11 @@
   flex-shrink: 0;
 }
 
+.qf-char-counter.incomplete {
+  color: #d97706;
+  font-weight: 700;
+}
+
 .qf-char-counter.complete {
   color: #16a34a;
   font-weight: 700;
@@ -1646,6 +1651,14 @@
 .qf-save-btn:hover {
   background: #c2410c;
   transform: translateY(-1px);
+}
+
+.qf-save-btn:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .qf-full-edit-hint {

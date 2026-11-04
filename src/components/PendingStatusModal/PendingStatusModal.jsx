@@ -229,9 +229,42 @@ const PendingStatusModal = ({
     }));
   };
 
+  // Validation for Quick Fill Save button
+  const isFormReadyToSave = useMemo(() => {
+    if (!quickFillStudent) return false;
+
+    // Check if any entered pending field is incomplete (has characters but hasn't reached required maxLength)
+    const hasIncompletePending = pendingFieldsForQuickFill.some((f) => {
+      const val = (quickFillData[f.key] || '').trim();
+      return val.length > 0 && val.length < f.maxLength;
+    });
+    if (hasIncompletePending) return false;
+
+    // Check if any entered recorded field is incomplete
+    const hasIncompleteRecorded = recordedFieldsForQuickFill.some((rf) => {
+      const val = (quickFillData[rf.key] || '').trim();
+      return val.length > 0 && val.length < rf.maxLength;
+    });
+    if (hasIncompleteRecorded) return false;
+
+    // Must have at least one pending field completely fulfilled (length === maxLength)
+    // OR at least one recorded field changed and complete
+    const hasFulfilledPending = pendingFieldsForQuickFill.some((f) => {
+      const val = (quickFillData[f.key] || '').trim();
+      return val.length === f.maxLength;
+    });
+
+    const hasChangedRecorded = recordedFieldsForQuickFill.some((rf) => {
+      const val = (quickFillData[rf.key] || '').trim();
+      return val !== String(rf.value || '').trim() && val.length === rf.maxLength;
+    });
+
+    return hasFulfilledPending || hasChangedRecorded;
+  }, [quickFillStudent, pendingFieldsForQuickFill, recordedFieldsForQuickFill, quickFillData]);
+
   const handleSaveQuickFill = async (e) => {
     e.preventDefault();
-    if (!quickFillStudent) return;
+    if (!quickFillStudent || !isFormReadyToSave) return;
 
     // Check if at least one pending field has an integer entered, or recorded field was changed
     const hasAnyFilled = pendingFieldsForQuickFill.some(
@@ -1018,7 +1051,7 @@ const PendingStatusModal = ({
                         </div>
                         <div className="qf-field-hint-line">
                           {field.helper && <span className="qf-helper-text">{field.helper}</span>}
-                          <span className={`qf-char-counter ${isComplete ? 'complete' : ''}`}>
+                          <span className={`qf-char-counter ${isComplete ? 'complete' : (currentVal.length > 0 ? 'incomplete' : '')}`}>
                             {field.maxLength ? `${currentVal.length}/${field.maxLength}` : currentVal.length}
                           </span>
                         </div>
@@ -1087,7 +1120,8 @@ const PendingStatusModal = ({
                 <button
                   type="submit"
                   className="qf-save-btn"
-                  disabled={quickFillSaving}
+                  disabled={quickFillSaving || !isFormReadyToSave}
+                  title={!isFormReadyToSave ? 'Please fulfill the required digits before saving' : 'Save Details'}
                 >
                   {quickFillSaving ? (
                     <>
