@@ -160,7 +160,7 @@ const PendingStatusModal = ({
     if (isFieldPending(quickFillStudent.apaarId)) {
       fields.push({
         key: 'apaarId',
-        label: 'APAAR ID (12-Digit One Nation Student ID)',
+        label: 'APAAR ID',
         icon: Sparkles,
         placeholder: 'Not Available',
         maxLength: 12,
@@ -170,7 +170,7 @@ const PendingStatusModal = ({
     if (isFieldPending(quickFillStudent.penNumber)) {
       fields.push({
         key: 'penNumber',
-        label: 'PEN Number (UDISE+ Permanent Education Number)',
+        label: 'PEN Number',
         icon: Hash,
         placeholder: 'Not Available',
         maxLength: 11,
@@ -180,7 +180,7 @@ const PendingStatusModal = ({
     if (isFieldPending(quickFillStudent.aadhaar)) {
       fields.push({
         key: 'aadhaar',
-        label: 'Aadhaar Card Number (12-Digit UIDAI)',
+        label: 'Aadhaar Card Number',
         icon: Fingerprint,
         placeholder: 'Not Available',
         maxLength: 12,
@@ -190,7 +190,7 @@ const PendingStatusModal = ({
     if (isFieldPending(quickFillStudent.phone)) {
       fields.push({
         key: 'phone',
-        label: 'Contact Phone Number (Parent / Guardian)',
+        label: 'Contact Phone Number',
         icon: Phone,
         placeholder: 'Not Available',
         maxLength: 10,
