@@ -465,10 +465,10 @@ const PendingStatusModal = ({
                     <>
                       <span className="target-class-title-tag">{targetClassObj.name}</span>
                       {' — '}
-                      {currentConfig.title} Pending Roster
+                      {currentConfig.title} Pending
                     </>
                   ) : (
-                    <>{currentConfig.title} — Class-wise Pending Roster</>
+                    <>{currentConfig.title} — Class-wise Pending</>
                   )}
                 </h2>
                 <div className="pending-title-badges">
