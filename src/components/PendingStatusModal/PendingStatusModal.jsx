@@ -163,7 +163,6 @@ const PendingStatusModal = ({
         label: 'APAAR ID (12-Digit One Nation Student ID)',
         icon: Sparkles,
         placeholder: 'Not Available',
-        helper: '12-digit integer credential mandated by Ministry of Education',
         maxLength: 12,
         theme: 'apaar'
       });
@@ -174,7 +173,6 @@ const PendingStatusModal = ({
         label: 'PEN Number (UDISE+ Permanent Education Number)',
         icon: Hash,
         placeholder: 'Not Available',
-        helper: '11-digit integer credential allotted by UDISE+ portal',
         maxLength: 11,
         theme: 'pen'
       });
@@ -185,7 +183,6 @@ const PendingStatusModal = ({
         label: 'Aadhaar Card Number (12-Digit UIDAI)',
         icon: Fingerprint,
         placeholder: 'Not Available',
-        helper: '12-digit integer UIDAI citizen identification number',
         maxLength: 12,
         theme: 'aadhaar'
       });
@@ -196,7 +193,6 @@ const PendingStatusModal = ({
         label: 'Contact Phone Number (Parent / Guardian)',
         icon: Phone,
         placeholder: 'Not Available',
-        helper: '10-digit integer mobile number for communication',
         maxLength: 10,
         theme: 'phone'
       });
@@ -1021,9 +1017,9 @@ const PendingStatusModal = ({
                           ) : null}
                         </div>
                         <div className="qf-field-hint-line">
-                          <span className="qf-helper-text">{field.helper}</span>
+                          {field.helper && <span className="qf-helper-text">{field.helper}</span>}
                           <span className={`qf-char-counter ${isComplete ? 'complete' : ''}`}>
-                            {currentVal.length > 0 ? `${currentVal.length} / ${field.maxLength} digits` : `Integer value required`}
+                            {field.maxLength ? `${currentVal.length}/${field.maxLength}` : currentVal.length}
                           </span>
                         </div>
                       </div>
