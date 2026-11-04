@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import './PendingStatusSection.css';
-import { isFieldPending } from '../PendingStatusModal/PendingStatusModal';
+import { isFieldPending, isTransferredStudent } from '../../utils/studentStatus';
 import {
   Sparkles,
   Hash,
@@ -15,14 +15,15 @@ import {
 
 const PendingStatusSection = ({ students = [], onOpenModal }) => {
   const stats = useMemo(() => {
-    const total = students.length;
+    const activeStudents = students.filter((s) => !isTransferredStudent(s));
+    const total = activeStudents.length;
     let apaarPending = 0;
     let penPending = 0;
     let aadhaarPending = 0;
     let phonePending = 0;
     let anyPending = 0;
 
-    students.forEach((s) => {
+    activeStudents.forEach((s) => {
       const isApaar = isFieldPending(s.apaarId);
       const isPen = isFieldPending(s.penNumber);
       const isAadhaar = isFieldPending(s.aadhaar);

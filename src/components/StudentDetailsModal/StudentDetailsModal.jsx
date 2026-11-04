@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './StudentDetailsModal.css';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { isTransferredStudent } from '../../utils/studentStatus';
 import { getSubjectsForClass, SUBJECT_COLOR_MAP, STREAM_RULES } from '../../data/curriculumData';
 import {
   X,
@@ -34,7 +35,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
     setTimeout(() => setCopiedField(null), 1800);
   };
 
-  const isTransferred = student.status === 'Transferred' || (student.father && student.father.toLowerCase() === 't/c');
+  const isTransferred = isTransferredStudent(student);
   const isFailed = student.status === 'Failed';
   const isClass8 = student.classId === 'class-8' || currentClass?.id === 'class-8';
   const isClassIXtoXII = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId || currentClass?.id);
@@ -201,7 +202,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                 <span className="detail-label">Aadhaar Number</span>
                 <div className="detail-value-row aadhaar-row">
                   <span className="aadhaar-number-display">
-                    {student.aadhaar ? student.aadhaar : <span className="text-muted">Not Recorded / Pending</span>}
+                    {student.aadhaar ? student.aadhaar : <span className="text-muted">{isTransferred ? '—' : 'Not Recorded / Pending'}</span>}
                   </span>
                   {student.aadhaar && (
                     <button
@@ -231,7 +232,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                 <div className="detail-value-row">
                   <Hash size={14} className="field-icon" />
                   <span className="erp-id-display" style={{ letterSpacing: '0.5px' }}>
-                    {student.penNumber ? student.penNumber : <span className="text-muted">Not Recorded / Pending</span>}
+                    {student.penNumber ? student.penNumber : <span className="text-muted">{isTransferred ? '—' : 'Not Recorded / Pending'}</span>}
                   </span>
                   {student.penNumber && (
                     <button
@@ -251,7 +252,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                 <div className="detail-value-row">
                   <Sparkles size={14} className="field-icon" />
                   <span className="erp-id-display" style={{ letterSpacing: '0.5px' }}>
-                    {student.apaarId ? student.apaarId : <span className="text-muted">Not Generated / Pending</span>}
+                    {student.apaarId ? student.apaarId : <span className="text-muted">{isTransferred ? '—' : 'Not Generated / Pending'}</span>}
                   </span>
                   {student.apaarId && (
                     <button

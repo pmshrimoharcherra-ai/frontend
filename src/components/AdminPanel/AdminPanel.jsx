@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../../config/api';
 import './AdminPanel.css';
 import AdminSidebar from '../AdminSidebar/AdminSidebar';
 import AdminStudents, { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
+import { isTransferredStudent } from '../../utils/studentStatus';
 import AdminAcademicCalendar from '../AdminAcademicCalendar/AdminAcademicCalendar';
 import AdminGallery from '../AdminGallery/AdminGallery';
 import AdminTeachers from '../AdminTeachers/AdminTeachers';
@@ -211,7 +212,12 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
   };
 
   // --- Dynamic Dashboard Metrics & Analytics ---
-  const totalStudents = students.length;
+  // Transferred students are excluded from active enrolled dashboard metrics
+  const activeStudents = useMemo(() => {
+    return (students || []).filter(s => !isTransferredStudent(s));
+  }, [students]);
+
+  const totalStudents = activeStudents.length;
   const totalTeachers = teachers.length;
 
   // Active Teachers
@@ -219,37 +225,37 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     return teachers.filter(t => !t.status || t.status.toLowerCase() === 'active').length;
   }, [teachers]);
 
-  // Dynamic Average Attendance calculation
+  // Dynamic Average Attendance calculation (Active enrolled students only)
   const avgAttendance = useMemo(() => {
-    if (!students || students.length === 0) return '94.8';
-    const parsed = students.map((s) => {
+    if (!activeStudents || activeStudents.length === 0) return '94.8';
+    const parsed = activeStudents.map((s) => {
       const val = parseFloat(s.attendance);
       return isNaN(val) ? 92 : val;
     });
     const sum = parsed.reduce((a, b) => a + b, 0);
     return (sum / parsed.length).toFixed(1);
-  }, [students]);
+  }, [activeStudents]);
 
   // Dynamic Students Present Today
   const presentStudentsToday = useMemo(() => {
-    if (!students || students.length === 0) return 0;
-    return Math.round((students.length * parseFloat(avgAttendance)) / 100);
-  }, [students, avgAttendance]);
+    if (!activeStudents || activeStudents.length === 0) return 0;
+    return Math.round((activeStudents.length * parseFloat(avgAttendance)) / 100);
+  }, [activeStudents, avgAttendance]);
 
   // Dynamic Pinned Notices Count
   const pinnedNoticesCount = useMemo(() => {
     return notices.filter((n) => n.pinned).length;
   }, [notices]);
 
-  // Class-wise count breakdown
+  // Class-wise count breakdown (Active enrolled students only)
   const classStats = useMemo(() => {
     const counts = {};
-    students.forEach((s) => {
+    activeStudents.forEach((s) => {
       const cid = s.classId || s.class;
       if (cid) counts[cid] = (counts[cid] || 0) + 1;
     });
     return counts;
-  }, [students]);
+  }, [activeStudents]);
 
   // Quick Action Handlers
   const handleNewAdmissionClick = () => {

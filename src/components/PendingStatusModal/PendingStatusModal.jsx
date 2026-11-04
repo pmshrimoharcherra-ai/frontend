@@ -28,13 +28,8 @@ import {
   Loader2
 } from 'lucide-react';
 
-export const isFieldPending = (val) => {
-  if (val === null || val === undefined) return true;
-  const str = String(val).trim();
-  if (str === '' || str === '—' || str === '-' || str === 'N/A' || str === 'NA' || str === 'null' || str === 'undefined') return true;
-  const lower = str.toLowerCase();
-  return lower === 'pending' || lower === 'not found' || lower === 'not available' || lower === 'unrecorded' || lower === 'none';
-};
+import { isTransferredStudent, isFieldPending } from '../../utils/studentStatus';
+export { isTransferredStudent, isFieldPending };
 
 export const PENDING_FIELD_CONFIG = {
   apaarId: {
@@ -48,7 +43,7 @@ export const PENDING_FIELD_CONFIG = {
     badgeClass: 'badge-apaar',
     fieldLabel: 'APAAR ID',
     description: '12-digit One Nation, One Student ID mandated by Ministry of Education / NEP 2020',
-    checkFn: (s) => isFieldPending(s.apaarId),
+    checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.apaarId),
     getValue: (s) => s.apaarId || '—'
   },
   penNumber: {
@@ -62,7 +57,7 @@ export const PENDING_FIELD_CONFIG = {
     badgeClass: 'badge-pen',
     fieldLabel: 'PEN Number',
     description: 'Permanent national student tracking code assigned by Ministry of Education UDISE+',
-    checkFn: (s) => isFieldPending(s.penNumber),
+    checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.penNumber),
     getValue: (s) => s.penNumber || '—'
   },
   aadhaar: {
@@ -76,7 +71,7 @@ export const PENDING_FIELD_CONFIG = {
     badgeClass: 'badge-aadhaar',
     fieldLabel: 'Aadhaar No.',
     description: '12-digit Unique Identification Authority of India (UIDAI) citizen credential',
-    checkFn: (s) => isFieldPending(s.aadhaar),
+    checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.aadhaar),
     getValue: (s) => s.aadhaar || '—'
   },
   phone: {
@@ -90,7 +85,7 @@ export const PENDING_FIELD_CONFIG = {
     badgeClass: 'badge-phone',
     fieldLabel: 'Phone No.',
     description: 'Emergency and communication mobile number for parent or legal guardian',
-    checkFn: (s) => isFieldPending(s.phone),
+    checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.phone),
     getValue: (s) => s.phone || '—'
   },
   any: {
@@ -104,7 +99,7 @@ export const PENDING_FIELD_CONFIG = {
     badgeClass: 'badge-any',
     fieldLabel: 'Pending Fields',
     description: 'Students missing at least one critical credential (APAAR, PEN, Aadhaar, or Contact)',
-    checkFn: (s) => isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone),
+    checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone),
     getValue: (s) => {
       const missing = [];
       if (isFieldPending(s.apaarId)) missing.push('APAAR');
@@ -305,8 +300,9 @@ const PendingStatusModal = ({
 
   // Scoped students based on selected class filter (single class vs all school)
   const scopedStudents = useMemo(() => {
-    if (selectedClassFilter === 'ALL') return students;
-    return students.filter((s) => s.classId === selectedClassFilter);
+    const active = students.filter((s) => !isTransferredStudent(s));
+    if (selectedClassFilter === 'ALL') return active;
+    return active.filter((s) => s.classId === selectedClassFilter);
   }, [students, selectedClassFilter]);
 
   // Calculate counts for all pending fields (scoped to selected class or school)
@@ -346,7 +342,7 @@ const PendingStatusModal = ({
         return;
       }
 
-      const classStudents = students.filter((s) => s.classId === cls.id);
+      const classStudents = students.filter((s) => s.classId === cls.id && !isTransferredStudent(s));
       const pendingStudents = classStudents
         .filter((s) => checkFn(s))
         .filter((s) => {

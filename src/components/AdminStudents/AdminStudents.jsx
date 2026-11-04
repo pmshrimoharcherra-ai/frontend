@@ -7,7 +7,7 @@ import ClassAttendanceModal from '../ClassAttendanceModal/ClassAttendanceModal';
 import EditStudentModal, { formatToIsoDate, formatToDisplayDate } from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
 import PendingStatusSection from '../PendingStatusSection/PendingStatusSection';
-import PendingStatusModal, { isFieldPending } from '../PendingStatusModal/PendingStatusModal';
+import PendingStatusModal, { isFieldPending, isTransferredStudent } from '../PendingStatusModal/PendingStatusModal';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import GenderSelect from '../GenderSelect/GenderSelect';
 import {
@@ -260,11 +260,15 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       else if (casteFilter === 'UR') matchesCaste = c === 'UR' || c === 'GEN' || c === 'GENERAL';
 
       let matchesPending = true;
-      if (pendingFilter === 'apaarId') matchesPending = isFieldPending(s.apaarId);
-      else if (pendingFilter === 'penNumber') matchesPending = isFieldPending(s.penNumber);
-      else if (pendingFilter === 'aadhaar') matchesPending = isFieldPending(s.aadhaar);
-      else if (pendingFilter === 'phone') matchesPending = isFieldPending(s.phone);
-      else if (pendingFilter === 'any') matchesPending = isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone);
+      if (pendingFilter !== 'ALL') {
+        if (isTransferredStudent(s)) {
+          matchesPending = false;
+        } else if (pendingFilter === 'apaarId') matchesPending = isFieldPending(s.apaarId);
+        else if (pendingFilter === 'penNumber') matchesPending = isFieldPending(s.penNumber);
+        else if (pendingFilter === 'aadhaar') matchesPending = isFieldPending(s.aadhaar);
+        else if (pendingFilter === 'phone') matchesPending = isFieldPending(s.phone);
+        else if (pendingFilter === 'any') matchesPending = isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone);
+      }
 
       const q = searchQuery.toLowerCase();
       const matchesSearch = (s.name || '').toLowerCase().includes(q) ||
@@ -282,6 +286,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             (s.penNumber || '').toLowerCase().includes(q) ||
                             (s.apaarId || '').toLowerCase().includes(q) ||
                             (s.dob || '').toLowerCase().includes(q) ||
+                            (s.status || '').toLowerCase().includes(q) ||
                             (s.phone || '').includes(searchQuery);
       return matchesClass && matchesCaste && matchesPending && matchesSearch;
     })
@@ -293,12 +298,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
   // Count helper
   const getClassCount = (classId) => {
-    return students.filter(s => s.classId === classId).length;
+    return students.filter(s => s.classId === classId && !isTransferredStudent(s)).length;
   };
 
   // Class stats helper (Total, Boys, Girls)
   const getClassStats = (classId) => {
-    const classStudents = students.filter(s => s.classId === classId);
+    const classStudents = students.filter(s => s.classId === classId && !isTransferredStudent(s));
     const total = classStudents.length;
     if (total === 0) {
       return { total: 0, boys: 0, girls: 0, boyPercent: 50, girlPercent: 50 };
@@ -324,8 +329,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     };
   };
 
-  const totalBoys = students.filter(s => (s.gender || '').trim().toLowerCase() !== 'girl').length;
-  const totalGirls = students.filter(s => (s.gender || '').trim().toLowerCase() === 'girl').length;
+  const totalBoys = students.filter(s => !isTransferredStudent(s) && (s.gender || '').trim().toLowerCase() !== 'girl').length;
+  const totalGirls = students.filter(s => !isTransferredStudent(s) && (s.gender || '').trim().toLowerCase() === 'girl').length;
 
   // Helper to compute caste statistics for any subset of students
   const getCasteStats = (studentList = []) => {
@@ -335,7 +340,9 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     let ur = 0;
     let pending = 0;
 
-    studentList.forEach(s => {
+    const activeList = studentList.filter(s => !isTransferredStudent(s));
+
+    activeList.forEach(s => {
       const c = (s.caste || '').trim().toUpperCase();
       if (c === 'SC') {
         sc++;
@@ -351,7 +358,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     });
 
     const recordedTotal = sc + st + obc + ur;
-    const total = studentList.length;
+    const total = activeList.length;
 
     return {
       total,
@@ -518,7 +525,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const renderCardMiddle = (classId) => {
     const stats = getClassStats(classId);
     const casteStats = getCasteStats(students.filter(s => s.classId === classId));
-    const classPendingStudents = students.filter(s => s.classId === classId && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)));
+    const classPendingStudents = students.filter(s => s.classId === classId && !isTransferredStudent(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)));
     const pendingCount = classPendingStudents.length;
 
     return (
@@ -713,7 +720,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
             <div className="summary-item">
               <span className="summary-label">Total Enrolled Records</span>
-              <span className="summary-val">{students.length} Students</span>
+              <span className="summary-val">{students.filter(s => !isTransferredStudent(s)).length} Students</span>
             </div>
             <div className="summary-item">
               <span className="summary-label">Gender Breakdown</span>
@@ -744,7 +751,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <span className="summary-label">Pending Credentials</span>
               <span className="summary-val" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#dc2626', cursor: 'pointer' }}>
                 <AlertCircle size={14} />
-                <span>{students.filter(s => isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)).length} Incomplete</span>
+                <span>{students.filter(s => !isTransferredStudent(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone))).length} Incomplete</span>
               </span>
             </div>
             <div className="summary-item">
@@ -1136,7 +1143,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing APAAR ID"
                 >
                   <Sparkles size={12} />
-                  <span>APAAR ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.apaarId)).length})</span>
+                  <span>APAAR ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.apaarId)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1145,7 +1152,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing PEN Number"
                 >
                   <Hash size={12} />
-                  <span>PEN ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.penNumber)).length})</span>
+                  <span>PEN ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.penNumber)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1154,7 +1161,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing Aadhaar Card"
                 >
                   <Fingerprint size={12} />
-                  <span>Aadhaar ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.aadhaar)).length})</span>
+                  <span>Aadhaar ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.aadhaar)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1163,7 +1170,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing contact phone"
                 >
                   <Phone size={12} />
-                  <span>Phone ({students.filter(s => s.classId === selectedClassId && isFieldPending(s.phone)).length})</span>
+                  <span>Phone ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.phone)).length})</span>
                 </button>
               </div>
             </div>
@@ -1228,17 +1235,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                                   {st.caste}
                                 </span>
                               )}
-                              {isFieldPending(st.apaarId) && (
+                              {!isTransferredStudent(st) && isFieldPending(st.apaarId) && (
                                 <span className="table-pending-mini-badge apaar" title="APAAR ID Pending / Unrecorded">
                                   No APAAR
                                 </span>
                               )}
-                              {isFieldPending(st.penNumber) && (
+                              {!isTransferredStudent(st) && isFieldPending(st.penNumber) && (
                                 <span className="table-pending-mini-badge pen" title="PEN Number Pending / Unrecorded">
                                   No PEN
                                 </span>
                               )}
-                              {isFieldPending(st.aadhaar) && (
+                              {!isTransferredStudent(st) && isFieldPending(st.aadhaar) && (
                                 <span className="table-pending-mini-badge aadhaar" title="Aadhaar Pending / Unrecorded">
                                   No Aadhaar
                                 </span>
@@ -1360,17 +1367,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                             <span className={`student-gender-pill mini ${st.gender?.toLowerCase() === 'girl' ? 'girl' : 'boy'}`}>
                               {st.gender === 'Girl' ? 'Girl' : 'Boy'}
                             </span>
-                            {isFieldPending(st.apaarId) && (
+                            {!isTransferredStudent(st) && isFieldPending(st.apaarId) && (
                               <span className="table-pending-mini-badge apaar" title="APAAR ID Pending">
                                 No APAAR
                               </span>
                             )}
-                            {isFieldPending(st.penNumber) && (
+                            {!isTransferredStudent(st) && isFieldPending(st.penNumber) && (
                               <span className="table-pending-mini-badge pen" title="PEN Number Pending">
                                 No PEN
                               </span>
                             )}
-                            {isFieldPending(st.aadhaar) && (
+                            {!isTransferredStudent(st) && isFieldPending(st.aadhaar) && (
                               <span className="table-pending-mini-badge aadhaar" title="Aadhaar Pending">
                                 No Aadhaar
                               </span>

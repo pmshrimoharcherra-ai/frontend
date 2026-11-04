@@ -45,6 +45,7 @@ import {
   PanelLeftClose
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { isTransferredStudent } from '../../utils/studentStatus';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -479,7 +480,9 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     let absentCount = 0;
     let lateCount = 0;
 
-    students.forEach((s) => {
+    const activeStudents = students.filter(s => !isTransferredStudent(s));
+
+    activeStudents.forEach((s) => {
       const id = s.studentId || s.id;
       const st = dailyAttendance[id] || 'present';
       if (st === 'present') presentCount++;
@@ -487,7 +490,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
       else if (st === 'late') lateCount++;
     });
 
-    const total = students.length;
+    const total = activeStudents.length;
     const rate = total > 0 ? Math.round(((presentCount + lateCount * 0.5) / total) * 100) : 0;
 
     return {

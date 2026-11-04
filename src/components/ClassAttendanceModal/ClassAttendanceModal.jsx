@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ClassAttendanceModal.css';
+import { isTransferredStudent } from '../../utils/studentStatus';
 import {
   CalendarCheck,
   Calendar,
@@ -167,7 +168,7 @@ const ClassAttendanceModal = ({
               <span className="class-wing-pill">{currentClass.wing}</span>
             </div>
             <p className="class-att-sub">
-              Total Students: <strong>{students.length}</strong> · Academic Year: 2026-2027
+              Total Enrolled: <strong>{students.filter(s => !isTransferredStudent(s)).length}</strong> · Academic Year: 2026-2027
             </p>
           </div>
           <button className="att-close-btn" onClick={onClose}><X size={20} /></button>
@@ -244,6 +245,11 @@ const ClassAttendanceModal = ({
                       <div className="name-cell-wrap">
                         <span className="name-initial">{st.name.charAt(0)}</span>
                         <strong>{st.name}</strong>
+                        {isTransferredStudent(st) && (
+                          <span style={{ fontSize: '10.5px', padding: '2px 7px', borderRadius: '12px', background: '#ffe4e6', color: '#e11d48', fontWeight: 600, border: '1px solid #fecdd3' }}>
+                            Transferred
+                          </span>
+                        )}
                       </div>
                     </td>
                     {isEnrollmentClass && (

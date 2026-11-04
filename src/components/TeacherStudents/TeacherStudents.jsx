@@ -22,6 +22,7 @@ import {
   List
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { isTransferredStudent } from '../../utils/studentStatus';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
@@ -53,7 +54,7 @@ const TeacherStudents = ({
   const { artsCount, sciCount } = useMemo(() => {
     let arts = 0;
     let sci = 0;
-    students.forEach((s) => {
+    students.filter(s => !isTransferredStudent(s)).forEach((s) => {
       const cid = (s.classId || '').toLowerCase();
       const cname = (s.className || '').toLowerCase();
       if (cid.includes('arts') || cname.includes('arts')) arts++;
@@ -80,7 +81,8 @@ const TeacherStudents = ({
 
   // Gender, status & caste distribution statistics
   const stats = useMemo(() => {
-    const total = students.length;
+    const active = students.filter(s => !isTransferredStudent(s));
+    const total = active.length;
     let boys = 0;
     let girls = 0;
     let enrolled = 0;
@@ -94,7 +96,7 @@ const TeacherStudents = ({
       Other: 0
     };
 
-    students.forEach((s) => {
+    active.forEach((s) => {
       const g = (s.gender || '').trim().toLowerCase();
       if (g === 'girl') girls++;
       else boys++;

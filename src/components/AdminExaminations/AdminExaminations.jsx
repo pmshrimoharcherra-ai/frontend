@@ -3,6 +3,7 @@ import { API_BASE_URL } from '../../config/api';
 import './AdminExaminations.css';
 
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
+import { isTransferredStudent } from '../../utils/studentStatus';
 import {
   getSubjectsForClass,
   getExamSubjectsForClass,
@@ -385,7 +386,8 @@ const AdminExaminations = () => {
 
   // Class-wide summary metrics
   const classMetrics = useMemo(() => {
-    if (students.length === 0 || consolidatedSubjects.length === 0) {
+    const activeStudents = students.filter(s => !isTransferredStudent(s));
+    if (activeStudents.length === 0 || consolidatedSubjects.length === 0) {
       return { totalStudents: 0, avgPct: '0.0', passRate: '0.0', topper: '—', topperScore: 0 };
     }
 
@@ -394,7 +396,7 @@ const AdminExaminations = () => {
     let maxPct = -1;
     let topperName = '—';
 
-    students.forEach((st) => {
+    activeStudents.forEach((st) => {
       const key = st.studentId || st.id;
       const tot = studentTotals[key];
       if (tot) {
@@ -409,9 +411,9 @@ const AdminExaminations = () => {
     });
 
     return {
-      totalStudents: students.length,
-      avgPct: (sumPct / students.length).toFixed(1),
-      passRate: ((passCount / students.length) * 100).toFixed(1),
+      totalStudents: activeStudents.length,
+      avgPct: (sumPct / activeStudents.length).toFixed(1),
+      passRate: ((passCount / activeStudents.length) * 100).toFixed(1),
       topper: topperName,
       topperScore: maxPct
     };
