@@ -138,7 +138,8 @@ export const isCombinedSocialScience = (classId, subject = '') => {
   return s === 'social science' || s === 'social science (combined)';
 };
 
-export const getConsolidatedSubjectsForClass = (classId) => {
+export const getConsolidatedSubjectsForClass = (classId, examTerm = '') => {
+  const isPeriodic = examTerm && (examTerm.includes('40') || examTerm.toLowerCase().includes('periodic'));
   if (classId === 'class-6') {
     return [
       'English',
@@ -149,6 +150,16 @@ export const getConsolidatedSubjectsForClass = (classId) => {
     ];
   }
   if (classId === 'class-9' || classId === 'class-10') {
+    if (isPeriodic) {
+      // IT/ITeS does not have Periodic Tests (evaluated only in Half Yearly & Annual Examination)
+      return [
+        'English',
+        'Bengali',
+        'Mathematics',
+        'Science',
+        'Social Science'
+      ];
+    }
     return [
       'English',
       'Bengali',
@@ -172,6 +183,19 @@ export const getConsolidatedSubjectsForClass = (classId) => {
 };
 
 export const getSubjectMaxMarks = (classId, subject, examTerm) => {
+  const s = (subject || '').trim().toLowerCase();
+
+  // IT/ITeS has no periodic test; evaluated only on Half Yearly & Annual Examination with 80 marks
+  if (
+    s === 'it/ites' ||
+    s === 'it' ||
+    s.includes('ites') ||
+    s.includes('information technology') ||
+    s.includes('vocational')
+  ) {
+    return 80;
+  }
+
   const isSecondary = classId === 'class-9' || classId === 'class-10';
   const isPeriodic = examTerm && (examTerm.includes('40') || examTerm.toLowerCase().includes('periodic'));
   const scheme = getSubjectWeightageScheme();
@@ -362,8 +386,13 @@ export const SECONDARY_EXAM_SUBJECTS = [
   'IT/ITeS'
 ];
 
-export const getExamSubjectsForClass = (classId) => {
+export const getExamSubjectsForClass = (classId, examTerm = '') => {
+  const isPeriodic = examTerm && (examTerm.includes('40') || examTerm.toLowerCase().includes('periodic'));
   if (classId === 'class-9' || classId === 'class-10') {
+    if (isPeriodic) {
+      // IT/ITeS does not have Periodic Tests (evaluated only in Half Yearly & Annual Examination)
+      return SECONDARY_EXAM_SUBJECTS.filter((s) => !s.toLowerCase().includes('it/ites'));
+    }
     return SECONDARY_EXAM_SUBJECTS;
   }
   return getSubjectsForClass(classId).filter(

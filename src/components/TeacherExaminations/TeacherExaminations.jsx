@@ -25,8 +25,24 @@ export const EXAM_TERMS = [
   'Annual Examination (80 marks)'
 ];
 
+// IT/ITeS does not have Periodic Tests; evaluated strictly on Half Yearly & Annual Examination with 80 marks
+export const VOCATIONAL_EXAM_TERMS = [
+  'Half Yearly (80 marks)',
+  'Annual Examination (80 marks)'
+];
+
 // Helper to get max marks for an evaluation exam
-export const getExamMaxMarks = (examTerm) => {
+export const getExamMaxMarks = (examTerm, subject = '') => {
+  const s = String(subject || '').trim().toLowerCase();
+  if (
+    s === 'it/ites' ||
+    s === 'it' ||
+    s.includes('ites') ||
+    s.includes('information technology') ||
+    s.includes('vocational')
+  ) {
+    return 80;
+  }
   if (!examTerm) return 40;
   if (examTerm.includes('40')) return 40;
   if (examTerm.includes('80')) return 80;
@@ -56,8 +72,15 @@ const TeacherExaminations = ({
   teacherName,
   teachingList = []
 }) => {
-  // Examinations state
-  const [selectedExamTerm, setSelectedExamTerm] = useState(EXAM_TERMS[0]);
+  // Check whether current exam subject is vocational/elective (specifically IT/ITeS)
+  const isVTUser = activeUser?.role === 'VT' || activeUser?.designation === 'VT';
+  const initialSubj = String(teachingList[0]?.subject || activeUser?.subject || '').toLowerCase();
+  const isInitiallyVocational = isVTUser || initialSubj.includes('it') || initialSubj.includes('vocational');
+
+  // Examinations state (defaults to Half Yearly for Vocational / IT/ITeS)
+  const [selectedExamTerm, setSelectedExamTerm] = useState(() => (
+    isInitiallyVocational ? VOCATIONAL_EXAM_TERMS[0] : EXAM_TERMS[0]
+  ));
   const [examClassId, setExamClassId] = useState(
     () => teachingList[0]?.classId || activeUser?.assignedClassId || ''
   );
@@ -85,6 +108,22 @@ const TeacherExaminations = ({
       isVT
     );
   }, [examSubject, activeUser]);
+
+  // Available exam terms: IT/ITeS has NO periodic tests (only Half Yearly & Annual Examination with 80 marks)
+  const availableExamTerms = useMemo(() => {
+    if (isSubjectVocationalOrIT) {
+      return VOCATIONAL_EXAM_TERMS;
+    }
+    return EXAM_TERMS;
+  }, [isSubjectVocationalOrIT]);
+
+  // If evaluating IT/ITeS and selected term is a Periodic Test (or not in available terms),
+  // immediately auto-switch to Half Yearly (80 marks)
+  useEffect(() => {
+    if (isSubjectVocationalOrIT && !VOCATIONAL_EXAM_TERMS.includes(selectedExamTerm)) {
+      setSelectedExamTerm(VOCATIONAL_EXAM_TERMS[0]);
+    }
+  }, [isSubjectVocationalOrIT, selectedExamTerm]);
 
   // Filter students so that ONLY students enrolled in the active subject appear in the evaluation roster.
   // For IT/ITeS (and VT faculty), only students with IT/ITeS opted as their optional 6th subject appear.
@@ -453,7 +492,7 @@ const TeacherExaminations = ({
               value={selectedExamTerm}
               onChange={(e) => setSelectedExamTerm(e.target.value)}
             >
-              {EXAM_TERMS.map((term) => (
+              {availableExamTerms.map((term) => (
                 <option key={term} value={term}>
                   {term}
                 </option>
@@ -537,21 +576,39 @@ const TeacherExaminations = ({
               MAX MARKS: <strong>{maxMarks}</strong>
             </span>
             {isSubjectVocationalOrIT && (
-              <span
-                className="exam-part-badge"
-                style={{
-                  marginLeft: '8px',
-                  fontSize: '11.5px',
-                  color: '#7e22ce',
-                  fontWeight: 600,
-                  background: '#faf5ff',
-                  padding: '3px 10px',
-                  borderRadius: '6px',
-                  border: '1px solid #d8b4fe'
-                }}
-              >
-                Optional 6th Subject • {examStudents.length} of {allClassStudents.length} Enrolled
-              </span>
+              <>
+                <span
+                  className="exam-part-badge"
+                  style={{
+                    marginLeft: '8px',
+                    fontSize: '11.5px',
+                    color: '#7e22ce',
+                    fontWeight: 600,
+                    background: '#faf5ff',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid #d8b4fe'
+                  }}
+                >
+                  Optional 6th Subject • {examStudents.length} of {allClassStudents.length} Enrolled
+                </span>
+                <span
+                  className="exam-part-badge"
+                  style={{
+                    marginLeft: '8px',
+                    fontSize: '11.5px',
+                    color: '#047857',
+                    fontWeight: 600,
+                    background: '#ecfdf5',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid #a7f3d0'
+                  }}
+                  title="IT/ITeS has no Periodic Tests; evaluated strictly on Half Yearly and Annual Examination (80 marks)"
+                >
+                  Half Yearly & Annual Only (80 Marks)
+                </span>
+              </>
             )}
             {isSciencePart && (
               <span className="exam-part-badge" style={{ marginLeft: '8px', fontSize: '11px', color: '#ea580c', fontWeight: 600, background: '#fff7ed', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fed7aa' }}>

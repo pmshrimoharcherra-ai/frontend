@@ -118,14 +118,34 @@ const StudentExaminations = ({ student: propStudent }) => {
             </thead>
             <tbody>
               {classSubjects.map((sub) => {
+                const sNorm = String(sub || '').trim().toLowerCase();
+                const isVocational =
+                  sNorm === 'it/ites' ||
+                  sNorm === 'it' ||
+                  sNorm.includes('ites') ||
+                  sNorm.includes('information technology') ||
+                  sNorm.includes('vocational');
+
                 return (
                   <tr key={sub}>
                     <td className="font-bold sub-name-cell">{sub}</td>
-                    <td className="font-mono">34</td>
+                    <td className="font-mono">
+                      {isVocational ? (
+                        <span className="text-muted" title="IT/ITeS has no Periodic Tests">—</span>
+                      ) : (
+                        '34'
+                      )}
+                    </td>
                     <td className="font-mono">72</td>
-                    <td className="font-mono">35</td>
+                    <td className="font-mono">
+                      {isVocational ? (
+                        <span className="text-muted" title="IT/ITeS has no Periodic Tests">—</span>
+                      ) : (
+                        '35'
+                      )}
+                    </td>
                     <td className="font-mono">70</td>
-                    <td className="font-mono font-bold total-cell">88.5</td>
+                    <td className="font-mono font-bold total-cell">{isVocational ? '71' : '88.5'}</td>
                     <td>
                       <span className="grade-badge a2">A2 (Excellent)</span>
                     </td>

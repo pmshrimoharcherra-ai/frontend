@@ -82,18 +82,38 @@ const AdminExaminations = () => {
 
   const isSecondary = selectedClassId === 'class-9' || selectedClassId === 'class-10';
 
+  // Check if selected subject is vocational (IT/ITeS)
+  const isSelectedSubjectVocational = useMemo(() => {
+    const s = String(selectedSubject || '').trim().toLowerCase();
+    return s === 'it/ites' || s === 'it' || s.includes('ites') || s.includes('information technology') || s.includes('vocational');
+  }, [selectedSubject]);
+
+  // IT/ITeS does not have Periodic Tests (evaluated only on Half Yearly & Annual Examination with 80 marks)
+  const availableExamTerms = useMemo(() => {
+    if (isSelectedSubjectVocational) {
+      return ['Half Yearly (80 marks)', 'Annual Examination (80 marks)'];
+    }
+    return EXAM_TERMS;
+  }, [isSelectedSubjectVocational]);
+
+  useEffect(() => {
+    if (isSelectedSubjectVocational && !availableExamTerms.includes(selectedExamTerm)) {
+      setSelectedExamTerm('Half Yearly (80 marks)');
+    }
+  }, [isSelectedSubjectVocational, selectedExamTerm, availableExamTerms]);
+
   // Official curriculum subjects evaluated in examinations (excludes co-curricular: Art, Work Ed, Physical Ed)
   const curriculumSubjects = useMemo(() => {
-    const list = getExamSubjectsForClass ? getExamSubjectsForClass(selectedClassId) : getSubjectsForClass(selectedClassId);
+    const list = getExamSubjectsForClass ? getExamSubjectsForClass(selectedClassId, selectedExamTerm) : getSubjectsForClass(selectedClassId);
     return list.filter(
       (s) => s !== 'Art & Craft' && s !== 'Work Education' && s !== 'Physical Education'
     );
-  }, [selectedClassId]);
+  }, [selectedClassId, selectedExamTerm]);
 
   // Consolidated subjects for the board-style marksheet (Science & Social Science combined into 1 column each)
   const consolidatedSubjects = useMemo(() => {
-    return getConsolidatedSubjectsForClass(selectedClassId);
-  }, [selectedClassId]);
+    return getConsolidatedSubjectsForClass(selectedClassId, selectedExamTerm);
+  }, [selectedClassId, selectedExamTerm]);
 
   // Fetch teachers from backend API for accurate live allotment mappings
   useEffect(() => {
@@ -690,7 +710,7 @@ const AdminExaminations = () => {
         onSearchChange={(q) => setSearchQuery(q)}
         currentClass={currentClass}
         classesList={SCHOOL_CLASSES}
-        examTermsList={EXAM_TERMS}
+        examTermsList={availableExamTerms}
         curriculumSubjects={curriculumSubjects}
         consolidatedSubjects={consolidatedSubjects}
         isSecondary={isSecondary}
