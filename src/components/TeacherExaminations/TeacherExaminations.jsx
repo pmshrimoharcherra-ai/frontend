@@ -10,7 +10,8 @@ import {
   Pencil,
   Lock,
   Search,
-  X
+  X,
+  Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart } from '../../data/curriculumData';
@@ -63,13 +64,86 @@ const TeacherExaminations = ({
   const [examSubject, setExamSubject] = useState(
     () => teachingList[0]?.subject || activeUser?.subject || ''
   );
-  const [examStudents, setExamStudents] = useState([]);
+  const [allClassStudents, setAllClassStudents] = useState([]);
   const [examLoading, setExamLoading] = useState(false);
   const [marksRecords, setMarksRecords] = useState({});
   const [savingMarks, setSavingMarks] = useState(false);
   const [marksSaveSuccess, setMarksSaveSuccess] = useState(false);
   const [marksSaveMessage, setMarksSaveMessage] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+
+  // Check whether current exam subject is vocational/elective (specifically IT/ITeS)
+  const isSubjectVocationalOrIT = useMemo(() => {
+    const s = String(examSubject || '').trim().toLowerCase();
+    const isVT = activeUser?.role === 'VT' || activeUser?.designation === 'VT';
+    return (
+      s === 'it/ites' ||
+      s === 'it' ||
+      s.includes('ites') ||
+      s.includes('information technology') ||
+      s.includes('vocational') ||
+      isVT
+    );
+  }, [examSubject, activeUser]);
+
+  // Filter students so that ONLY students enrolled in the active subject appear in the evaluation roster.
+  // For IT/ITeS (and VT faculty), only students with IT/ITeS opted as their optional 6th subject appear.
+  const examStudents = useMemo(() => {
+    if (!allClassStudents || allClassStudents.length === 0) return [];
+
+    // When evaluating IT/ITeS (or teacher is a Vocational Teacher evaluating their subject):
+    if (isSubjectVocationalOrIT) {
+      return allClassStudents.filter((st) => {
+        // 1. Check if IT/ITeS is in subjects array
+        if (Array.isArray(st.subjects) && st.subjects.length > 0) {
+          return st.subjects.some((sub) => {
+            const subStr = String(sub).trim().toLowerCase();
+            return (
+              subStr === 'it/ites' ||
+              subStr === 'it' ||
+              subStr.includes('ites') ||
+              subStr.includes('information technology') ||
+              subStr.includes('vocational')
+            );
+          });
+        }
+
+        // 2. Check explicit optional/vocational fields
+        const opt = String(
+          st.optionalSubject ||
+          st.vocationalSubject ||
+          st.sixthSubject ||
+          st.additionalSubject ||
+          ''
+        ).trim().toLowerCase();
+
+        return (
+          opt === 'it/ites' ||
+          opt === 'it' ||
+          opt.includes('ites') ||
+          opt.includes('information technology') ||
+          opt.includes('vocational')
+        );
+      });
+    }
+
+    // For other subjects:
+    const sNorm = String(examSubject || '').trim().toLowerCase();
+    return allClassStudents.filter((st) => {
+      // If student has explicit subjects array (e.g. Higher Secondary electives):
+      if (Array.isArray(st.subjects) && st.subjects.length > 0) {
+        if (isSecondarySciencePart(examClassId, examSubject)) {
+          return st.subjects.some((sub) => String(sub).toLowerCase().includes('science'));
+        }
+        if (isSecondarySocialSciencePart(examClassId, examSubject)) {
+          return st.subjects.some((sub) => String(sub).toLowerCase().includes('social'));
+        }
+        return st.subjects.some((sub) => String(sub).trim().toLowerCase() === sNorm);
+      }
+      // Mandatory subjects in classes without custom electives are taken by all students
+      return true;
+    });
+  }, [allClassStudents, examSubject, examClassId, isSubjectVocationalOrIT]);
 
   // Selected exam max marks (handles Secondary Science parts: Life Sci 30/15, Physics 25/12.5, Chemistry 25/12.5)
   const maxMarks = useMemo(
@@ -129,10 +203,18 @@ const TeacherExaminations = ({
       if (!examClassId) return;
       try {
         setExamLoading(true);
-        const res = await fetch(`${API_STUDENTS}?classId=${examClassId}`);
+        let queryClass = examClassId;
+        if (examClassId === 'class-11') {
+          queryClass = 'class-11-arts,class-11-sci';
+        } else if (examClassId === 'class-12') {
+          queryClass = 'class-12-arts,class-12-sci';
+        }
+        const res = await fetch(`${API_STUDENTS}?classId=${queryClass}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.students)) {
-          setExamStudents(data.students);
+          setAllClassStudents(data.students);
+        } else {
+          setAllClassStudents([]);
         }
       } catch (err) {
         console.warn('Error fetching exam roster:', err);
@@ -146,7 +228,11 @@ const TeacherExaminations = ({
 
   // Populate marks: fetch from backend first, or generate realistic marks
   useEffect(() => {
-    if (examStudents.length === 0) return;
+    if (examStudents.length === 0) {
+      setMarksRecords({});
+      setIsLocked(false);
+      return;
+    }
     const termMax = maxMarks;
 
     const loadExamMarks = async () => {
@@ -441,11 +527,28 @@ const TeacherExaminations = ({
             </div>
           </div>
 
-          {/* Max Marks Indicator */}
+          {/* Max Marks Indicator & Subject Roster Pill */}
           <div className="exam-max-marks-pill">
             <span>
               MAX MARKS: <strong>{maxMarks}</strong>
             </span>
+            {isSubjectVocationalOrIT && (
+              <span
+                className="exam-part-badge"
+                style={{
+                  marginLeft: '8px',
+                  fontSize: '11.5px',
+                  color: '#7e22ce',
+                  fontWeight: 600,
+                  background: '#faf5ff',
+                  padding: '3px 10px',
+                  borderRadius: '6px',
+                  border: '1px solid #d8b4fe'
+                }}
+              >
+                Optional 6th Subject • {examStudents.length} of {allClassStudents.length} Enrolled
+              </span>
+            )}
             {isSciencePart && (
               <span className="exam-part-badge" style={{ marginLeft: '8px', fontSize: '11px', color: '#ea580c', fontWeight: 600, background: '#fff7ed', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fed7aa' }}>
                 Part of Science (Total {selectedExamTerm.includes('40') ? 40 : 80})
@@ -467,10 +570,26 @@ const TeacherExaminations = ({
               <p>Loading student assessment roster...</p>
             </div>
           ) : examStudents.length === 0 ? (
-            <div className="register-empty-state">
-              <Users size={32} />
-              <p>No students found for this class.</p>
-            </div>
+            isSubjectVocationalOrIT && allClassStudents.length > 0 ? (
+              <div className="register-empty-state vocational-empty-state">
+                <div className="vocational-empty-icon">
+                  <Laptop size={30} />
+                </div>
+                <h4>No Students Enrolled in IT/ITeS</h4>
+                <p>
+                  IT/ITeS is an optional 6th subject for {teachingList.find(t => t.classId === examClassId)?.className || examClassId || 'this class'}.
+                  Currently, none of the {allClassStudents.length} registered students have chosen IT/ITeS as their optional subject.
+                </p>
+                <div className="vocational-empty-hint">
+                  <span>💡 Only students who opt for IT/ITeS in their registered subjects (via the Student Roster or Admin Portal) will appear here for evaluation.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="register-empty-state">
+                <Users size={32} />
+                <p>No students found for this class.</p>
+              </div>
+            )
           ) : (
             <table className="teacher-roster-table">
               <thead>
@@ -578,6 +697,11 @@ const TeacherExaminations = ({
             <span>
               Roster: <strong>{filteredStudents.length}</strong>{filteredStudents.length !== examStudents.length ? ` of ${examStudents.length}` : ''} students evaluated for{' '}
               <strong>{examSubject}</strong> ({selectedExamTerm})
+              {isSubjectVocationalOrIT && allClassStudents.length > 0 && (
+                <span style={{ marginLeft: '8px', color: '#7e22ce', fontWeight: '600', fontSize: '12px' }}>
+                  (Optional Subject: {examStudents.length} of {allClassStudents.length} class students enrolled)
+                </span>
+              )}
               {isLocked && (
                 <span className="exam-locked-pill">
                   <Lock size={12} />

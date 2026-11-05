@@ -508,6 +508,55 @@
   font-weight: 500;
 }
 
+/* ── Vocational / Optional Subject Empty State ── */
+.vocational-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.vocational-empty-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  color: #7e22ce;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(126, 34, 206, 0.08);
+}
+
+.vocational-empty-state h4 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px;
+}
+
+.vocational-empty-state p {
+  font-size: 13.5px;
+  color: #64748b;
+  max-width: 540px;
+  margin: 0 auto 14px;
+  line-height: 1.55;
+}
+
+.vocational-empty-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: #475569;
+  font-weight: 500;
+}
+
 .register-footer {
   padding: 16px 24px;
   border-top: 1px solid #e2e8f0;

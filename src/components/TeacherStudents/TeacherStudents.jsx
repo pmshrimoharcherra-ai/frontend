@@ -44,6 +44,16 @@ const TeacherStudents = ({
   const [streamFilter, setStreamFilter] = useState('all'); // 'all' | 'arts' | 'sci'
   const [viewMode, setViewMode] = useState('auto'); // 'auto' (cards on mobile, table on desktop) | 'cards' | 'table'
 
+  // Determine if viewing teacher is a Vocational Teacher (VT / IT/ITeS Faculty)
+  const isVT = useMemo(() => {
+    return Boolean(
+      teacher?.role === 'VT' ||
+      teacher?.designation === 'VT' ||
+      String(teacher?.subject || '').trim().toLowerCase() === 'it/ites' ||
+      String(teacher?.subject || '').trim().toLowerCase() === 'it'
+    );
+  }, [teacher]);
+
   // Determine if assigned class is Senior Secondary (Class XI or XII with Arts & Science)
   const isSeniorSecondary = useMemo(() => {
     const cid = String(assignedClassId || '').toLowerCase();
@@ -129,6 +139,17 @@ const TeacherStudents = ({
   const filteredStudents = useMemo(() => {
     return students
       .filter((s) => {
+        // VT filter: only students enrolled in IT/ITeS optional subject appear for Vocational Teachers
+        if (isVT) {
+          const hasIT =
+            (Array.isArray(s.subjects) && s.subjects.some((sub) => {
+              const subStr = String(sub).toLowerCase();
+              return subStr.includes('it') || subStr.includes('information technology');
+            })) ||
+            String(s.optionalSubject || s.vocationalSubject || s.sixthSubject || '').toLowerCase().includes('it');
+          if (!hasIT) return false;
+        }
+
         // Stream filter for Senior Secondary
         if (isSeniorSecondary && streamFilter !== 'all') {
           const cid = (s.classId || '').toLowerCase();
