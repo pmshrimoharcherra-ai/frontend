@@ -14,7 +14,7 @@ import {
   Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
-import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart } from '../../data/curriculumData';
+import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart, getSubjectsForClass } from '../../data/curriculumData';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -94,19 +94,24 @@ const TeacherExaminations = ({
     // When evaluating IT/ITeS (or teacher is a Vocational Teacher evaluating their subject):
     if (isSubjectVocationalOrIT) {
       return allClassStudents.filter((st) => {
-        // 1. Check if IT/ITeS is in subjects array
-        if (Array.isArray(st.subjects) && st.subjects.length > 0) {
-          return st.subjects.some((sub) => {
-            const subStr = String(sub).trim().toLowerCase();
-            return (
-              subStr === 'it/ites' ||
-              subStr === 'it' ||
-              subStr.includes('ites') ||
-              subStr.includes('information technology') ||
-              subStr.includes('vocational')
-            );
-          });
-        }
+        // Effective subjects for this student (explicit subjects, or class curriculum standard subjects)
+        const effectiveSubjects = (Array.isArray(st.subjects) && st.subjects.length > 0)
+          ? st.subjects
+          : getSubjectsForClass(st.classId || examClassId);
+
+        // 1. Check if IT/ITeS is in subjects array or class curriculum
+        const hasIT = effectiveSubjects.some((sub) => {
+          const subStr = String(sub).trim().toLowerCase();
+          return (
+            subStr === 'it/ites' ||
+            subStr === 'it' ||
+            subStr.includes('ites') ||
+            subStr.includes('information technology') ||
+            subStr.includes('vocational')
+          );
+        });
+
+        if (hasIT) return true;
 
         // 2. Check explicit optional/vocational fields
         const opt = String(
@@ -130,18 +135,17 @@ const TeacherExaminations = ({
     // For other subjects:
     const sNorm = String(examSubject || '').trim().toLowerCase();
     return allClassStudents.filter((st) => {
-      // If student has explicit subjects array (e.g. Higher Secondary electives):
-      if (Array.isArray(st.subjects) && st.subjects.length > 0) {
-        if (isSecondarySciencePart(examClassId, examSubject)) {
-          return st.subjects.some((sub) => String(sub).toLowerCase().includes('science'));
-        }
-        if (isSecondarySocialSciencePart(examClassId, examSubject)) {
-          return st.subjects.some((sub) => String(sub).toLowerCase().includes('social'));
-        }
-        return st.subjects.some((sub) => String(sub).trim().toLowerCase() === sNorm);
+      const effectiveSubjects = (Array.isArray(st.subjects) && st.subjects.length > 0)
+        ? st.subjects
+        : getSubjectsForClass(st.classId || examClassId);
+
+      if (isSecondarySciencePart(examClassId, examSubject)) {
+        return effectiveSubjects.some((sub) => String(sub).toLowerCase().includes('science'));
       }
-      // Mandatory subjects in classes without custom electives are taken by all students
-      return true;
+      if (isSecondarySocialSciencePart(examClassId, examSubject)) {
+        return effectiveSubjects.some((sub) => String(sub).toLowerCase().includes('social'));
+      }
+      return effectiveSubjects.some((sub) => String(sub).trim().toLowerCase() === sNorm);
     });
   }, [allClassStudents, examSubject, examClassId, isSubjectVocationalOrIT]);
 
