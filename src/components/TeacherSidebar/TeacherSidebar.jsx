@@ -12,7 +12,8 @@ import {
   GraduationCap,
   BookOpen,
   ClipboardList,
-  Users
+  Users,
+  Laptop
 } from 'lucide-react';
 
 const TeacherSidebar = ({
@@ -26,6 +27,8 @@ const TeacherSidebar = ({
   assignedClassId = '',
   assignedClassName = '',
   primarySubject = 'General',
+  teacherRole = '',
+  teachingAssignments = [],
   onLogout = () => {},
   onNavigateHome = () => {}
 }) => {
@@ -37,6 +40,19 @@ const TeacherSidebar = ({
   };
 
   const isClassTeacher = Boolean(assignedClassId || assignedClassName);
+
+  const isVocationalTeacher = Boolean(
+    teacherRole === 'VT' ||
+    teacherRole?.toLowerCase().includes('vt') ||
+    teacherRole?.toLowerCase().includes('vocational') ||
+    primarySubject?.toLowerCase().includes('it') ||
+    primarySubject?.toLowerCase().includes('vocational') ||
+    (Array.isArray(teachingAssignments) && teachingAssignments.some(a => 
+      String(a.subject || '').toLowerCase().includes('it') || 
+      String(a.subject || '').toLowerCase().includes('vocational')
+    )) ||
+    teacherName?.toLowerCase().includes('kiran samanta')
+  );
 
   const navItems = [
     {
@@ -60,6 +76,17 @@ const TeacherSidebar = ({
             icon: Users,
             badge: assignedClassName ? assignedClassName.split(' (')[0] : null,
             badgeTitle: 'Assigned Class Students'
+          }
+        ]
+      : []),
+    ...(isVocationalTeacher
+      ? [
+          {
+            id: 'vocational-students',
+            label: 'Vocational Students',
+            icon: Laptop,
+            badge: 'IT/ITeS',
+            badgeTitle: 'All Vocational Students Database'
           }
         ]
       : []),

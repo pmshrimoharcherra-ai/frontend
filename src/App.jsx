@@ -169,6 +169,14 @@ function App() {
           element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
         />
         <Route 
+          path="/teacher/vocational-students" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/teacher/vocational" 
+          element={<Navigate to="/teacher/vocational-students" replace />} 
+        />
+        <Route 
           path="/teacher/examinations" 
           element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
         />

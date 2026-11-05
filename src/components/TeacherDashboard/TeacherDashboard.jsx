@@ -5,6 +5,7 @@ import './TeacherDashboard.css';
 import TeacherSidebar from '../TeacherSidebar/TeacherSidebar';
 import TeacherExaminations from '../TeacherExaminations/TeacherExaminations';
 import TeacherStudents from '../TeacherStudents/TeacherStudents';
+import TeacherVocationalStudents from '../TeacherVocationalStudents/TeacherVocationalStudents';
 import TeacherMonthlyAttendance from '../TeacherMonthlyAttendance/TeacherMonthlyAttendance';
 import AcademicDatePicker from '../AcademicDatePicker/AcademicDatePicker';
 import {
@@ -42,7 +43,8 @@ import {
   ArrowRight,
   CheckSquare,
   PanelLeftOpen,
-  PanelLeftClose
+  PanelLeftClose,
+  Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
@@ -86,6 +88,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   // Active Tab: 'dashboard' | 'attendance' | 'students' | 'examinations'
   const getTabFromPath = (path) => {
     if (path.includes('/attendance')) return 'attendance';
+    if (path.includes('/vocational-students') || path.includes('/vocational')) return 'vocational-students';
     if (path.includes('/students')) return 'students';
     if (path.includes('/examinations') || path.includes('/exams')) return 'examinations';
     return defaultTab || 'dashboard';
@@ -106,6 +109,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     if (tab === 'dashboard') navigate('/teacher/dashboard');
     else if (tab === 'attendance') navigate('/teacher/attendance');
     else if (tab === 'students') navigate('/teacher/students');
+    else if (tab === 'vocational-students') navigate('/teacher/vocational-students');
     else if (tab === 'examinations') navigate('/teacher/examinations');
   };
 
@@ -315,7 +319,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
 
   // If a non-class teacher lands on /teacher/attendance or /teacher/students directly, redirect immediately to dashboard
   useEffect(() => {
-    if (!assignedClassId && (location.pathname.includes('/attendance') || location.pathname.includes('/students'))) {
+    if (!assignedClassId && (location.pathname.includes('/attendance') || (location.pathname.includes('/students') && !location.pathname.includes('/vocational')))) {
       navigate('/teacher/dashboard', { replace: true });
     }
   }, [assignedClassId, location.pathname, navigate]);
@@ -552,6 +556,28 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     );
   }
 
+  
+  // Vocational Teacher detection (VT / IT/ITeS)
+  const isVocationalTeacher = useMemo(() => {
+    const roleStr = String(teacherData?.role || activeUser?.role || '').toLowerCase();
+    const subjStr = String(teacherData?.subject || activeUser?.subject || '').toLowerCase();
+    const nameStr = String(teacherData?.name || activeUser?.name || '').toLowerCase();
+    const hasVocAssignment = Array.isArray(teacherData?.teachingAssignments) &&
+      teacherData.teachingAssignments.some((a) => {
+        const s = String(a.subject || '').toLowerCase();
+        return s.includes('it') || s.includes('vocational');
+      });
+    return (
+      roleStr === 'vt' ||
+      roleStr.includes('vt') ||
+      roleStr.includes('vocational') ||
+      subjStr.includes('it') ||
+      subjStr.includes('vocational') ||
+      nameStr.includes('kiran samanta') ||
+      Boolean(hasVocAssignment)
+    );
+  }, [teacherData, activeUser]);
+
   const teacherName = teacherData?.name || activeUser?.name || 'Faculty Member';
   const teacherSubject = teacherData?.subject || activeUser?.subject || 'English';
   const teacherIdCode = teacherData?.teacherId || activeUser?.teacherId || 'TR76404582';
@@ -572,6 +598,8 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
         assignedClassId={assignedClassId}
         assignedClassName={assignedClassName}
         primarySubject={teacherSubject}
+        teacherRole={teacherData?.role || activeUser?.role}
+        teachingAssignments={teachingList}
         onLogout={onLogout}
         onNavigateHome={() => navigate('/')}
       />
@@ -612,6 +640,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                   {activeTab === 'dashboard' && 'Dashboard Overview'}
                   {activeTab === 'attendance' && (attendanceViewMode === 'monthly' ? `Monthly Attendance Register — ${assignedClassName}` : `Daily Attendance Register — ${assignedClassName}`)}
                   {activeTab === 'students' && `Student's Database — ${assignedClassName || 'Class'}`}
+                  {activeTab === 'vocational-students' && 'Vocational Students Directory — IT/ITeS'}
                   {activeTab === 'examinations' && 'Examinations & Marks Evaluation'}
                 </span>
               </div>
@@ -856,6 +885,34 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
 
               {/* Quick Navigation Cards */}
               <div className="dashboard-quick-cards-grid">
+                
+                {/* Vocational Students Quick Card */}
+                {isVocationalTeacher && (
+                  <div className="quick-action-card">
+                    <div className="quick-card-header">
+                      <div className="quick-card-icon" style={{ background: '#f5f3ff', color: '#7c3aed' }}>
+                        <Laptop size={22} />
+                      </div>
+                      <div>
+                        <h4>Vocational Students Directory</h4>
+                        <p>NSQF IT/ITeS • Classes IX, X, XI & XII</p>
+                      </div>
+                    </div>
+                    <p className="quick-card-body">
+                      Access all vocational students across Classes IX to XII, track Sector 1 & Sector 2 allocations, inspect APAAR & PEN IDs, and manage student details.
+                    </p>
+                    <button
+                      type="button"
+                      className="quick-card-action-btn"
+                      style={{ background: '#7c3aed', color: '#ffffff', borderColor: '#7c3aed' }}
+                      onClick={() => handleTabChange('vocational-students')}
+                    >
+                      <span>Open Vocational Directory</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
+                )}
+
                 {/* Examinations Quick Card */}
                 <div className="quick-action-card">
                   <div className="quick-card-header">
@@ -1356,6 +1413,19 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
               onSaveStudent={handleSaveStudent}
             />
           )}
+          {/* =====================================================================
+              TAB: VOCATIONAL STUDENTS DIRECTORY
+             ===================================================================== */}
+          {activeTab === 'vocational-students' && (
+            <TeacherVocationalStudents
+              teacher={teacherData}
+              activeUser={activeUser}
+              teacherName={teacherName}
+              onNavigateExaminations={() => handleTabChange('examinations')}
+            />
+          )}
+
+
 
           {/* =====================================================================
               TAB 3: EXAMINATIONS & EVALUATION (Componentized)
