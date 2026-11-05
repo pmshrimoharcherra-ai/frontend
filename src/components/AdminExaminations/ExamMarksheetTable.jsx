@@ -1,6 +1,7 @@
 import React from 'react';
 import { RefreshCw, Users } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import { getStudentSector } from '../../data/curriculumData';
 import './ExamMarksheetTable.css';
 
 /**
@@ -146,7 +147,27 @@ const ExamMarksheetTable = ({
                           {isBoy ? <BoyIcon size={15} /> : <GirlIcon size={15} />}
                         </div>
                         <div className="student-meta-wrap">
-                          <span className="student-name-bold">{st.name}</span>
+                          <span className="student-name-bold">
+                            {st.name}
+                            {getStudentSector(st) && (selectedSubject === 'IT/ITeS' || isSecondary) && (
+                              <span
+                                style={{
+                                  marginLeft: '6px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  background: getStudentSector(st) === 'Sector 1' ? '#eff6ff' : '#fdf2f8',
+                                  color: getStudentSector(st) === 'Sector 1' ? '#1d4ed8' : '#be185d',
+                                  border: `1px solid ${getStudentSector(st) === 'Sector 1' ? '#bfdbfe' : '#fbcfe8'}`,
+                                  verticalAlign: 'middle',
+                                  letterSpacing: '0.2px'
+                                }}
+                              >
+                                {getStudentSector(st)}
+                              </span>
+                            )}
+                          </span>
                           <span
                             className="student-reg-mini font-mono"
                             title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}
@@ -353,7 +374,27 @@ const ExamMarksheetTable = ({
                           {isBoy ? <BoyIcon size={15} /> : <GirlIcon size={15} />}
                         </div>
                         <div className="student-meta-wrap">
-                          <span className="student-name-bold">{st.name}</span>
+                          <span className="student-name-bold">
+                            {st.name}
+                            {getStudentSector(st) && (selectedSubject === 'IT/ITeS' || isSecondary) && (
+                              <span
+                                style={{
+                                  marginLeft: '6px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  background: getStudentSector(st) === 'Sector 1' ? '#eff6ff' : '#fdf2f8',
+                                  color: getStudentSector(st) === 'Sector 1' ? '#1d4ed8' : '#be185d',
+                                  border: `1px solid ${getStudentSector(st) === 'Sector 1' ? '#bfdbfe' : '#fbcfe8'}`,
+                                  verticalAlign: 'middle',
+                                  letterSpacing: '0.2px'
+                                }}
+                              >
+                                {getStudentSector(st)}
+                              </span>
+                            )}
+                          </span>
                           <span
                             className="student-reg-mini font-mono"
                             title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}
@@ -503,7 +544,27 @@ const ExamMarksheetTable = ({
                           {isBoy ? <BoyIcon size={15} /> : <GirlIcon size={15} />}
                         </div>
                         <div className="student-meta-wrap">
-                          <span className="student-name-bold">{st.name}</span>
+                          <span className="student-name-bold">
+                            {st.name}
+                            {getStudentSector(st) && (selectedSubject === 'IT/ITeS' || isSecondary) && (
+                              <span
+                                style={{
+                                  marginLeft: '6px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  background: getStudentSector(st) === 'Sector 1' ? '#eff6ff' : '#fdf2f8',
+                                  color: getStudentSector(st) === 'Sector 1' ? '#1d4ed8' : '#be185d',
+                                  border: `1px solid ${getStudentSector(st) === 'Sector 1' ? '#bfdbfe' : '#fbcfe8'}`,
+                                  verticalAlign: 'middle',
+                                  letterSpacing: '0.2px'
+                                }}
+                              >
+                                {getStudentSector(st)}
+                              </span>
+                            )}
+                          </span>
                           <span
                             className="student-reg-mini font-mono"
                             title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}
@@ -622,7 +683,27 @@ const ExamMarksheetTable = ({
                           {isBoy ? <BoyIcon size={15} /> : <GirlIcon size={15} />}
                         </div>
                         <div className="student-meta-wrap">
-                          <span className="student-name-bold">{st.name}</span>
+                          <span className="student-name-bold">
+                            {st.name}
+                            {getStudentSector(st) && (selectedSubject === 'IT/ITeS' || isSecondary) && (
+                              <span
+                                style={{
+                                  marginLeft: '6px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  background: getStudentSector(st) === 'Sector 1' ? '#eff6ff' : '#fdf2f8',
+                                  color: getStudentSector(st) === 'Sector 1' ? '#1d4ed8' : '#be185d',
+                                  border: `1px solid ${getStudentSector(st) === 'Sector 1' ? '#bfdbfe' : '#fbcfe8'}`,
+                                  verticalAlign: 'middle',
+                                  letterSpacing: '0.2px'
+                                }}
+                              >
+                                {getStudentSector(st)}
+                              </span>
+                            )}
+                          </span>
                           <span
                             className="student-reg-mini font-mono"
                             title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}

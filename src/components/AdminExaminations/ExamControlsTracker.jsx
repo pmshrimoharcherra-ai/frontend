@@ -35,6 +35,8 @@ const ExamControlsTracker = ({
   onSelectExamTerm,
   selectedSubject,
   onSelectSubject,
+  selectedSector = 'all',
+  onSelectSector,
   searchQuery,
   onSearchChange,
   currentClass,
@@ -248,6 +250,22 @@ const ExamControlsTracker = ({
             </div>
           )}
         </div>
+
+        {/* Vocational Sector Filter (when IT/ITeS is selected) */}
+        {selectedSubject === 'IT/ITeS' && (
+          <div className="toolbar-field-group">
+            <label>Vocational Sector</label>
+            <select
+              className="exam-select-box"
+              value={selectedSector}
+              onChange={(e) => onSelectSector && onSelectSector(e.target.value)}
+            >
+              <option value="all">All Sectors</option>
+              <option value="Sector 1">Sector 1</option>
+              <option value="Sector 2">Sector 2</option>
+            </select>
+          </div>
+        )}
 
         {/* Search Student */}
         <div className="toolbar-field-group search-group">

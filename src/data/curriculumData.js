@@ -400,6 +400,34 @@ export const getExamSubjectsForClass = (classId, examTerm = '') => {
   );
 };
 
+// Class X IT/ITeS Vocational Sectors
+export const CLASS10_SECTOR_1_ROLLS = [
+  1, 2, 3, 5, 8, 10, 13, 15, 17, 20,
+  21, 22, 29, 31, 32, 34, 36, 40, 42, 48,
+  51, 52, 54, 55, 57, 58, 59, 61, 63, 67,
+  68, 70, 71, 73, 75, 77, 78, 80, 81
+];
+
+export const CLASS10_SECTOR_2_ROLLS = [
+  4, 6, 7, 9, 11, 12, 14, 16, 18, 19,
+  23, 24, 25, 26, 27, 28, 30, 33, 35, 37,
+  38, 39, 41, 43, 44, 45, 46, 47, 49, 50,
+  53, 56, 62, 64, 65, 66, 69, 72, 74, 79
+];
+
+export const getStudentSector = (st) => {
+  if (!st) return '';
+  if (st.sector) return st.sector;
+  if (st.vocationalSector) return st.vocationalSector;
+  const rollNum = parseInt(st.roll || st.rollNumber, 10);
+  const isC10 = String(st.classId || '').includes('10');
+  if (isC10 && rollNum) {
+    if (CLASS10_SECTOR_1_ROLLS.includes(rollNum)) return 'Sector 1';
+    if (CLASS10_SECTOR_2_ROLLS.includes(rollNum)) return 'Sector 2';
+  }
+  return '';
+};
+
 export const STREAM_RULES = {
   secondary: {
     title: 'Secondary Curriculum (Classes IX & X)',

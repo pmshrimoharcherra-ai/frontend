@@ -10,7 +10,8 @@ import {
   getConsolidatedSubjectsForClass,
   isSecondarySciencePart,
   isSecondarySocialSciencePart,
-  getSubjectMaxMarks
+  getSubjectMaxMarks,
+  getStudentSector
 } from '../../data/curriculumData';
 import { INITIAL_TEACHERS } from '../../data/teachersData';
 
@@ -51,6 +52,7 @@ const AdminExaminations = () => {
   const [selectedClassId, setSelectedClassId] = useState('class-10');
   const [selectedExamTerm, setSelectedExamTerm] = useState('Periodic Test - 1 (40 marks)');
   const [selectedSubject, setSelectedSubject] = useState('all'); // 'all' = Consolidated table, or single subject
+  const [selectedSector, setSelectedSector] = useState('all'); // 'all' | 'Sector 1' | 'Sector 2'
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('ALL'); // 'ALL' | 'Boy' | 'Girl'
 
@@ -367,9 +369,14 @@ const AdminExaminations = () => {
         (genderFilter === 'Boy' && (s.gender === 'Boy' || !s.gender)) ||
         (genderFilter === 'Girl' && s.gender === 'Girl');
 
-      return matchesSearch && matchesGender;
+      const matchesSector =
+        selectedSubject !== 'IT/ITeS' ||
+        selectedSector === 'all' ||
+        getStudentSector(s) === selectedSector;
+
+      return matchesSearch && matchesGender && matchesSector;
     });
-  }, [students, searchQuery, genderFilter]);
+  }, [students, searchQuery, genderFilter, selectedSubject, selectedSector]);
 
   // Total marks obtained per student across consolidated board subjects
   const studentTotals = useMemo(() => {
@@ -705,7 +712,12 @@ const AdminExaminations = () => {
         selectedExamTerm={selectedExamTerm}
         onSelectExamTerm={(term) => setSelectedExamTerm(term)}
         selectedSubject={selectedSubject}
-        onSelectSubject={(subj) => setSelectedSubject(subj)}
+        onSelectSubject={(subj) => {
+          setSelectedSubject(subj);
+          setSelectedSector('all');
+        }}
+        selectedSector={selectedSector}
+        onSelectSector={(sec) => setSelectedSector(sec)}
         searchQuery={searchQuery}
         onSearchChange={(q) => setSearchQuery(q)}
         currentClass={currentClass}

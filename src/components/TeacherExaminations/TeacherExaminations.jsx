@@ -14,7 +14,13 @@ import {
   Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
-import { getSubjectMaxMarks, isSecondarySciencePart, isSecondarySocialSciencePart, getSubjectsForClass } from '../../data/curriculumData';
+import {
+  getSubjectMaxMarks,
+  isSecondarySciencePart,
+  isSecondarySocialSciencePart,
+  getSubjectsForClass,
+  getStudentSector
+} from '../../data/curriculumData';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -87,6 +93,7 @@ const TeacherExaminations = ({
   const [examSubject, setExamSubject] = useState(
     () => teachingList[0]?.subject || activeUser?.subject || ''
   );
+  const [selectedSector, setSelectedSector] = useState('all'); // 'all' | 'Sector 1' | 'Sector 2'
   const [allClassStudents, setAllClassStudents] = useState([]);
   const [examLoading, setExamLoading] = useState(false);
   const [marksRecords, setMarksRecords] = useState({});
@@ -125,50 +132,76 @@ const TeacherExaminations = ({
     }
   }, [isSubjectVocationalOrIT, selectedExamTerm]);
 
-  // Filter students so that ONLY students enrolled in the active subject appear in the evaluation roster.
-  // For IT/ITeS (and VT faculty), only students with IT/ITeS opted as their optional 6th subject appear.
+  // All enrolled students in IT/ITeS for this class (before sector filtering)
+  const enrolledVocationalStudents = useMemo(() => {
+    if (!allClassStudents || allClassStudents.length === 0) return [];
+    return allClassStudents.filter((st) => {
+      const effectiveSubjects = (Array.isArray(st.subjects) && st.subjects.length > 0)
+        ? st.subjects
+        : getSubjectsForClass(st.classId || examClassId);
+
+      // 1. Check if IT/ITeS is in subjects array or class curriculum
+      const hasIT = effectiveSubjects.some((sub) => {
+        const subStr = String(sub).trim().toLowerCase();
+        return (
+          subStr === 'it/ites' ||
+          subStr === 'it' ||
+          subStr.includes('ites') ||
+          subStr.includes('information technology') ||
+          subStr.includes('vocational')
+        );
+      });
+
+      if (hasIT) return true;
+
+      // 2. Check explicit optional/vocational fields
+      const opt = String(
+        st.optionalSubject ||
+        st.vocationalSubject ||
+        st.sixthSubject ||
+        st.additionalSubject ||
+        ''
+      ).trim().toLowerCase();
+
+      return (
+        opt === 'it/ites' ||
+        opt === 'it' ||
+        opt.includes('ites') ||
+        opt.includes('information technology') ||
+        opt.includes('vocational')
+      );
+    });
+  }, [allClassStudents, examClassId]);
+
+  // Sector counts for IT/ITeS enrolled students
+  const sectorCounts = useMemo(() => {
+    let s1 = 0;
+    let s2 = 0;
+    enrolledVocationalStudents.forEach((st) => {
+      const sec = getStudentSector(st);
+      if (sec === 'Sector 1') s1++;
+      else if (sec === 'Sector 2') s2++;
+    });
+    return {
+      s1,
+      s2,
+      total: enrolledVocationalStudents.length
+    };
+  }, [enrolledVocationalStudents]);
+
+  // Filter students so that ONLY students enrolled in the active subject (and chosen sector) appear in the evaluation roster.
   const examStudents = useMemo(() => {
     if (!allClassStudents || allClassStudents.length === 0) return [];
 
     // When evaluating IT/ITeS (or teacher is a Vocational Teacher evaluating their subject):
     if (isSubjectVocationalOrIT) {
-      return allClassStudents.filter((st) => {
-        // Effective subjects for this student (explicit subjects, or class curriculum standard subjects)
-        const effectiveSubjects = (Array.isArray(st.subjects) && st.subjects.length > 0)
-          ? st.subjects
-          : getSubjectsForClass(st.classId || examClassId);
-
-        // 1. Check if IT/ITeS is in subjects array or class curriculum
-        const hasIT = effectiveSubjects.some((sub) => {
-          const subStr = String(sub).trim().toLowerCase();
-          return (
-            subStr === 'it/ites' ||
-            subStr === 'it' ||
-            subStr.includes('ites') ||
-            subStr.includes('information technology') ||
-            subStr.includes('vocational')
-          );
-        });
-
-        if (hasIT) return true;
-
-        // 2. Check explicit optional/vocational fields
-        const opt = String(
-          st.optionalSubject ||
-          st.vocationalSubject ||
-          st.sixthSubject ||
-          st.additionalSubject ||
-          ''
-        ).trim().toLowerCase();
-
-        return (
-          opt === 'it/ites' ||
-          opt === 'it' ||
-          opt.includes('ites') ||
-          opt.includes('information technology') ||
-          opt.includes('vocational')
-        );
-      });
+      if (selectedSector === 'Sector 1') {
+        return enrolledVocationalStudents.filter((st) => getStudentSector(st) === 'Sector 1');
+      }
+      if (selectedSector === 'Sector 2') {
+        return enrolledVocationalStudents.filter((st) => getStudentSector(st) === 'Sector 2');
+      }
+      return enrolledVocationalStudents;
     }
 
     // For other subjects:
@@ -186,7 +219,7 @@ const TeacherExaminations = ({
       }
       return effectiveSubjects.some((sub) => String(sub).trim().toLowerCase() === sNorm);
     });
-  }, [allClassStudents, examSubject, examClassId, isSubjectVocationalOrIT]);
+  }, [allClassStudents, examSubject, examClassId, isSubjectVocationalOrIT, selectedSector, enrolledVocationalStudents]);
 
   // Selected exam max marks (handles Secondary Science parts: Life Sci 30/15, Physics 25/12.5, Chemistry 25/12.5)
   const maxMarks = useMemo(
@@ -544,6 +577,28 @@ const TeacherExaminations = ({
             </select>
           </div>
 
+          {/* Vocational Sector Selector (Only for IT/ITeS) */}
+          {isSubjectVocationalOrIT && (
+            <div className="exam-toolbar-field">
+              <label>Sector</label>
+              <select
+                value={selectedSector}
+                onChange={(e) => setSelectedSector(e.target.value)}
+                className="sector-select-dropdown"
+              >
+                <option value="all">
+                  All Sectors {sectorCounts.total > 0 ? `(${sectorCounts.total})` : ''}
+                </option>
+                <option value="Sector 1">
+                  Sector 1 {sectorCounts.s1 > 0 ? `(${sectorCounts.s1})` : ''}
+                </option>
+                <option value="Sector 2">
+                  Sector 2 {sectorCounts.s2 > 0 ? `(${sectorCounts.s2})` : ''}
+                </option>
+              </select>
+            </div>
+          )}
+
           {/* Search Student Input */}
           <div className="exam-toolbar-field exam-search-field">
             <label>Search Student</label>
@@ -590,7 +645,10 @@ const TeacherExaminations = ({
                     border: '1px solid #d8b4fe'
                   }}
                 >
-                  Optional 6th Subject • {examStudents.length} of {allClassStudents.length} Enrolled
+                  Optional 6th Subject •{' '}
+                  {selectedSector === 'all'
+                    ? `${examStudents.length} of ${allClassStudents.length} Enrolled (All Sectors)`
+                    : `${selectedSector} (${examStudents.length} Students)`}
                 </span>
                 <span
                   className="exam-part-badge"
@@ -708,7 +766,27 @@ const TeacherExaminations = ({
                               {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
                             </div>
                             <div className="roster-student-info">
-                              <span className="student-name font-bold">{st.name}</span>
+                              <span className="student-name font-bold">
+                                {st.name}
+                                {isSubjectVocationalOrIT && getStudentSector(st) && (
+                                  <span
+                                    style={{
+                                      marginLeft: '8px',
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      padding: '1.5px 6px',
+                                      borderRadius: '4px',
+                                      background: getStudentSector(st) === 'Sector 1' ? '#eff6ff' : '#fdf2f8',
+                                      color: getStudentSector(st) === 'Sector 1' ? '#1d4ed8' : '#be185d',
+                                      border: `1px solid ${getStudentSector(st) === 'Sector 1' ? '#bfdbfe' : '#fbcfe8'}`,
+                                      verticalAlign: 'middle',
+                                      letterSpacing: '0.2px'
+                                    }}
+                                  >
+                                    {getStudentSector(st)}
+                                  </span>
+                                )}
+                              </span>
                               <span className="student-enr-mini font-mono" title={penNumber ? `Permanent Education No. (PEN): ${penNumber}` : 'PEN Number'}>
                                 {penNumber ? (penNumber.startsWith('PEN') ? penNumber : `PEN: ${penNumber}`) : (st.studentId || 'PEN: Pending')}
                               </span>
@@ -760,7 +838,7 @@ const TeacherExaminations = ({
               <strong>{examSubject}</strong> ({selectedExamTerm})
               {isSubjectVocationalOrIT && allClassStudents.length > 0 && (
                 <span style={{ marginLeft: '8px', color: '#7e22ce', fontWeight: '600', fontSize: '12px' }}>
-                  (Optional Subject: {examStudents.length} of {allClassStudents.length} class students enrolled)
+                  (Optional 6th Subject: {examStudents.length} {selectedSector !== 'all' ? `in ${selectedSector}` : 'enrolled in IT/ITeS'} of {allClassStudents.length} class students)
                 </span>
               )}
               {isLocked && (
