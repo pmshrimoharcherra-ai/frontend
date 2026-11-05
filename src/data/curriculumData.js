@@ -296,15 +296,61 @@ export const CLASS_CURRICULUM = {
     'Mathematics',
     'Philosophy',
     'Physical Education'
+  ],
+
+  // Higher Secondary Wing — Unified Arts & Science (Class XI & XII)
+  'class-11': [
+    'English',
+    'Bengali',
+    'Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'History',
+    'Philosophy',
+    'Education',
+    'Political Science',
+    'IT/ITeS',
+    'Physical Education'
+  ],
+  'class-12': [
+    'English',
+    'Bengali',
+    'Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'History',
+    'Philosophy',
+    'Education',
+    'Political Science',
+    'IT/ITeS',
+    'Physical Education'
   ]
 };
 
 export const getSubjectsForClass = (classId) => {
   if (!classId) return [];
+  const cid = String(classId).toLowerCase();
+  if (cid === 'class-11' || cid === 'class-12') {
+    return [
+      'English',
+      'Bengali',
+      'Mathematics',
+      'Physics',
+      'Chemistry',
+      'Biology',
+      'History',
+      'Philosophy',
+      'Education',
+      'Political Science',
+      'IT/ITeS',
+      'Physical Education'
+    ];
+  }
   return CLASS_CURRICULUM[classId] || [
     'English',
     'Bengali',
-    'Sanskrit',
     'Mathematics',
     'Science',
     'Social Science',
@@ -409,10 +455,25 @@ export const SUBJECT_COLOR_MAP = {
 
 export const getSelectableSubjectsForClass = (classId = '') => {
   const cid = (classId || '').toLowerCase();
+  if (cid === 'class-11' || cid === 'class-12') {
+    return [
+      'English',
+      'Bengali',
+      'Mathematics',
+      'Physics',
+      'Chemistry',
+      'Biology',
+      'History',
+      'Philosophy',
+      'Education',
+      'Political Science',
+      'IT/ITeS'
+    ];
+  }
   if (cid.includes('sci')) {
     return SENIOR_STREAM_SUBJECTS.science;
   }
-  if (cid.includes('arts') || cid === 'class-11' || cid === 'class-12') {
+  if (cid.includes('arts')) {
     return SENIOR_STREAM_SUBJECTS.arts;
   }
   if (cid === 'class-9' || cid === 'class-10') {
