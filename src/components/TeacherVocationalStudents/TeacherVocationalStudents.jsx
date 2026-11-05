@@ -41,6 +41,21 @@ import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
+export const isVocationalSubject = (sub) => {
+  if (!sub) return false;
+  const s = String(sub).trim().toLowerCase();
+  return (
+    s === 'it' ||
+    s === 'ites' ||
+    s === 'it/ites' ||
+    s === 'it & ites' ||
+    s.startsWith('it/') ||
+    s.startsWith('it &') ||
+    s.includes('information technology') ||
+    s.includes('vocational')
+  );
+};
+
 // Helper to determine whether a student is enrolled in vocational subject (IT/ITeS) or has a sector
 export const isVocationalStudent = (st) => {
   if (!st) return false;
@@ -50,15 +65,36 @@ export const isVocationalStudent = (st) => {
   if (sec === 'Sector 1' || sec === 'Sector 2') return true;
 
   if (Array.isArray(st.subjects)) {
-    const hasVoc = st.subjects.some((sub) => {
-      const s = String(sub).toLowerCase();
-      return s.includes('it') || s.includes('ites') || s.includes('vocation') || s.includes('information technology');
-    });
+    const hasVoc = st.subjects.some(isVocationalSubject);
     if (hasVoc) return true;
   }
 
-  const opt = String(st.optionalSubject || st.vocationalSubject || st.sixthSubject || '').toLowerCase();
-  return opt.includes('it') || opt.includes('vocation');
+  const opt = String(st.optionalSubject || st.vocationalSubject || st.sixthSubject || '').trim();
+  return isVocationalSubject(opt);
+};
+
+// Helper to categorize student into vocational class tabs: 'class-9' | 'class-10' | 'class-11' | 'class-12'
+export const getStudentVocationalClass = (st) => {
+  const cid = String(st?.classId || '').toLowerCase();
+  const cname = String(st?.className || '').toLowerCase();
+
+  // 1. Check Class 12 first (before 10, because Roman 'XII' contains 'X')
+  if (cid.includes('12') || cname.includes('12') || cname.includes('xii')) {
+    return 'class-12';
+  }
+  // 2. Check Class 11 second (before 10, because Roman 'XI' contains 'X')
+  if (cid.includes('11') || cname.includes('11') || cname.includes('xi')) {
+    return 'class-11';
+  }
+  // 3. Check Class 10 third
+  if (cid.includes('10') || cname.includes('10') || /\b(x|class\s*x)\b/i.test(cname) || cname.endsWith(' x')) {
+    return 'class-10';
+  }
+  // 4. Check Class 9
+  if (cid.includes('9') || cname.includes('9') || cname.includes('ix')) {
+    return 'class-9';
+  }
+  return '';
 };
 
 const VOCATIONAL_CLASS_TABS = [
@@ -204,6 +240,7 @@ const TeacherVocationalStudents = ({
     };
 
     students.forEach((s) => {
+      const vocClass = getStudentVocationalClass(s);
       const cid = String(s.classId || '').toLowerCase();
       const cname = String(s.className || '').toLowerCase();
       const sec = getStudentSector(s);
@@ -212,19 +249,19 @@ const TeacherVocationalStudents = ({
       if (isBoy) counts.boys++;
       else counts.girls++;
 
-      if (cid.includes('9') || cname.includes('ix')) {
+      if (vocClass === 'class-9') {
         counts['class-9']++;
-      } else if (cid.includes('10') || cname.includes('class x') || cname.endsWith(' x')) {
+      } else if (vocClass === 'class-10') {
         counts['class-10']++;
         if (sec === 'Sector 1') counts.class10_sec1++;
         else if (sec === 'Sector 2') counts.class10_sec2++;
-      } else if (cid.includes('11') || cname.includes('xi')) {
+      } else if (vocClass === 'class-11') {
         counts['class-11']++;
-        if (cid.includes('sci') || cname.includes('sci')) counts.class11_sci++;
+        if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) counts.class11_sci++;
         else counts.class11_arts++;
-      } else if (cid.includes('12') || cname.includes('xii')) {
+      } else if (vocClass === 'class-12') {
         counts['class-12']++;
-        if (cid.includes('sci') || cname.includes('sci')) counts.class12_sci++;
+        if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) counts.class12_sci++;
         else counts.class12_arts++;
       }
     });
@@ -241,14 +278,9 @@ const TeacherVocationalStudents = ({
         const sec = getStudentSector(s);
 
         // 1. Class Tab Filter
-        if (selectedClassTab === 'class-9') {
-          if (!cid.includes('9') && !cname.includes('ix')) return false;
-        } else if (selectedClassTab === 'class-10') {
-          if (!cid.includes('10') && !cname.includes('class x') && !cname.endsWith(' x')) return false;
-        } else if (selectedClassTab === 'class-11') {
-          if (!cid.includes('11') && !cname.includes('xi')) return false;
-        } else if (selectedClassTab === 'class-12') {
-          if (!cid.includes('12') && !cname.includes('xii')) return false;
+        if (selectedClassTab !== 'all') {
+          const vocClass = getStudentVocationalClass(s);
+          if (vocClass !== selectedClassTab) return false;
         }
 
         // 2. Sector Filter (Active for Class X or all)
