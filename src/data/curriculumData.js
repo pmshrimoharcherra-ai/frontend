@@ -221,16 +221,16 @@ export const getSubjectMaxMarks = (classId, subject, examTerm) => {
 
 export const CLASS_CURRICULUM = {
   // Primary Wing (Class I - V)
-  'class-1': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
-  'class-2': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
-  'class-3': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
-  'class-4': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
-  'class-5': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Physical Education', 'Art & Craft'],
+  'class-1': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Art & Craft'],
+  'class-2': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Art & Craft'],
+  'class-3': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Art & Craft'],
+  'class-4': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Art & Craft'],
+  'class-5': ['English', 'Bengali', 'Mathematics', 'Environmental Studies (EVS)', 'Art & Craft'],
 
   // Elementary Wing (Class VI - VIII)
-  'class-6': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
-  'class-7': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
-  'class-8': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Physical Education', 'Work Education'],
+  'class-6': ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics', 'Work Education'],
+  'class-7': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Work Education'],
+  'class-8': ['English', 'Bengali', 'Sanskrit', 'Science', 'Social Science', 'Mathematics', 'Work Education'],
 
   // Secondary Wing (Class IX & X) - 5 Mandatory Core + 1 Optional (IT/ITeS)
   'class-9': [
@@ -239,8 +239,7 @@ export const CLASS_CURRICULUM = {
     'Science',
     'Social Science',
     'Mathematics',
-    'IT/ITeS',
-    'Physical Education'
+    'IT/ITeS'
   ],
   'class-10': [
     'English',
@@ -248,8 +247,7 @@ export const CLASS_CURRICULUM = {
     'Science',
     'Social Science',
     'Mathematics',
-    'IT/ITeS',
-    'Physical Education'
+    'IT/ITeS'
   ],
 
   // Higher Secondary Wing — Arts Stream (Class XI & XII Arts)
@@ -260,8 +258,7 @@ export const CLASS_CURRICULUM = {
     'Political Science',
     'Philosophy',
     'History',
-    'Education',
-    'Physical Education'
+    'Education'
   ],
   'class-12-arts': [
     'English',
@@ -270,8 +267,7 @@ export const CLASS_CURRICULUM = {
     'Political Science',
     'Philosophy',
     'History',
-    'Education',
-    'Physical Education'
+    'Education'
   ],
 
   // Higher Secondary Wing — Science Stream (Class XI & XII Science)
@@ -283,8 +279,7 @@ export const CLASS_CURRICULUM = {
     'Chemistry',
     'Biology',
     'Mathematics',
-    'Philosophy',
-    'Physical Education'
+    'Philosophy'
   ],
   'class-12-sci': [
     'English',
@@ -294,8 +289,7 @@ export const CLASS_CURRICULUM = {
     'Chemistry',
     'Biology',
     'Mathematics',
-    'Philosophy',
-    'Physical Education'
+    'Philosophy'
   ],
 
   // Higher Secondary Wing — Unified Arts & Science (Class XI & XII)
@@ -310,8 +304,7 @@ export const CLASS_CURRICULUM = {
     'Philosophy',
     'Education',
     'Political Science',
-    'IT/ITeS',
-    'Physical Education'
+    'IT/ITeS'
   ],
   'class-12': [
     'English',
@@ -324,8 +317,7 @@ export const CLASS_CURRICULUM = {
     'Philosophy',
     'Education',
     'Political Science',
-    'IT/ITeS',
-    'Physical Education'
+    'IT/ITeS'
   ]
 };
 
@@ -344,8 +336,7 @@ export const getSubjectsForClass = (classId) => {
       'Philosophy',
       'Education',
       'Political Science',
-      'IT/ITeS',
-      'Physical Education'
+      'IT/ITeS'
     ];
   }
   return CLASS_CURRICULUM[classId] || [
@@ -353,8 +344,7 @@ export const getSubjectsForClass = (classId) => {
     'Bengali',
     'Mathematics',
     'Science',
-    'Social Science',
-    'Physical Education'
+    'Social Science'
   ];
 };
 
