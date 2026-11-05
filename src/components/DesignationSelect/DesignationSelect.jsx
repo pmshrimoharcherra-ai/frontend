@@ -44,6 +44,14 @@ export const DESIGNATION_OPTIONS = [
     icon: GraduationCap,
   },
   {
+    code: 'VT',
+    title: 'Vocational Teacher',
+    scope: 'Vocational Education (IT/ITeS & NSQF)',
+    badgeClass: 'desig-vt',
+    category: 'vocational',
+    icon: Briefcase,
+  },
+  {
     code: 'HM',
     title: 'Headmaster / Headmistress',
     scope: 'Head of Institution',

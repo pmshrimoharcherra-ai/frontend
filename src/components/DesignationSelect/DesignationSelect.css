@@ -386,6 +386,13 @@
   border: 1px solid #99f6e4;
 }
 
+/* VT - Vocational Teacher */
+.desig-badge.desig-vt {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
 /* HM - Headmaster / Headmistress */
 .desig-badge.desig-hm {
   background: #fffbeb;

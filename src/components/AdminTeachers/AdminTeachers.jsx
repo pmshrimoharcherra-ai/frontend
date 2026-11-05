@@ -170,6 +170,14 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
     }).length;
   }, [teachers]);
 
+  const vtCount = useMemo(() => {
+    return teachers.filter((t) => {
+      if (checkIsHead(t.role)) return false;
+      const r = (t.role || '').toUpperCase();
+      return r === 'VT' || r.includes('VOCATIONAL') || /\bVT\b/.test(r);
+    }).length;
+  }, [teachers]);
+
   // Filtered teachers list
   const filteredTeachers = useMemo(() => {
     return teachers.filter((t) => {
@@ -224,6 +232,10 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
           <div className="stat-pill-item">
             <span className="stat-pill-label">TGT</span>
             <span className="stat-pill-num">{tgtCount}</span>
+          </div>
+          <div className="stat-pill-item">
+            <span className="stat-pill-label">VT</span>
+            <span className="stat-pill-num">{vtCount}</span>
           </div>
         </div>
       </div>

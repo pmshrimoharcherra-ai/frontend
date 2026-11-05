@@ -54,6 +54,7 @@ const DESIGNATION_OPTIONS = [
   'TGT',
   'PGT',
   'GT',
+  'VT',
   'HM',
   'TIC',
   'AHM',
