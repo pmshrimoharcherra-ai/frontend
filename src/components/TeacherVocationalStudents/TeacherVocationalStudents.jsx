@@ -229,6 +229,8 @@ const TeacherVocationalStudents = ({
       'class-10': 0,
       'class-11': 0,
       'class-12': 0,
+      class9_sec1: 0,
+      class9_sec2: 0,
       class10_sec1: 0,
       class10_sec2: 0,
       class11_arts: 0,
@@ -251,6 +253,8 @@ const TeacherVocationalStudents = ({
 
       if (vocClass === 'class-9') {
         counts['class-9']++;
+        if (sec === 'Sector 1') counts.class9_sec1++;
+        else if (sec === 'Sector 2') counts.class9_sec2++;
       } else if (vocClass === 'class-10') {
         counts['class-10']++;
         if (sec === 'Sector 1') counts.class10_sec1++;
@@ -580,7 +584,9 @@ const TeacherVocationalStudents = ({
               <span className="stat-card-value font-mono">{classCounts['class-9']}</span>
               <span className="stat-card-unit">Enrolled</span>
             </div>
-            <span className="stat-card-subtext">Secondary Foundation</span>
+            <span className="stat-card-subtext">
+              Sec 1: <strong>{classCounts.class9_sec1}</strong> • Sec 2: <strong>{classCounts.class9_sec2}</strong>
+            </span>
           </div>
         </div>
 
@@ -760,8 +766,8 @@ const TeacherVocationalStudents = ({
 
           {/* Secondary Filters Bar */}
           <div className="toolbar-bottom-row">
-            {/* Sector Filter (Active for Class X or all) */}
-            {(selectedClassTab === 'class-10' || selectedClassTab === 'all') && (
+            {/* Sector Filter (Active for Class IX, Class X or all) */}
+            {(selectedClassTab === 'class-9' || selectedClassTab === 'class-10' || selectedClassTab === 'all') && (
               <div className="filter-pill-select-wrap">
                 <span className="filter-chip-label">Sector:</span>
                 <div className="filter-chip-buttons">
@@ -777,14 +783,26 @@ const TeacherVocationalStudents = ({
                     className={`filter-chip sector-1-chip ${selectedSector === 'Sector 1' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedSector('Sector 1')}
                   >
-                    Sector 1 ({classCounts.class10_sec1})
+                    Sector 1 ({
+                      selectedClassTab === 'class-9'
+                        ? classCounts.class9_sec1
+                        : selectedClassTab === 'class-10'
+                        ? classCounts.class10_sec1
+                        : classCounts.class9_sec1 + classCounts.class10_sec1
+                    })
                   </button>
                   <button
                     type="button"
                     className={`filter-chip sector-2-chip ${selectedSector === 'Sector 2' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedSector('Sector 2')}
                   >
-                    Sector 2 ({classCounts.class10_sec2})
+                    Sector 2 ({
+                      selectedClassTab === 'class-9'
+                        ? classCounts.class9_sec2
+                        : selectedClassTab === 'class-10'
+                        ? classCounts.class10_sec2
+                        : classCounts.class9_sec2 + classCounts.class10_sec2
+                    })
                   </button>
                 </div>
               </div>
