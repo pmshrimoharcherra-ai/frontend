@@ -36,6 +36,7 @@ import {
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
 import { getStudentSector } from '../../data/curriculumData';
+import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
@@ -602,59 +603,33 @@ const TeacherVocationalStudents = ({
     sortDirection
   ]);
 
-  // Export current filtered list as CSV
-  const handleExportCSV = () => {
+  // Export current filtered list as responsive Excel sheet (.xlsx)
+  const handleExportExcel = () => {
     if (filteredStudents.length === 0) return;
 
-    const headers = [
-      'Roll No',
-      'Student Name',
-      'Class',
-      'Stream / Wing',
-      'Vocational Sector',
-      'APAAR ID',
-      'PEN Number',
-      'Gender',
-      'Caste',
-      "Father's Name",
-      "Mother's Name",
-      'Phone',
-      'Aadhaar',
-      'Address',
-      'Attendance',
-      'Status'
-    ];
-
-    const rows = filteredStudents.map((st) => [
-      st.roll || '',
-      `"${(st.name || '').replace(/"/g, '""')}"`,
-      st.className || st.classId || '',
-      st.classId?.includes('sci') ? 'Science' : st.classId?.includes('arts') ? 'Arts' : 'General',
-      getStudentSector(st) || 'IT/ITeS',
-      st.apaarId || 'Not Available',
-      st.penNumber || '',
-      st.gender || 'Boy',
-      st.caste || 'GEN',
-      `"${(st.father || '').replace(/"/g, '""')}"`,
-      `"${(st.mother || '').replace(/"/g, '""')}"`,
-      st.phone || '',
-      st.aadhaar ? `'${st.aadhaar}` : '',
-      `"${(st.address || '').replace(/"/g, '""')}"`,
-      st.attendance || '95%',
-      st.status || 'Enrolled'
-    ]);
-
-    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    const dateStr = new Date().toISOString().split('T')[0];
-    link.setAttribute('download', `vocational_students_${selectedClassTab}_${dateStr}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    try {
+      const res = exportStudentsToExcel({
+        students: filteredStudents,
+        currentClass: {
+          name: `Vocational_${activeClassLabel}`,
+          id: selectedClassTab
+        },
+        customTitle: `Vocational_IT_ITeS_${selectedClassTab}`,
+        includeTransferred: true
+      });
+      setFeedbackMsg({
+        type: 'success',
+        text: `Exported ${res.count} vocational students to ${res.fileName} successfully!`
+      });
+      setTimeout(() => setFeedbackMsg(null), 4500);
+    } catch (err) {
+      console.error('Error exporting vocational directory to Excel:', err);
+      setFeedbackMsg({
+        type: 'error',
+        text: `Excel Export failed: ${err.message}`
+      });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    }
   };
 
   // Print current view
@@ -712,12 +687,12 @@ const TeacherVocationalStudents = ({
           <button
             type="button"
             className="hero-action-btn btn-export"
-            onClick={handleExportCSV}
-            title="Download Vocational Directory as CSV / Excel"
+            onClick={handleExportExcel}
+            title="Download Vocational Directory as responsive Excel Spreadsheet (.xlsx)"
             disabled={filteredStudents.length === 0}
           >
-            <Download size={15} />
-            <span>Export CSV</span>
+            <FileSpreadsheet size={15} />
+            <span>Export to Excel</span>
           </button>
 
           <button
@@ -1675,11 +1650,12 @@ const TeacherVocationalStudents = ({
             <button
               type="button"
               className="footer-btn btn-export-bottom"
-              onClick={handleExportCSV}
+              onClick={handleExportExcel}
+              title="Download Vocational Directory as Excel Sheet (.xlsx)"
               disabled={filteredStudents.length === 0}
             >
-              <Download size={14} />
-              <span>Download CSV Report</span>
+              <FileSpreadsheet size={14} />
+              <span>Download Excel Sheet</span>
             </button>
             <button
               type="button"

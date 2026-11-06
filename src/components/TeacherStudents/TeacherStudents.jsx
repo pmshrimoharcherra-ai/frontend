@@ -19,10 +19,12 @@ import {
   Layers,
   X,
   LayoutGrid,
-  List
+  List,
+  FileSpreadsheet
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
+import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
@@ -235,6 +237,26 @@ const TeacherStudents = ({
     return <span className={`teacher-status-badge ${badgeClass}`}>{s}</span>;
   };
 
+  const handleExportExcel = () => {
+    try {
+      if (!students || students.length === 0) {
+        alert('No students available to export.');
+        return;
+      }
+      exportStudentsToExcel({
+        students,
+        currentClass: {
+          name: assignedClassName || currentClass?.name || 'Class Students',
+          id: currentClass?.id
+        },
+        includeTransferred: true
+      });
+    } catch (err) {
+      console.error('Error exporting students to Excel:', err);
+      alert(`Export failed: ${err.message}`);
+    }
+  };
+
   return (
     <div className="teacher-students-container">
       {/* ── Top Header Banner ── */}
@@ -254,6 +276,16 @@ const TeacherStudents = ({
         </div>
 
         <div className="header-actions">
+          <button
+            type="button"
+            className="export-excel-btn-teacher"
+            onClick={handleExportExcel}
+            title={`Export complete student roster for ${assignedClassName || currentClass.name} as Excel sheet (.xlsx)`}
+          >
+            <FileSpreadsheet size={15} />
+            <span>Export to Excel</span>
+          </button>
+
           <button
             type="button"
             className="refresh-roster-btn"

@@ -37,8 +37,10 @@ import {
   Eye,
   ShieldCheck,
   Layers,
-  BarChart3
+  BarChart3,
+  FileSpreadsheet
 } from 'lucide-react';
+import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 
 // Classes Definition from Class 1 to 12 (Arts & Science for XI & XII only, no sections)
 export const SCHOOL_CLASSES = [
@@ -97,6 +99,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const [showClassAttendanceModal, setShowClassAttendanceModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [viewingStudent, setViewingStudent] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportNotice, setExportNotice] = useState(null);
   const addDobPickerRef = useRef(null);
 
   // New Student Form State (No section)
@@ -142,6 +146,42 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  // Handle Export complete student roster as responsive Excel spreadsheet
+  const handleExportExcel = (targetClassId = null) => {
+    try {
+      setExporting(true);
+      let targetList = [];
+      let classMeta = null;
+
+      if (targetClassId) {
+        targetList = students.filter((s) => s.classId === targetClassId);
+        classMeta = SCHOOL_CLASSES.find((c) => c.id === targetClassId) || { name: targetClassId };
+      } else {
+        targetList = students;
+        classMeta = { name: 'All Classes (School Master Roster)' };
+      }
+
+      if (targetList.length === 0) {
+        alert('No student records found to export.');
+        return;
+      }
+
+      const res = exportStudentsToExcel({
+        students: targetList,
+        currentClass: classMeta,
+        includeTransferred: true
+      });
+
+      setExportNotice(`Exported ${res.count} student records to ${res.fileName}`);
+      setTimeout(() => setExportNotice(null), 5000);
+    } catch (err) {
+      console.error('Failed to export students to Excel:', err);
+      alert(`Export failed: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Current selected class object
   const currentClass = SCHOOL_CLASSES.find(c => c.id === selectedClassId);
@@ -705,6 +745,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <p>Select any grade from Class 1 to Class 12 to view and manage enrolled students</p>
             </div>
             <div className="header-actions">
+              <button
+                type="button"
+                className="export-excel-btn"
+                onClick={() => handleExportExcel(null)}
+                title="Export complete student details for all classes as responsive Excel spreadsheet"
+                disabled={exporting}
+              >
+                {exporting ? <Loader2 size={16} className="spinning" /> : <FileSpreadsheet size={16} />}
+                <span>{exporting ? 'Exporting...' : 'Export All (Excel)'}</span>
+              </button>
+
               <button className="add-student-btn-primary" onClick={() => handleOpenAddModal('class-6')}>
                 <Plus size={16} />
                 <span>Enroll New Student</span>
@@ -1048,6 +1099,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               </p>
             </div>
             <div className="banner-actions">
+              <button 
+                type="button"
+                className="export-excel-btn" 
+                onClick={() => handleExportExcel(selectedClassId)}
+                title={`Export complete details for all ${displayedStudents.length} students of ${currentClass.name} as Excel sheet (.xlsx)`}
+                disabled={exporting}
+              >
+                {exporting ? <Loader2 size={16} className="spinning" /> : <FileSpreadsheet size={16} />}
+                <span>{exporting ? 'Exporting...' : 'Export Excel'}</span>
+              </button>
+
               <button 
                 type="button"
                 className="attendance-sheet-btn-secondary" 
@@ -1807,6 +1869,16 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
           }}
           onNavigateToClass={handleNavigateFromPendingModal}
         />
+      )}
+      {/* Export Confirmation Toast */}
+      {exportNotice && (
+        <div className="admin-export-toast" role="status">
+          <CheckCircle2 size={18} className="toast-icon" />
+          <span>{exportNotice}</span>
+          <button type="button" onClick={() => setExportNotice(null)} aria-label="Close notification">
+            <X size={14} />
+          </button>
+        </div>
       )}
     </div>
   );
