@@ -131,16 +131,31 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
     const handleScroll = () => {
       const scrollY = adminMain ? adminMain.scrollTop : window.scrollY;
-      setShowScrollBack(scrollY > 200);
+
+      // Determine if the bottom navigation bar is entering or already in the viewport
+      let bottomBarVisible = false;
+      const bottomBar = document.querySelector('.class-detail-bottom-bar');
+      if (bottomBar) {
+        const rect = bottomBar.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        // Fade out slightly before bottom bar reaches the floating pill area (within 30px)
+        if (rect.top <= viewportHeight + 30 && rect.bottom >= 0) {
+          bottomBarVisible = true;
+        }
+      }
+
+      setShowScrollBack(scrollY > 200 && !bottomBarVisible);
     };
 
     target.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
     handleScroll();
 
     return () => {
       target.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
   }, [selectedClassId]);
   const [students, setStudents] = useState([]);
@@ -1675,30 +1690,28 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
           </div>
 
-          {/* Floating Sticky Quick-Return & Top Pill when scrolled down */}
-          {showScrollBack && (
-            <div className="floating-sticky-nav-pill">
-              <button
-                type="button"
-                className="floating-back-btn"
-                onClick={handleBackToAllClasses}
-                title="Back to All Classes"
-              >
-                <ArrowLeft size={15} />
-                <span>Back to Classes</span>
-              </button>
-              <div className="floating-divider" />
-              <button
-                type="button"
-                className="floating-top-btn"
-                onClick={scrollAdminToTop}
-                title="Scroll to Top"
-              >
-                <ArrowUp size={15} />
-                <span>Top</span>
-              </button>
-            </div>
-          )}
+          {/* Floating Sticky Quick-Return & Top Pill when scrolled down (fades out when near bottom bar) */}
+          <div className={`floating-sticky-nav-pill ${showScrollBack ? 'visible' : ''}`}>
+            <button
+              type="button"
+              className="floating-back-btn"
+              onClick={handleBackToAllClasses}
+              title="Back to All Classes"
+            >
+              <ArrowLeft size={15} />
+              <span>Back to Classes</span>
+            </button>
+            <div className="floating-divider" />
+            <button
+              type="button"
+              className="floating-top-btn"
+              onClick={scrollAdminToTop}
+              title="Scroll to Top"
+            >
+              <ArrowUp size={15} />
+              <span>Top</span>
+            </button>
+          </div>
         </div>
       )}
 
