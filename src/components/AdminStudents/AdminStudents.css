@@ -2564,3 +2564,152 @@
 .admin-export-toast button:hover {
   color: #ffffff;
 }
+
+/* ==========================================================================
+   Bottom Action & Navigation Bar (Class Detail View)
+   ========================================================================== */
+.class-detail-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 16px 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.class-detail-bottom-bar .back-to-classes-btn.bottom {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.class-detail-bottom-bar .back-to-classes-btn.bottom:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #ea580c;
+  transform: translateX(-2px);
+}
+
+.bottom-bar-center {
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.bottom-bar-center strong {
+  color: #1e293b;
+}
+
+.bottom-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scroll-to-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scroll-to-top-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Floating Sticky Quick-Return & Top Pill (when scrolled below)
+   ========================================================================== */
+.floating-sticky-nav-pill {
+  position: fixed;
+  bottom: 26px;
+  right: 28px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.94);
+  color: #ffffff;
+  border-radius: 50px;
+  padding: 6px 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4), 0 4px 6px -2px rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  animation: slideUpFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-back-btn,
+.floating-top-btn {
+  background: transparent;
+  border: none;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.floating-back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fb923c;
+}
+
+.floating-top-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #38bdf8;
+}
+
+.floating-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 2px;
+}
+
+@media (max-width: 768px) {
+  .class-detail-bottom-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .bottom-bar-actions {
+    justify-content: space-between;
+  }
+  .floating-sticky-nav-pill {
+    bottom: 20px;
+    right: 16px;
+  }
+}

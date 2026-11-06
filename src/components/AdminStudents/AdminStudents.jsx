@@ -19,6 +19,7 @@ import {
   Pencil,
   Trash2,
   ArrowLeft,
+  ArrowUp,
   ChevronRight,
   Filter,
   Phone,
@@ -62,11 +63,37 @@ export const SCHOOL_CLASSES = [
 
 const API_BASE = `${API_BASE_URL}/api/students`;
 
+/**
+ * Reset scrolling across window and parent container (.admin-main) to top
+ */
+export const scrollAdminToTop = () => {
+  if (typeof window === 'undefined') return;
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  if (document.documentElement) document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+
+  const scrollContainers = document.querySelectorAll(
+    '.admin-main, .admin-content-area, .admin-layout, .portal-main-content, .class-students-detail-view'
+  );
+  scrollContainers.forEach((el) => {
+    if (el) el.scrollTop = 0;
+  });
+
+  const topAnchor =
+    document.querySelector('.detail-navigation-bar') ||
+    document.querySelector('.class-students-detail-view') ||
+    document.querySelector('.admin-topbar');
+  if (topAnchor && typeof topAnchor.scrollIntoView === 'function') {
+    topAnchor.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }
+};
+
 const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }) => {
   const { classId: routeClassId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedClassId, setSelectedClassId] = useState(routeClassId || initialSelectedClassId || null);
+  const [showScrollBack, setShowScrollBack] = useState(false);
 
   // Sync selectedClassId with URL parameter routeClassId (e.g. on direct visit, reload, or back/forward)
   useEffect(() => {
@@ -78,6 +105,44 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       setSelectedClassId(null);
     }
   }, [routeClassId, initialSelectedClassId]);
+
+  // Ensure entering a class, switching classes, or returning to list ALWAYS starts from the top
+  useEffect(() => {
+    scrollAdminToTop();
+    const t1 = setTimeout(scrollAdminToTop, 20);
+    const t2 = setTimeout(scrollAdminToTop, 80);
+    const t3 = setTimeout(scrollAdminToTop, 200);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [selectedClassId, routeClassId]);
+
+  // Track scrolling inside .admin-main and window to toggle the floating Back/Top pill
+  useEffect(() => {
+    if (!selectedClassId) {
+      setShowScrollBack(false);
+      return;
+    }
+
+    const adminMain = document.querySelector('.admin-main');
+    const target = adminMain || window;
+
+    const handleScroll = () => {
+      const scrollY = adminMain ? adminMain.scrollTop : window.scrollY;
+      setShowScrollBack(scrollY > 200);
+    };
+
+    target.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      target.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [selectedClassId]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -633,6 +698,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     setPendingFilter(filterPending || 'ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(`${basePath}/${classId}`);
+    scrollAdminToTop();
+    requestAnimationFrame(scrollAdminToTop);
   };
 
   const handleBackToAllClasses = () => {
@@ -642,6 +709,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     setPendingFilter('ALL');
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(basePath);
+    scrollAdminToTop();
+    requestAnimationFrame(scrollAdminToTop);
   };
 
   const handleOpenPendingModal = (fieldKey = 'apaarId', classId = 'ALL') => {
@@ -1558,7 +1627,78 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 </div>
               )}
             </div>
+
+            {/* Bottom Action & Navigation Bar */}
+            <div className="class-detail-bottom-bar">
+              <button
+                type="button"
+                className="back-to-classes-btn bottom"
+                onClick={handleBackToAllClasses}
+                title="Return to Class Selection List"
+              >
+                <ArrowLeft size={16} />
+                <span>Back to All Classes</span>
+              </button>
+
+              <div className="bottom-bar-center">
+                <span className="bottom-students-summary">
+                  Showing {displayedStudents.length} of {students.length} students in <strong>{currentClass.name}</strong>
+                </span>
+              </div>
+
+              <div className="bottom-bar-actions">
+                <div className="quick-class-selector">
+                  <span className="selector-label">Switch Class:</span>
+                  <select 
+                    value={selectedClassId} 
+                    onChange={(e) => handleClassClick(e.target.value)}
+                    className="class-dropdown-select"
+                  >
+                    {SCHOOL_CLASSES.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  className="scroll-to-top-btn"
+                  onClick={scrollAdminToTop}
+                  title="Scroll back to top of class list"
+                >
+                  <ArrowUp size={16} />
+                  <span>Back to Top</span>
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Floating Sticky Quick-Return & Top Pill when scrolled down */}
+          {showScrollBack && (
+            <div className="floating-sticky-nav-pill">
+              <button
+                type="button"
+                className="floating-back-btn"
+                onClick={handleBackToAllClasses}
+                title="Back to All Classes"
+              >
+                <ArrowLeft size={15} />
+                <span>Back to Classes</span>
+              </button>
+              <div className="floating-divider" />
+              <button
+                type="button"
+                className="floating-top-btn"
+                onClick={scrollAdminToTop}
+                title="Scroll to Top"
+              >
+                <ArrowUp size={15} />
+                <span>Top</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
