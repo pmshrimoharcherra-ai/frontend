@@ -233,6 +233,8 @@ const TeacherVocationalStudents = ({
       class9_sec2: 0,
       class10_sec1: 0,
       class10_sec2: 0,
+      class11_sec1: 0,
+      class11_sec2: 0,
       class11_arts: 0,
       class11_sci: 0,
       class12_arts: 0,
@@ -261,6 +263,8 @@ const TeacherVocationalStudents = ({
         else if (sec === 'Sector 2') counts.class10_sec2++;
       } else if (vocClass === 'class-11') {
         counts['class-11']++;
+        if (sec === 'Sector 1') counts.class11_sec1++;
+        else if (sec === 'Sector 2') counts.class11_sec2++;
         if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) counts.class11_sci++;
         else counts.class11_arts++;
       } else if (vocClass === 'class-12') {
@@ -627,7 +631,7 @@ const TeacherVocationalStudents = ({
               <span className="stat-card-unit">Enrolled</span>
             </div>
             <span className="stat-card-subtext">
-              Arts: <strong>{classCounts.class11_arts}</strong> • Sci: <strong>{classCounts.class11_sci}</strong>
+              Sec 1: <strong>{classCounts.class11_sec1}</strong> • Sec 2: <strong>{classCounts.class11_sec2}</strong>
             </span>
           </div>
         </div>
@@ -766,8 +770,8 @@ const TeacherVocationalStudents = ({
 
           {/* Secondary Filters Bar */}
           <div className="toolbar-bottom-row">
-            {/* Sector Filter (Active for Class IX, Class X or all) */}
-            {(selectedClassTab === 'class-9' || selectedClassTab === 'class-10' || selectedClassTab === 'all') && (
+            {/* Sector Filter (Active for Class IX, Class X, Class XI, or all) */}
+            {(selectedClassTab === 'class-9' || selectedClassTab === 'class-10' || selectedClassTab === 'class-11' || selectedClassTab === 'all') && (
               <div className="filter-pill-select-wrap">
                 <span className="filter-chip-label">Sector:</span>
                 <div className="filter-chip-buttons">
@@ -788,7 +792,9 @@ const TeacherVocationalStudents = ({
                         ? classCounts.class9_sec1
                         : selectedClassTab === 'class-10'
                         ? classCounts.class10_sec1
-                        : classCounts.class9_sec1 + classCounts.class10_sec1
+                        : selectedClassTab === 'class-11'
+                        ? classCounts.class11_sec1
+                        : classCounts.class9_sec1 + classCounts.class10_sec1 + classCounts.class11_sec1
                     })
                   </button>
                   <button
@@ -801,7 +807,9 @@ const TeacherVocationalStudents = ({
                         ? classCounts.class9_sec2
                         : selectedClassTab === 'class-10'
                         ? classCounts.class10_sec2
-                        : classCounts.class9_sec2 + classCounts.class10_sec2
+                        : selectedClassTab === 'class-11'
+                        ? classCounts.class11_sec2
+                        : classCounts.class9_sec2 + classCounts.class10_sec2 + classCounts.class11_sec2
                     })
                   </button>
                 </div>
