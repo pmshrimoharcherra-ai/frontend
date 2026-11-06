@@ -577,8 +577,8 @@ const TeacherExaminations = ({
             </select>
           </div>
 
-          {/* Vocational Sector Selector (Only for IT/ITeS) */}
-          {isSubjectVocationalOrIT && (
+          {/* Vocational Sector Selector (Only for IT/ITeS when class has sectors) */}
+          {isSubjectVocationalOrIT && (sectorCounts.s1 > 0 || sectorCounts.s2 > 0) && (
             <div className="exam-toolbar-field">
               <label>Sector</label>
               <select

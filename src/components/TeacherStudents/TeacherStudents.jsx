@@ -142,6 +142,7 @@ const TeacherStudents = ({
         // VT filter: only students enrolled in IT/ITeS optional subject appear for Vocational Teachers
         if (isVT) {
           const hasIT =
+            Boolean(s.sector || s.vocationalSector) ||
             (Array.isArray(s.subjects) && s.subjects.some((sub) => {
               const subStr = String(sub).toLowerCase();
               return subStr.includes('it') || subStr.includes('information technology');

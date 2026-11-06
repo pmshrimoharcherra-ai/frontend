@@ -417,8 +417,13 @@ export const CLASS10_SECTOR_2_ROLLS = [
 
 export const getStudentSector = (st) => {
   if (!st) return '';
-  if (st.sector) return st.sector;
-  if (st.vocationalSector) return st.vocationalSector;
+  const rawSec = st.sector || st.vocationalSector;
+  if (rawSec) {
+    const s = String(rawSec).trim();
+    if (/^sector[\s-_]*1$/i.test(s)) return 'Sector 1';
+    if (/^sector[\s-_]*2$/i.test(s)) return 'Sector 2';
+    return s;
+  }
   const rollNum = parseInt(st.roll || st.rollNumber, 10);
   const isC10 = String(st.classId || '').includes('10');
   if (isC10 && rollNum) {

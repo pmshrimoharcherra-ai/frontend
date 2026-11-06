@@ -30,7 +30,8 @@ import {
   ShieldCheck,
   Building,
   UserCheck,
-  UserX
+  UserX,
+  RotateCcw
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
@@ -277,6 +278,207 @@ const TeacherVocationalStudents = ({
     return counts;
   }, [students]);
 
+  // Safe tab selection that resets incompatible filters to prevent empty state deadlocks
+  const handleSelectClassTab = (tabId) => {
+    setSelectedClassTab(tabId);
+    if (tabId === 'class-9' || tabId === 'class-10') {
+      if (selectedStream !== 'all') setSelectedStream('all');
+    } else if (tabId === 'class-12') {
+      if (selectedSector !== 'all') setSelectedSector('all');
+    }
+  };
+
+  // Reset all filters including class tab and search query
+  const handleResetAllFilters = () => {
+    setSelectedClassTab('all');
+    setSelectedSector('all');
+    setSelectedStream('all');
+    setGenderFilter('all');
+    setCasteFilter('all');
+    setStatusFilter('all');
+    setSearchQuery('');
+  };
+
+  // Clear secondary filters while keeping class tab
+  const handleClearSecondaryFilters = () => {
+    setSelectedSector('all');
+    setSelectedStream('all');
+    setGenderFilter('all');
+    setCasteFilter('all');
+    setStatusFilter('all');
+    setSearchQuery('');
+  };
+
+  // Dynamically calculate scoped counts for sector, stream, gender, category, status based on current selections
+  const dynamicFilterCounts = useMemo(() => {
+    let sec1 = 0;
+    let sec2 = 0;
+    let secTotal = 0;
+
+    let streamArts = 0;
+    let streamSci = 0;
+    let streamTotal = 0;
+
+    let boys = 0;
+    let girls = 0;
+
+    const caste = { GEN: 0, OBC: 0, SC: 0, ST: 0, Other: 0 };
+    const status = { Enrolled: 0, Transferred: 0, Leave: 0, Failed: 0 };
+
+    students.forEach((s) => {
+      const vocClass = getStudentVocationalClass(s);
+      const cid = String(s.classId || '').toLowerCase();
+      const cname = String(s.className || '').toLowerCase();
+      const sec = getStudentSector(s);
+      const isBoy = s.gender === 'Boy' || !s.gender;
+      const isSci = cid.includes('sci') || cname.includes('sci') || cname.includes('science');
+      const isArts = cid.includes('arts') || cname.includes('arts');
+      const c = String(s.caste || '').trim().toUpperCase();
+      const st = s.status || 'Enrolled';
+
+      // Sector counts calculation (respecting class tab & stream)
+      const matchesClassForSector = selectedClassTab === 'all' || vocClass === selectedClassTab;
+      const matchesStreamForSector =
+        selectedStream === 'all' ||
+        (selectedStream === 'Science' && isSci) ||
+        (selectedStream === 'Arts' && isArts);
+
+      if (matchesClassForSector && matchesStreamForSector) {
+        if (sec === 'Sector 1') {
+          sec1++;
+          secTotal++;
+        } else if (sec === 'Sector 2') {
+          sec2++;
+          secTotal++;
+        }
+      }
+
+      // Stream counts calculation (respecting class tab & sector)
+      const matchesClassForStream = selectedClassTab === 'all' || vocClass === selectedClassTab;
+      const matchesSectorForStream = selectedSector === 'all' || sec === selectedSector;
+      if (matchesClassForStream && matchesSectorForStream) {
+        if (isArts) {
+          streamArts++;
+          streamTotal++;
+        } else if (isSci) {
+          streamSci++;
+          streamTotal++;
+        }
+      }
+
+      // Scoped Demographics counts (respecting class tab, sector & stream)
+      if (matchesClassForSector && matchesStreamForSector && matchesSectorForStream) {
+        if (isBoy) boys++;
+        else girls++;
+
+        if (c === 'GEN' || c === 'GENERAL' || c === 'UR' || c === 'UNRESERVED') caste.GEN++;
+        else if (c.includes('OBC')) caste.OBC++;
+        else if (c === 'SC') caste.SC++;
+        else if (c === 'ST') caste.ST++;
+        else caste.Other++;
+
+        if (st.toLowerCase() === 'enrolled') status.Enrolled++;
+        else if (st.toLowerCase() === 'transferred') status.Transferred++;
+        else if (st.toLowerCase() === 'leave') status.Leave++;
+        else if (st.toLowerCase() === 'failed') status.Failed++;
+      }
+    });
+
+    return {
+      sector: { s1: sec1, s2: sec2, total: secTotal },
+      stream: { arts: streamArts, sci: streamSci, total: streamTotal },
+      gender: { boys, girls, total: boys + girls },
+      caste,
+      status
+    };
+  }, [students, selectedClassTab, selectedSector, selectedStream]);
+
+  // Whether sector filter should be visible
+  const hasSectors =
+    selectedClassTab === 'all' ||
+    selectedClassTab === 'class-9' ||
+    selectedClassTab === 'class-10' ||
+    selectedClassTab === 'class-11' ||
+    dynamicFilterCounts.sector.total > 0;
+
+  // Whether stream filter should be visible
+  const hasStreams =
+    selectedClassTab === 'all' ||
+    selectedClassTab === 'class-11' ||
+    selectedClassTab === 'class-12' ||
+    dynamicFilterCounts.stream.total > 0;
+
+  // Active filters list for removable badge tags
+  const activeFilters = useMemo(() => {
+    const list = [];
+    if (selectedClassTab !== 'all') {
+      const tabObj = VOCATIONAL_CLASS_TABS.find((t) => t.id === selectedClassTab);
+      list.push({
+        id: 'class',
+        label: `Class: ${tabObj?.shortLabel || selectedClassTab}`,
+        type: 'class',
+        onClear: () => handleSelectClassTab('all')
+      });
+    }
+    if (selectedSector !== 'all') {
+      list.push({
+        id: 'sector',
+        label: `Sector: ${selectedSector}`,
+        type: selectedSector === 'Sector 1' ? 'sec1' : 'sec2',
+        onClear: () => setSelectedSector('all')
+      });
+    }
+    if (selectedStream !== 'all') {
+      list.push({
+        id: 'stream',
+        label: `Stream: ${selectedStream}`,
+        type: 'stream',
+        onClear: () => setSelectedStream('all')
+      });
+    }
+    if (genderFilter !== 'all') {
+      list.push({
+        id: 'gender',
+        label: genderFilter === 'Boy' ? 'Boys Only' : 'Girls Only',
+        type: 'gender',
+        onClear: () => setGenderFilter('all')
+      });
+    }
+    if (casteFilter !== 'all') {
+      list.push({
+        id: 'caste',
+        label: `Category: ${casteFilter}`,
+        type: 'caste',
+        onClear: () => setCasteFilter('all')
+      });
+    }
+    if (statusFilter !== 'all') {
+      list.push({
+        id: 'status',
+        label: `Status: ${statusFilter}`,
+        type: 'status',
+        onClear: () => setStatusFilter('all')
+      });
+    }
+    if (searchQuery.trim()) {
+      list.push({
+        id: 'search',
+        label: `Search: "${searchQuery.trim()}"`,
+        type: 'search',
+        onClear: () => setSearchQuery('')
+      });
+    }
+    return list;
+  }, [
+    selectedClassTab,
+    selectedSector,
+    selectedStream,
+    genderFilter,
+    casteFilter,
+    statusFilter,
+    searchQuery
+  ]);
+
   // Filter students based on active controls
   const filteredStudents = useMemo(() => {
     return students
@@ -284,14 +486,14 @@ const TeacherVocationalStudents = ({
         const cid = String(s.classId || '').toLowerCase();
         const cname = String(s.className || '').toLowerCase();
         const sec = getStudentSector(s);
+        const vocClass = getStudentVocationalClass(s);
 
         // 1. Class Tab Filter
         if (selectedClassTab !== 'all') {
-          const vocClass = getStudentVocationalClass(s);
           if (vocClass !== selectedClassTab) return false;
         }
 
-        // 2. Sector Filter (Active for Class X or all)
+        // 2. Sector Filter
         if (selectedSector !== 'all') {
           if (sec !== selectedSector) return false;
         }
@@ -378,6 +580,12 @@ const TeacherVocationalStudents = ({
           const sA = getStudentSector(a) || 'Sector Z';
           const sB = getStudentSector(b) || 'Sector Z';
           comp = sA.localeCompare(sB);
+        } else if (sortBy === 'attendance') {
+          const attA = parseFloat(String(a.attendance || '0').replace('%', '')) || 0;
+          const attB = parseFloat(String(b.attendance || '0').replace('%', '')) || 0;
+          comp = attA - attB;
+        } else if (sortBy === 'gender') {
+          comp = String(a.gender || 'Boy').localeCompare(String(b.gender || 'Boy'));
         }
         return sortDirection === 'asc' ? comp : -comp;
       });
@@ -557,7 +765,7 @@ const TeacherVocationalStudents = ({
         {/* Total Card */}
         <div
           className={`voc-stat-card card-total ${selectedClassTab === 'all' ? 'active-stat' : ''}`}
-          onClick={() => setSelectedClassTab('all')}
+          onClick={() => handleSelectClassTab('all')}
           title="Click to view all vocational students"
         >
           <div className="stat-card-icon icon-purple">
@@ -576,7 +784,7 @@ const TeacherVocationalStudents = ({
         {/* Class IX Card */}
         <div
           className={`voc-stat-card ${selectedClassTab === 'class-9' ? 'active-stat' : ''}`}
-          onClick={() => setSelectedClassTab('class-9')}
+          onClick={() => handleSelectClassTab('class-9')}
           title="Click to filter Class IX"
         >
           <div className="stat-card-icon icon-blue">
@@ -597,7 +805,7 @@ const TeacherVocationalStudents = ({
         {/* Class X Card */}
         <div
           className={`voc-stat-card ${selectedClassTab === 'class-10' ? 'active-stat' : ''}`}
-          onClick={() => setSelectedClassTab('class-10')}
+          onClick={() => handleSelectClassTab('class-10')}
           title="Click to filter Class X (Board Year)"
         >
           <div className="stat-card-icon icon-amber">
@@ -618,7 +826,7 @@ const TeacherVocationalStudents = ({
         {/* Class XI Card */}
         <div
           className={`voc-stat-card ${selectedClassTab === 'class-11' ? 'active-stat' : ''}`}
-          onClick={() => setSelectedClassTab('class-11')}
+          onClick={() => handleSelectClassTab('class-11')}
           title="Click to filter Class XI"
         >
           <div className="stat-card-icon icon-teal">
@@ -639,7 +847,7 @@ const TeacherVocationalStudents = ({
         {/* Class XII Card */}
         <div
           className={`voc-stat-card ${selectedClassTab === 'class-12' ? 'active-stat' : ''}`}
-          onClick={() => setSelectedClassTab('class-12')}
+          onClick={() => handleSelectClassTab('class-12')}
           title="Click to filter Class XII"
         >
           <div className="stat-card-icon icon-indigo">
@@ -697,7 +905,7 @@ const TeacherVocationalStudents = ({
                   key={tab.id}
                   type="button"
                   className={`voc-class-tab-btn ${isActive ? 'active' : ''}`}
-                  onClick={() => setSelectedClassTab(tab.id)}
+                  onClick={() => handleSelectClassTab(tab.id)}
                 >
                   <span className="tab-name">{tab.shortLabel}</span>
                   <span className={`tab-count-pill ${isActive ? 'count-active' : ''}`}>
@@ -729,19 +937,24 @@ const TeacherVocationalStudents = ({
               <Search size={16} className="search-box-icon" />
               <input
                 type="text"
-                placeholder="Search by student name, roll, APAAR ID, PEN, phone, parents..."
+                placeholder="Search by student name, roll, APAAR ID, PEN, phone, parents, address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
-                <button
-                  type="button"
-                  className="clear-search-btn"
-                  onClick={() => setSearchQuery('')}
-                  title="Clear search"
-                >
-                  <X size={14} />
-                </button>
+                <div className="search-addon-group">
+                  <span className="search-match-badge font-mono">
+                    {filteredStudents.length} {filteredStudents.length === 1 ? 'match' : 'matches'}
+                  </span>
+                  <button
+                    type="button"
+                    className="clear-search-btn"
+                    onClick={() => setSearchQuery('')}
+                    title="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -771,76 +984,70 @@ const TeacherVocationalStudents = ({
           {/* Secondary Filters Bar */}
           <div className="toolbar-bottom-row">
             {/* Sector Filter (Active for Class IX, Class X, Class XI, or all) */}
-            {(selectedClassTab === 'class-9' || selectedClassTab === 'class-10' || selectedClassTab === 'class-11' || selectedClassTab === 'all') && (
+            {hasSectors && (
               <div className="filter-pill-select-wrap">
-                <span className="filter-chip-label">Sector:</span>
+                <span className="filter-chip-label">
+                  <Layers size={13} className="filter-label-icon" />
+                  <span>Sector:</span>
+                </span>
                 <div className="filter-chip-buttons">
                   <button
                     type="button"
                     className={`filter-chip ${selectedSector === 'all' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedSector('all')}
                   >
-                    All Sectors
+                    All Sectors ({dynamicFilterCounts.sector.total})
                   </button>
                   <button
                     type="button"
                     className={`filter-chip sector-1-chip ${selectedSector === 'Sector 1' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedSector('Sector 1')}
                   >
-                    Sector 1 ({
-                      selectedClassTab === 'class-9'
-                        ? classCounts.class9_sec1
-                        : selectedClassTab === 'class-10'
-                        ? classCounts.class10_sec1
-                        : selectedClassTab === 'class-11'
-                        ? classCounts.class11_sec1
-                        : classCounts.class9_sec1 + classCounts.class10_sec1 + classCounts.class11_sec1
-                    })
+                    <span className="chip-color-dot dot-sec1" />
+                    <span>Sector 1 ({dynamicFilterCounts.sector.s1})</span>
                   </button>
                   <button
                     type="button"
                     className={`filter-chip sector-2-chip ${selectedSector === 'Sector 2' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedSector('Sector 2')}
                   >
-                    Sector 2 ({
-                      selectedClassTab === 'class-9'
-                        ? classCounts.class9_sec2
-                        : selectedClassTab === 'class-10'
-                        ? classCounts.class10_sec2
-                        : selectedClassTab === 'class-11'
-                        ? classCounts.class11_sec2
-                        : classCounts.class9_sec2 + classCounts.class10_sec2 + classCounts.class11_sec2
-                    })
+                    <span className="chip-color-dot dot-sec2" />
+                    <span>Sector 2 ({dynamicFilterCounts.sector.s2})</span>
                   </button>
                 </div>
               </div>
             )}
 
             {/* Stream Filter (for Senior Secondary Class XI & XII) */}
-            {(selectedClassTab === 'class-11' || selectedClassTab === 'class-12' || selectedClassTab === 'all') && (
+            {hasStreams && (
               <div className="filter-pill-select-wrap">
-                <span className="filter-chip-label">Stream:</span>
+                <span className="filter-chip-label">
+                  <Building size={13} className="filter-label-icon" />
+                  <span>Stream:</span>
+                </span>
                 <div className="filter-chip-buttons">
                   <button
                     type="button"
                     className={`filter-chip ${selectedStream === 'all' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedStream('all')}
                   >
-                    All Streams
+                    All Streams ({dynamicFilterCounts.stream.total})
                   </button>
                   <button
                     type="button"
-                    className={`filter-chip ${selectedStream === 'Arts' ? 'chip-active' : ''}`}
+                    className={`filter-chip stream-arts-chip ${selectedStream === 'Arts' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedStream('Arts')}
                   >
-                    Arts Stream
+                    <span className="chip-color-dot dot-arts" />
+                    <span>Arts ({dynamicFilterCounts.stream.arts})</span>
                   </button>
                   <button
                     type="button"
-                    className={`filter-chip ${selectedStream === 'Science' ? 'chip-active' : ''}`}
+                    className={`filter-chip stream-sci-chip ${selectedStream === 'Science' ? 'chip-active' : ''}`}
                     onClick={() => setSelectedStream('Science')}
                   >
-                    Science Stream
+                    <span className="chip-color-dot dot-sci" />
+                    <span>Science ({dynamicFilterCounts.stream.sci})</span>
                   </button>
                 </div>
               </div>
@@ -848,93 +1055,127 @@ const TeacherVocationalStudents = ({
 
             {/* Gender Filter */}
             <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">Gender:</span>
+              <span className="filter-chip-label">
+                <Users size={13} className="filter-label-icon" />
+                <span>Gender:</span>
+              </span>
               <div className="filter-chip-buttons">
                 <button
                   type="button"
                   className={`filter-chip ${genderFilter === 'all' ? 'chip-active' : ''}`}
                   onClick={() => setGenderFilter('all')}
                 >
-                  All
+                  All ({dynamicFilterCounts.gender.total})
                 </button>
                 <button
                   type="button"
-                  className={`filter-chip ${genderFilter === 'Boy' ? 'chip-active' : ''}`}
+                  className={`filter-chip boy-chip ${genderFilter === 'Boy' ? 'chip-active' : ''}`}
                   onClick={() => setGenderFilter('Boy')}
                 >
-                  <BoyIcon size={12} />
-                  <span>Boys</span>
+                  <BoyIcon size={13} />
+                  <span>Boys ({dynamicFilterCounts.gender.boys})</span>
                 </button>
                 <button
                   type="button"
-                  className={`filter-chip ${genderFilter === 'Girl' ? 'chip-active' : ''}`}
+                  className={`filter-chip girl-chip ${genderFilter === 'Girl' ? 'chip-active' : ''}`}
                   onClick={() => setGenderFilter('Girl')}
                 >
-                  <GirlIcon size={12} />
-                  <span>Girls</span>
+                  <GirlIcon size={13} />
+                  <span>Girls ({dynamicFilterCounts.gender.girls})</span>
                 </button>
               </div>
             </div>
 
             {/* Caste / Category Filter */}
             <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">Category:</span>
+              <span className="filter-chip-label">
+                <span>Category:</span>
+              </span>
               <div className="filter-chip-buttons">
-                {['all', 'GEN', 'OBC', 'SC', 'ST'].map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`filter-chip ${casteFilter === cat ? 'chip-active' : ''}`}
-                    onClick={() => setCasteFilter(cat)}
-                  >
-                    {cat === 'all' ? 'All' : cat}
-                  </button>
-                ))}
+                {['all', 'GEN', 'OBC', 'SC', 'ST'].map((cat) => {
+                  const cnt = cat === 'all' ? null : dynamicFilterCounts.caste[cat];
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      className={`filter-chip ${casteFilter === cat ? 'chip-active' : ''}`}
+                      onClick={() => setCasteFilter(cat)}
+                    >
+                      {cat === 'all' ? 'All' : `${cat}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Status Filter */}
             <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">Status:</span>
+              <span className="filter-chip-label">
+                <span>Status:</span>
+              </span>
               <div className="filter-chip-buttons">
-                {['all', 'Enrolled', 'Transferred', 'Failed'].map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    className={`filter-chip ${statusFilter === st ? 'chip-active' : ''}`}
-                    onClick={() => setStatusFilter(st)}
-                  >
-                    {st === 'all' ? 'All Status' : st}
-                  </button>
-                ))}
+                {['all', 'Enrolled', 'Transferred', 'Failed'].map((st) => {
+                  const cnt = st === 'all' ? null : dynamicFilterCounts.status[st];
+                  return (
+                    <button
+                      key={st}
+                      type="button"
+                      className={`filter-chip ${statusFilter === st ? 'chip-active' : ''}`}
+                      onClick={() => setStatusFilter(st)}
+                    >
+                      {st === 'all' ? 'All' : `${st}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Reset Filters Shortcut (if active) */}
-            {(selectedSector !== 'all' ||
-              selectedStream !== 'all' ||
-              genderFilter !== 'all' ||
-              casteFilter !== 'all' ||
-              statusFilter !== 'all' ||
-              searchQuery) && (
+            {activeFilters.length > 0 && (
               <button
                 type="button"
                 className="reset-filters-chip-btn"
-                onClick={() => {
-                  setSelectedSector('all');
-                  setSelectedStream('all');
-                  setGenderFilter('all');
-                  setCasteFilter('all');
-                  setStatusFilter('all');
-                  setSearchQuery('');
-                }}
-                title="Reset all filters"
+                onClick={handleClearSecondaryFilters}
+                title="Reset active secondary filters"
               >
-                <X size={12} />
+                <RotateCcw size={12} />
                 <span>Reset Filters</span>
               </button>
             )}
           </div>
+
+          {/* Active Filter Removable Badges Strip */}
+          {activeFilters.length > 0 && (
+            <div className="active-filters-strip">
+              <div className="active-filters-heading">
+                <Filter size={13} />
+                <span>Filtered by ({activeFilters.length}):</span>
+              </div>
+              <div className="active-filter-tags-list">
+                {activeFilters.map((flt) => (
+                  <span key={flt.id} className={`active-filter-pill-tag tag-${flt.type || 'default'}`}>
+                    <span>{flt.label}</span>
+                    <button
+                      type="button"
+                      onClick={flt.onClear}
+                      title={`Remove filter ${flt.label}`}
+                      aria-label={`Remove filter ${flt.label}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  className="active-clear-all-action"
+                  onClick={handleResetAllFilters}
+                  title="Clear all filters & search"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Results Counter & Sort Bar */}
@@ -945,10 +1186,24 @@ const TeacherVocationalStudents = ({
               <span className="filter-highlight-tag">in {activeClassLabel}</span>
             )}
             {selectedSector !== 'all' && (
-              <span className="filter-highlight-tag">({selectedSector})</span>
+              <span className={`filter-highlight-tag ${selectedSector === 'Sector 1' ? 'tag-sec1' : 'tag-sec2'}`}>
+                {selectedSector}
+              </span>
+            )}
+            {selectedStream !== 'all' && (
+              <span className="filter-highlight-tag tag-stream">{selectedStream} Stream</span>
+            )}
+            {genderFilter !== 'all' && (
+              <span className="filter-highlight-tag tag-gender">{genderFilter === 'Boy' ? 'Boys' : 'Girls'}</span>
+            )}
+            {casteFilter !== 'all' && (
+              <span className="filter-highlight-tag tag-caste">Category: {casteFilter}</span>
+            )}
+            {statusFilter !== 'all' && (
+              <span className="filter-highlight-tag tag-status">Status: {statusFilter}</span>
             )}
             {searchQuery && (
-              <span className="filter-highlight-tag">matching "{searchQuery}"</span>
+              <span className="filter-highlight-tag tag-search">matching "{searchQuery}"</span>
             )}
           </div>
 
@@ -966,6 +1221,8 @@ const TeacherVocationalStudents = ({
               <option value="name">Student Name</option>
               <option value="class">Class</option>
               <option value="sector">Vocational Sector</option>
+              <option value="attendance">Attendance %</option>
+              <option value="gender">Gender</option>
             </select>
             <button
               type="button"
@@ -1017,15 +1274,7 @@ const TeacherVocationalStudents = ({
             <button
               type="button"
               className="clear-filters-btn"
-              onClick={() => {
-                setSelectedClassTab('all');
-                setSelectedSector('all');
-                setSelectedStream('all');
-                setGenderFilter('all');
-                setCasteFilter('all');
-                setStatusFilter('all');
-                setSearchQuery('');
-              }}
+              onClick={handleResetAllFilters}
             >
               Clear All Filters
             </button>

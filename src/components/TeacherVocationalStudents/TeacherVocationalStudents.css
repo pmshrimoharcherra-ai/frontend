@@ -517,11 +517,27 @@
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
-.clear-search-btn {
+.search-addon-group {
   position: absolute;
-  right: 11px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-match-badge {
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.clear-search-btn {
   background: #e2e8f0;
   border: none;
   border-radius: 50%;
@@ -532,10 +548,12 @@
   justify-content: center;
   color: #475569;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .clear-search-btn:hover {
   background: #cbd5e1;
+  color: #0f172a;
 }
 
 /* View Mode Toggle */
@@ -590,7 +608,27 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
+
+.filter-label-icon {
+  color: #94a3b8;
+}
+
+.chip-color-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-sec1 { background: #3b82f6; }
+.dot-sec2 { background: #ec4899; }
+.dot-arts { background: #f59e0b; }
+.dot-sci { background: #10b981; }
 
 .filter-chip-buttons {
   display: flex;
@@ -609,7 +647,7 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.15s ease;
 }
 
@@ -628,19 +666,49 @@
   background: #1d4ed8;
   border-color: #1d4ed8;
   color: #ffffff;
+  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.25);
 }
 
 .sector-2-chip.chip-active {
   background: #be185d;
   border-color: #be185d;
   color: #ffffff;
+  box-shadow: 0 1px 3px rgba(190, 24, 93, 0.25);
+}
+
+.stream-arts-chip.chip-active {
+  background: #b45309;
+  border-color: #b45309;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.25);
+}
+
+.stream-sci-chip.chip-active {
+  background: #047857;
+  border-color: #047857;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(4, 120, 87, 0.25);
+}
+
+.boy-chip.chip-active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+}
+
+.girl-chip.chip-active {
+  background: #e11d48;
+  border-color: #e11d48;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25);
 }
 
 .reset-filters-chip-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 8px;
   background: #fee2e2;
   border: 1px solid #fecaca;
@@ -649,10 +717,142 @@
   font-weight: 700;
   cursor: pointer;
   margin-left: auto;
+  transition: all 0.15s ease;
 }
 
 .reset-filters-chip-btn:hover {
   background: #fca5a5;
+  color: #991b1b;
+}
+
+/* Active Filter Removable Badges Strip */
+.active-filters-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 9px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.active-filters-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.active-filter-tags-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.active-filter-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.active-filter-pill-tag button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: currentColor;
+  opacity: 0.65;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.active-filter-pill-tag button:hover {
+  opacity: 1;
+}
+
+.active-filter-pill-tag.tag-class {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-color: #ddd6fe;
+}
+
+.active-filter-pill-tag.tag-sec1 {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.active-filter-pill-tag.tag-sec2 {
+  background: #fdf2f8;
+  color: #be185d;
+  border-color: #fbcfe8;
+}
+
+.active-filter-pill-tag.tag-stream {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.active-filter-pill-tag.tag-gender {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.active-filter-pill-tag.tag-caste {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.active-filter-pill-tag.tag-status {
+  background: #fefce8;
+  color: #a16207;
+  border-color: #fef08a;
+}
+
+.active-filter-pill-tag.tag-search {
+  background: #faf5ff;
+  color: #7e22ce;
+  border-color: #e9d5ff;
+}
+
+.active-clear-all-action {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: all 0.15s ease;
+}
+
+.active-clear-all-action:hover {
+  color: #dc2626;
+  background: #fee2e2;
 }
 
 /* Results Subbar */
@@ -678,6 +878,48 @@
   font-size: 11.5px;
   font-weight: 600;
   color: #1e293b;
+}
+
+.filter-highlight-tag.tag-sec1 {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.filter-highlight-tag.tag-sec2 {
+  background: #fdf2f8;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
+}
+
+.filter-highlight-tag.tag-stream {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.filter-highlight-tag.tag-gender {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.filter-highlight-tag.tag-caste {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.filter-highlight-tag.tag-status {
+  background: #fefce8;
+  color: #a16207;
+  border: 1px solid #fef08a;
+}
+
+.filter-highlight-tag.tag-search {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
 }
 
 .sort-controls-row {
