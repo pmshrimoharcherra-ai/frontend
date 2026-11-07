@@ -7,7 +7,8 @@ import {
   LogOut,
   ChevronDown, 
   Menu, 
-  X 
+  X,
+  LayoutDashboard 
 } from 'lucide-react';
 
 // Brand SVGs for Facebook, YouTube, Instagram
@@ -297,15 +298,30 @@ const Navbar = ({
           {/* Mobile Actions: Login/User & Hamburger */}
           <div className="mobile-actions">
             {currentUser ? (
-              <button 
-                className="mobile-logout-btn" 
-                onClick={onLogout}
-                title="Sign Out"
-                aria-label="Sign Out"
-              >
-                <LogOut size={15} />
-                <span>Exit</span>
-              </button>
+              <>
+                <button 
+                  className="mobile-portal-btn"
+                  onClick={() => {
+                    if (currentUser.role === 'teacher') onNavigate('dashboard');
+                    else if (currentUser.role === 'student') onNavigate('student');
+                    else onNavigate('admin');
+                  }}
+                  title={currentUser.role === 'teacher' ? 'Teacher Dashboard' : currentUser.role === 'admin' ? 'Admin Panel' : 'Student Portal'}
+                  aria-label={currentUser.role === 'teacher' ? 'Teacher Dashboard' : currentUser.role === 'admin' ? 'Admin Panel' : 'Student Portal'}
+                >
+                  <LayoutDashboard size={14} />
+                  <span>{currentUser.role === 'teacher' ? 'Dashboard' : currentUser.role === 'admin' ? 'Admin' : 'Portal'}</span>
+                </button>
+                <button 
+                  className="mobile-logout-btn" 
+                  onClick={onLogout}
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                >
+                  <LogOut size={14} />
+                  <span>Exit</span>
+                </button>
+              </>
             ) : (
               <button 
                 className="mobile-login-btn" 
@@ -335,6 +351,31 @@ const Navbar = ({
         {/* Mobile Navigation Drawer */}
         <div className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}>
           <ul className="mobile-nav-list">
+            {currentUser && (
+              <li className="mobile-nav-item mobile-nav-portal-item">
+                <div 
+                  className="mobile-nav-header mobile-nav-portal-header"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (currentUser.role === 'teacher') onNavigate('dashboard');
+                    else if (currentUser.role === 'student') onNavigate('student');
+                    else onNavigate('admin');
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="mobile-portal-link-inner">
+                    <LayoutDashboard size={18} />
+                    <span>
+                      {currentUser.role === 'teacher' && 'Go to Teacher Dashboard'}
+                      {currentUser.role === 'admin' && 'Go to Admin Panel'}
+                      {currentUser.role === 'student' && 'Go to Student Portal'}
+                    </span>
+                  </div>
+                  <span className="mobile-portal-badge">{currentUser.role.toUpperCase()}</span>
+                </div>
+              </li>
+            )}
             {navItems.map((item, index) => (
               <li key={index} className="mobile-nav-item">
                 <div 
@@ -391,6 +432,22 @@ const Navbar = ({
                   <span className="mobile-drawer-role">{currentUser.role.toUpperCase()}</span>
                   <span className="mobile-drawer-name">{currentUser.name}</span>
                 </div>
+                <button 
+                  className="mobile-drawer-portal-btn"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (currentUser.role === 'teacher') onNavigate('dashboard');
+                    else if (currentUser.role === 'student') onNavigate('student');
+                    else onNavigate('admin');
+                  }}
+                >
+                  <LayoutDashboard size={17} />
+                  <span>
+                    {currentUser.role === 'teacher' && 'Open Teacher Dashboard'}
+                    {currentUser.role === 'admin' && 'Open Admin Panel'}
+                    {currentUser.role === 'student' && 'Open Student Portal'}
+                  </span>
+                </button>
                 <button 
                   className="mobile-drawer-logout-btn"
                   onClick={() => {
