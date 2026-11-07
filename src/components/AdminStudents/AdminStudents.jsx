@@ -10,6 +10,7 @@ import PendingStatusSection from '../PendingStatusSection/PendingStatusSection';
 import PendingStatusModal, { isFieldPending, isTransferredStudent, isFailedStudent, isTransferredOrFailed } from '../PendingStatusModal/PendingStatusModal';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import GenderSelect from '../GenderSelect/GenderSelect';
+import UniversalStudentSearchModal from '../UniversalStudentSearchModal/UniversalStudentSearchModal';
 import {
   GraduationCap,
   Users,
@@ -177,6 +178,19 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const [showAddModal, setShowAddModal] = useState(initialOpenAdd);
   const [sortOrder, setSortOrder] = useState('roll'); // 'roll' | 'name-asc' | 'name-desc'
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K keyboard shortcut to open Universal Search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setUniversalSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   const sortDropdownRef = useRef(null);
 
   // Close sort dropdown on click outside
@@ -877,6 +891,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             <div className="header-actions">
               <button
                 type="button"
+                className="universal-search-header-btn"
+                onClick={() => setUniversalSearchOpen(true)}
+                title="Search student across all classes (Ctrl+K)"
+              >
+                <Search size={16} />
+                <span>Universal Search</span>
+                <span className="kbd-shortcut-pill mini">Ctrl K</span>
+              </button>
+
+              <button
+                type="button"
                 className="export-excel-btn"
                 onClick={() => handleExportExcel(null)}
                 title="Export complete student details for all classes as responsive Excel spreadsheet"
@@ -890,6 +915,38 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 <Plus size={16} />
                 <span>Enroll New Student</span>
               </button>
+            </div>
+          </div>
+
+          {/* Universal Student Search Banner */}
+          <div className="universal-search-trigger-banner">
+            <div
+              className="universal-search-input-mock"
+              onClick={() => setUniversalSearchOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setUniversalSearchOpen(true);
+                }
+              }}
+              title="Click or press Ctrl+K to open Universal Student Search across all classes"
+            >
+              <div className="mock-left">
+                <Search size={20} className="mock-search-icon" />
+                <span className="mock-placeholder">
+                  Search across all classes by <strong className="mock-hi">Student Name</strong>, <strong className="mock-hi">Father's Name</strong>, <strong className="mock-hi">Mother's Name</strong>, or <strong className="mock-hi">Aadhaar No.</strong>...
+                </span>
+              </div>
+              <div className="mock-right">
+                <span className="kbd-shortcut-pill">
+                  <span className="kbd-key">Ctrl</span> + <span className="kbd-key">K</span>
+                </span>
+                <span className="universal-search-action-btn">
+                  Universal Search
+                </span>
+              </div>
             </div>
           </div>
 
@@ -1229,6 +1286,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               </p>
             </div>
             <div className="banner-actions">
+              <button
+                type="button"
+                className="universal-search-header-btn view2-btn"
+                onClick={() => setUniversalSearchOpen(true)}
+                title="Universal Student Search across all classes (Ctrl+K)"
+              >
+                <Search size={16} />
+                <span>Universal Search</span>
+                <span className="kbd-shortcut-pill mini">Ctrl K</span>
+              </button>
+
               <button 
                 type="button"
                 className="export-excel-btn" 
@@ -2210,6 +2278,25 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
           onNavigateToClass={handleNavigateFromPendingModal}
         />
       )}
+      {/* UNIVERSAL STUDENT SEARCH MODAL */}
+      <UniversalStudentSearchModal
+        isOpen={universalSearchOpen}
+        onClose={() => setUniversalSearchOpen(false)}
+        students={students}
+        onViewStudent={(st) => {
+          setUniversalSearchOpen(false);
+          setViewingStudent(st);
+        }}
+        onEditStudent={(st) => {
+          setUniversalSearchOpen(false);
+          setEditingStudent(st);
+        }}
+        onNavigateToClass={(classId) => {
+          setUniversalSearchOpen(false);
+          handleClassClick(classId);
+        }}
+      />
+
       {/* Export Confirmation Toast */}
       {exportNotice && (
         <div className="admin-export-toast" role="status">
