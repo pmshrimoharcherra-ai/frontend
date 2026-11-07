@@ -23,7 +23,7 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
-import { isTransferredStudent } from '../../utils/studentStatus';
+import { isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
 import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
@@ -67,7 +67,7 @@ const TeacherStudents = ({
   const { artsCount, sciCount } = useMemo(() => {
     let arts = 0;
     let sci = 0;
-    students.filter(s => !isTransferredStudent(s)).forEach((s) => {
+    students.filter(s => !isTransferredOrFailed(s)).forEach((s) => {
       const cid = (s.classId || '').toLowerCase();
       const cname = (s.className || '').toLowerCase();
       if (cid.includes('arts') || cname.includes('arts')) arts++;
@@ -94,7 +94,7 @@ const TeacherStudents = ({
 
   // Gender, status & caste distribution statistics
   const stats = useMemo(() => {
-    const active = students.filter(s => !isTransferredStudent(s));
+    const active = students.filter(s => !isTransferredOrFailed(s));
     const total = active.length;
     let boys = 0;
     let girls = 0;

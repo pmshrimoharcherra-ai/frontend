@@ -15,7 +15,7 @@ import {
 
 const PendingStatusSection = ({ students = [], onOpenModal }) => {
   const stats = useMemo(() => {
-    const activeStudents = students.filter((s) => !isTransferredStudent(s));
+    const activeStudents = students.filter((s) => !isTransferredOrFailed(s));
     const total = activeStudents.length;
     let apaarPending = 0;
     let penPending = 0;

@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../../config/api';
 import './AdminExaminations.css';
 
 import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
-import { isTransferredStudent } from '../../utils/studentStatus';
+import { isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
 import {
   getSubjectsForClass,
   getExamSubjectsForClass,
@@ -413,7 +413,7 @@ const AdminExaminations = () => {
 
   // Class-wide summary metrics
   const classMetrics = useMemo(() => {
-    const activeStudents = students.filter(s => !isTransferredStudent(s));
+    const activeStudents = students.filter(s => !isTransferredOrFailed(s));
     if (activeStudents.length === 0 || consolidatedSubjects.length === 0) {
       return { totalStudents: 0, avgPct: '0.0', passRate: '0.0', topper: '—', topperScore: 0 };
     }

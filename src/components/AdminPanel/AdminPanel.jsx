@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../config/api';
 import './AdminPanel.css';
 import AdminSidebar from '../AdminSidebar/AdminSidebar';
 import AdminStudents, { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
-import { isTransferredStudent } from '../../utils/studentStatus';
+import { isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
 import AdminAcademicCalendar from '../AdminAcademicCalendar/AdminAcademicCalendar';
 import AdminGallery from '../AdminGallery/AdminGallery';
 import AdminTeachers from '../AdminTeachers/AdminTeachers';
@@ -214,7 +214,7 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
   // --- Dynamic Dashboard Metrics & Analytics ---
   // Transferred students are excluded from active enrolled dashboard metrics
   const activeStudents = useMemo(() => {
-    return (students || []).filter(s => !isTransferredStudent(s));
+    return (students || []).filter(s => !isTransferredOrFailed(s));
   }, [students]);
 
   const totalStudents = activeStudents.length;

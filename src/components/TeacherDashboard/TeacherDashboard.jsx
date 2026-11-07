@@ -47,7 +47,7 @@ import {
   Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
-import { isTransferredStudent } from '../../utils/studentStatus';
+import { isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
@@ -484,7 +484,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     let absentCount = 0;
     let lateCount = 0;
 
-    const activeStudents = students.filter(s => !isTransferredStudent(s));
+    const activeStudents = students.filter(s => !isTransferredOrFailed(s));
 
     activeStudents.forEach((s) => {
       const id = s.studentId || s.id;

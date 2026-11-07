@@ -28,8 +28,8 @@ import {
   Loader2
 } from 'lucide-react';
 
-import { isTransferredStudent, isFieldPending } from '../../utils/studentStatus';
-export { isTransferredStudent, isFieldPending };
+import { isTransferredStudent, isFailedStudent, isTransferredOrFailed, isFieldPending } from '../../utils/studentStatus';
+export { isTransferredStudent, isFailedStudent, isTransferredOrFailed, isFieldPending };
 
 export const PENDING_FIELD_CONFIG = {
   apaarId: {

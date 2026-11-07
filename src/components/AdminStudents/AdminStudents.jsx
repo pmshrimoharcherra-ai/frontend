@@ -7,7 +7,7 @@ import ClassAttendanceModal from '../ClassAttendanceModal/ClassAttendanceModal';
 import EditStudentModal, { formatToIsoDate, formatToDisplayDate } from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
 import PendingStatusSection from '../PendingStatusSection/PendingStatusSection';
-import PendingStatusModal, { isFieldPending, isTransferredStudent } from '../PendingStatusModal/PendingStatusModal';
+import PendingStatusModal, { isFieldPending, isTransferredStudent, isFailedStudent, isTransferredOrFailed } from '../PendingStatusModal/PendingStatusModal';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import GenderSelect from '../GenderSelect/GenderSelect';
 import {
@@ -405,7 +405,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
       let matchesPending = true;
       if (pendingFilter !== 'ALL') {
-        if (isTransferredStudent(s)) {
+        if (isTransferredOrFailed(s)) {
           matchesPending = false;
         } else if (pendingFilter === 'apaarId') matchesPending = isFieldPending(s.apaarId);
         else if (pendingFilter === 'penNumber') matchesPending = isFieldPending(s.penNumber);
@@ -460,12 +460,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
 
   // Count helper
   const getClassCount = (classId) => {
-    return students.filter(s => s.classId === classId && !isTransferredStudent(s)).length;
+    return students.filter(s => s.classId === classId && !isTransferredOrFailed(s)).length;
   };
 
   // Class stats helper (Total, Boys, Girls)
   const getClassStats = (classId) => {
-    const classStudents = students.filter(s => s.classId === classId && !isTransferredStudent(s));
+    const classStudents = students.filter(s => s.classId === classId && !isTransferredOrFailed(s));
     const total = classStudents.length;
     if (total === 0) {
       return { total: 0, boys: 0, girls: 0, boyPercent: 50, girlPercent: 50 };
@@ -491,8 +491,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     };
   };
 
-  const totalBoys = students.filter(s => !isTransferredStudent(s) && (s.gender || '').trim().toLowerCase() !== 'girl').length;
-  const totalGirls = students.filter(s => !isTransferredStudent(s) && (s.gender || '').trim().toLowerCase() === 'girl').length;
+  const totalBoys = students.filter(s => !isTransferredOrFailed(s) && (s.gender || '').trim().toLowerCase() !== 'girl').length;
+  const totalGirls = students.filter(s => !isTransferredOrFailed(s) && (s.gender || '').trim().toLowerCase() === 'girl').length;
 
   // Helper to compute caste statistics for any subset of students
   const getCasteStats = (studentList = []) => {
@@ -502,7 +502,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     let ur = 0;
     let pending = 0;
 
-    const activeList = studentList.filter(s => !isTransferredStudent(s));
+    const activeList = studentList.filter(s => !isTransferredOrFailed(s));
 
     activeList.forEach(s => {
       const c = (s.caste || '').trim().toUpperCase();
@@ -687,7 +687,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const renderCardMiddle = (classId) => {
     const stats = getClassStats(classId);
     const casteStats = getCasteStats(students.filter(s => s.classId === classId));
-    const classPendingStudents = students.filter(s => s.classId === classId && !isTransferredStudent(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)));
+    const classPendingStudents = students.filter(s => s.classId === classId && !isTransferredOrFailed(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone)));
     const pendingCount = classPendingStudents.length;
 
     return (
@@ -901,7 +901,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
             <div className="summary-item">
               <span className="summary-label">Total Enrolled Records</span>
-              <span className="summary-val">{students.filter(s => !isTransferredStudent(s)).length} Students</span>
+              <span className="summary-val">{students.filter(s => !isTransferredOrFailed(s)).length} Students</span>
             </div>
             <div className="summary-item">
               <span className="summary-label">Gender Breakdown</span>
@@ -932,7 +932,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <span className="summary-label">Pending Credentials</span>
               <span className="summary-val" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#dc2626', cursor: 'pointer' }}>
                 <AlertCircle size={14} />
-                <span>{students.filter(s => !isTransferredStudent(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone))).length} Incomplete</span>
+                <span>{students.filter(s => !isTransferredOrFailed(s) && (isFieldPending(s.apaarId) || isFieldPending(s.penNumber) || isFieldPending(s.aadhaar) || isFieldPending(s.phone))).length} Incomplete</span>
               </span>
             </div>
             <div className="summary-item">
@@ -1195,7 +1195,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 )}
               </div>
               <p className="banner-meta">
-                Total Students: <strong>{displayedStudents.length}</strong>
+                Total Students: <strong>{selectedClassId ? getClassStats(selectedClassId).total : students.filter(s => !isTransferredOrFailed(s)).length}</strong>
                 {selectedClassId && (
                   <>
                     {' · '}
@@ -1375,36 +1375,36 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   className={`caste-filter-btn ${casteFilter === 'ALL' ? 'active' : ''}`}
                   onClick={() => setCasteFilter('ALL')}
                 >
-                  All ({students.filter(s => s.classId === selectedClassId).length})
+                  All ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s)).length})
                 </button>
                 <button
                   type="button"
                   className={`caste-filter-btn sc ${casteFilter === 'SC' ? 'active' : ''}`}
                   onClick={() => setCasteFilter(casteFilter === 'SC' ? 'ALL' : 'SC')}
                 >
-                  SC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'SC').length})
+                  SC ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && (s.caste || '').trim().toUpperCase() === 'SC').length})
                 </button>
                 <button
                   type="button"
                   className={`caste-filter-btn obc ${casteFilter === 'OBC' ? 'active' : ''}`}
                   onClick={() => setCasteFilter(casteFilter === 'OBC' ? 'ALL' : 'OBC')}
                 >
-                  OBC ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'OBC').length})
+                  OBC ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && (s.caste || '').trim().toUpperCase() === 'OBC').length})
                 </button>
                 <button
                   type="button"
                   className={`caste-filter-btn ur ${casteFilter === 'UR' ? 'active' : ''}`}
                   onClick={() => setCasteFilter(casteFilter === 'UR' ? 'ALL' : 'UR')}
                 >
-                  UR ({students.filter(s => s.classId === selectedClassId && ['UR', 'GEN', 'GENERAL'].includes((s.caste || '').trim().toUpperCase())).length})
+                  UR ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && ['UR', 'GEN', 'GENERAL'].includes((s.caste || '').trim().toUpperCase())).length})
                 </button>
-                {students.some(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST') && (
+                {students.some(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && (s.caste || '').trim().toUpperCase() === 'ST') && (
                   <button
                     type="button"
                     className={`caste-filter-btn st ${casteFilter === 'ST' ? 'active' : ''}`}
                     onClick={() => setCasteFilter(casteFilter === 'ST' ? 'ALL' : 'ST')}
                   >
-                    ST ({students.filter(s => s.classId === selectedClassId && (s.caste || '').trim().toUpperCase() === 'ST').length})
+                    ST ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && (s.caste || '').trim().toUpperCase() === 'ST').length})
                   </button>
                 )}
               </div>
@@ -1426,7 +1426,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing APAAR ID"
                 >
                   <Sparkles size={12} />
-                  <span>APAAR ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.apaarId)).length})</span>
+                  <span>APAAR ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && isFieldPending(s.apaarId)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1435,7 +1435,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing PEN Number"
                 >
                   <Hash size={12} />
-                  <span>PEN ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.penNumber)).length})</span>
+                  <span>PEN ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && isFieldPending(s.penNumber)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1444,7 +1444,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing Aadhaar Card"
                 >
                   <Fingerprint size={12} />
-                  <span>Aadhaar ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.aadhaar)).length})</span>
+                  <span>Aadhaar ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && isFieldPending(s.aadhaar)).length})</span>
                 </button>
                 <button
                   type="button"
@@ -1453,7 +1453,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   title="Filter students missing contact phone"
                 >
                   <Phone size={12} />
-                  <span>Phone ({students.filter(s => s.classId === selectedClassId && !isTransferredStudent(s) && isFieldPending(s.phone)).length})</span>
+                  <span>Phone ({students.filter(s => s.classId === selectedClassId && !isTransferredOrFailed(s) && isFieldPending(s.phone)).length})</span>
                 </button>
               </div>
             </div>
@@ -1465,7 +1465,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <div className="sort-status-left">
                 {sortOrder === 'name-asc' ? <ArrowDownAZ size={16} /> : <ArrowUpZA size={16} />}
                 <span>
-                  Sorted <strong>Alphabetically ({sortOrder === 'name-asc' ? 'A to Z' : 'Z to A'})</strong> · {displayedStudents.length} Students listed (Original Roll Numbers preserved)
+                  Sorted <strong>Alphabetically ({sortOrder === 'name-asc' ? 'A to Z' : 'Z to A'})</strong> · {displayedStudents.filter(s => !isTransferredOrFailed(s)).length} Active Students listed (Original Roll Numbers preserved)
                 </span>
               </div>
               <button 

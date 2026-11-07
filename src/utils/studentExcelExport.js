@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { getStudentSector, getSubjectsForClass, STREAM_RULES } from '../data/curriculumData';
-import { isTransferredStudent } from './studentStatus';
+import { isTransferredStudent, isTransferredOrFailed } from './studentStatus';
 
 /**
  * Format a 12-digit number (like Aadhaar or APAAR ID) with standard 4-digit groups (e.g. 9446 8689 0759)
@@ -90,7 +90,7 @@ export const exportStudentsToExcel = ({
   // Filter or keep all students
   const targetStudents = includeTransferred
     ? students
-    : students.filter((s) => !isTransferredStudent(s));
+    : students.filter((s) => !isTransferredOrFailed(s));
 
   if (targetStudents.length === 0) {
     throw new Error('No matching students found to export.');
