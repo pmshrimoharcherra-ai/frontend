@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import './PendingStatusSection.css';
-import { isFieldPending, isTransferredStudent } from '../../utils/studentStatus';
+import { isFieldPending, isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
 import {
   Sparkles,
   Hash,
