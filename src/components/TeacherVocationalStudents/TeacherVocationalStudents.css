@@ -967,7 +967,35 @@
    ========================================================================= */
 .voc-table-responsive-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   min-height: 380px;
+  position: relative;
+}
+
+.voc-table-scroll-hint {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.voc-table-scroll-hint .scroll-hint-icon {
+  font-size: 14px;
+  font-weight: bold;
+  color: #7c3aed;
+  animation: hintSwipe 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes hintSwipe {
+  from { transform: translateX(-3px); }
+  to { transform: translateX(3px); }
 }
 
 .voc-students-table {
@@ -1709,16 +1737,19 @@
 }
 
 /* =========================================================================
-   8. RESPONSIVE BREAKPOINTS
+   8. COMPREHENSIVE RESPONSIVE BREAKPOINTS
    ========================================================================= */
+
 @media (max-width: 900px) {
   .vocational-hero-banner {
-    padding: 16px;
+    padding: 18px 16px;
+    gap: 16px;
   }
 
   .hero-icon-badge {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
   }
 
   .hero-text-col h2 {
@@ -1727,24 +1758,418 @@
 
   .voc-stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .voc-table-scroll-hint {
+    display: flex;
+  }
+
+  .voc-students-table {
+    min-width: 1100px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .vocational-students-wrapper {
+    gap: 14px;
+  }
+
+  /* 1. Hero Banner */
+  .vocational-hero-banner {
+    padding: 16px 14px;
+    border-radius: 14px;
+    gap: 14px;
+  }
+
+  .hero-banner-main {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .hero-icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    flex-shrink: 0;
+  }
+
+  .hero-icon-badge svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hero-text-col {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .hero-text-col h2 {
+    font-size: 18px;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
+  }
+
+  .hero-text-col p {
+    font-size: 12.5px;
+    line-height: 1.45;
+    margin-top: 4px;
+  }
+
+  .hero-badge-row {
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .voc-role-chip,
+  .voc-subject-chip,
+  .voc-session-chip {
+    font-size: 10.5px;
+    padding: 2px 7px;
+  }
+
+  .hero-banner-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .hero-action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 11.5px;
+    border-radius: 8px;
+    gap: 5px;
+  }
+
+  .hero-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* 2. Stats Grid */
   .voc-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .voc-stat-card {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .stat-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+
+  .stat-card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stat-card-title {
+    font-size: 10.5px;
+  }
+
+  .stat-card-value {
+    font-size: 20px;
+  }
+
+  .stat-card-unit {
+    font-size: 12px;
+  }
+
+  .stat-card-sub {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* 3. Class Tabs Bar */
+  .voc-class-tabs-bar {
+    padding: 10px 14px;
+    gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabs-list {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .tabs-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .voc-class-tab-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .evaluate-shortcut-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* 4. Filter Toolbar */
+  .voc-filter-toolbar {
+    padding: 12px 14px;
+    gap: 10px;
   }
 
   .toolbar-top-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
 
   .voc-search-input-wrap {
     max-width: 100%;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .voc-search-input-wrap input {
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .view-mode-toggle-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .view-mode-btn {
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .toolbar-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .filter-pill-select-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .filter-chip-buttons {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .filter-chip-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    white-space: nowrap;
+    padding: 5px 10px;
+    font-size: 11.5px;
   }
 
   .reset-filters-chip-btn {
+    width: 100%;
+    justify-content: center;
     margin-left: 0;
+    padding: 6px 10px;
+    font-size: 11.5px;
+  }
+
+  /* 5. Active Filters & Results Subbar */
+  .active-filters-summary-bar {
+    padding: 8px 14px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .active-filter-pill {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+
+  .voc-results-subbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .results-meta-left {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .sort-controls-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sort-label {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .sort-dropdown {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    font-size: 12px;
+  }
+
+  .sort-direction-btn {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* 6. Cards View */
+  .voc-cards-grid {
+    grid-template-columns: 1fr;
+    padding: 12px 10px;
+    gap: 12px;
+  }
+
+  .voc-student-card {
+    padding: 14px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+
+  .card-top-row {
+    gap: 8px;
+  }
+
+  .card-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+
+  .card-student-name {
+    font-size: 14px;
+  }
+
+  .card-roll-tag {
+    font-size: 11px;
+    padding: 1px 5px;
+  }
+
+  .card-class-tag {
+    font-size: 11px;
+  }
+
+  .voc-sector-pill {
+    font-size: 10.5px;
+    padding: 3px 8px;
+  }
+
+  .card-details-list {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .card-detail-item {
+    font-size: 11.5px;
+  }
+
+  .card-chips-row {
+    gap: 5px;
+    margin-top: 3px;
+  }
+
+  .card-chip {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .card-actions-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .card-action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  /* 7. Footer Bar */
+  .voc-roster-footer {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .footer-count-text {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .footer-actions-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .footer-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 8px;
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .voc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .voc-stats-grid .voc-stat-card:first-child {
+    grid-column: span 2;
+  }
+
+  .hero-banner-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .btn-refresh {
+    grid-column: span 2;
+  }
+
+  .footer-actions-wrap {
+    grid-template-columns: 1fr;
   }
 }

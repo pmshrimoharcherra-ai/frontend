@@ -640,7 +640,12 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                   {activeTab === 'dashboard' && 'Dashboard Overview'}
                   {activeTab === 'attendance' && (attendanceViewMode === 'monthly' ? `Monthly Attendance Register — ${assignedClassName}` : `Daily Attendance Register — ${assignedClassName}`)}
                   {activeTab === 'students' && `Student's Database — ${assignedClassName || 'Class'}`}
-                  {activeTab === 'vocational-students' && 'Vocational Students Directory — IT/ITeS'}
+                  {activeTab === 'vocational-students' && (
+                    <>
+                      <span className="breadcrumb-desktop-title">Vocational Students Directory — IT/ITeS</span>
+                      <span className="breadcrumb-mobile-title">Vocational Students</span>
+                    </>
+                  )}
                   {activeTab === 'examinations' && 'Examinations & Marks Evaluation'}
                 </span>
               </div>

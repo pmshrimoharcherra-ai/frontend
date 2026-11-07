@@ -128,7 +128,22 @@ const TeacherVocationalStudents = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   // View & Sort State
-  const [viewMode, setViewMode] = useState('table'); // 'table' | 'cards'
+  // View & Sort State (defaults to touch-friendly cards on mobile, table on desktop)
+  const [userToggledView, setUserToggledView] = useState(false);
+  const [viewMode, setViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth <= 768 ? 'cards' : 'table'
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!userToggledView && typeof window !== 'undefined') {
+        const isMobile = window.innerWidth <= 768;
+        setViewMode(isMobile ? 'cards' : 'table');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [userToggledView]);
   const [sortBy, setSortBy] = useState('roll'); // 'roll' | 'name' | 'class' | 'sector'
   const [sortDirection, setSortDirection] = useState('asc'); // 'asc' | 'desc'
 
@@ -938,7 +953,10 @@ const TeacherVocationalStudents = ({
               <button
                 type="button"
                 className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
-                onClick={() => setViewMode('table')}
+                onClick={() => {
+                  setUserToggledView(true);
+                  setViewMode('table');
+                }}
                 title="Table View"
               >
                 <List size={15} />
@@ -947,7 +965,10 @@ const TeacherVocationalStudents = ({
               <button
                 type="button"
                 className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
-                onClick={() => setViewMode('cards')}
+                onClick={() => {
+                  setUserToggledView(true);
+                  setViewMode('cards');
+                }}
                 title="Card View"
               >
                 <LayoutGrid size={15} />
@@ -1259,6 +1280,10 @@ const TeacherVocationalStudents = ({
               1. RICH TABLE VIEW
              =================================================================== */
           <div className="voc-table-responsive-wrapper">
+            <div className="voc-table-scroll-hint no-print">
+              <span className="scroll-hint-icon">⇄</span>
+              <span>Swipe horizontally to view full table details (12 columns)</span>
+            </div>
             <table className="voc-students-table">
               <thead>
                 <tr>

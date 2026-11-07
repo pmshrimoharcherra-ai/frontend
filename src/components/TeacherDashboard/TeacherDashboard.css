@@ -109,6 +109,10 @@
   letter-spacing: 0.04em;
 }
 
+.breadcrumb-mobile-title {
+  display: none;
+}
+
 .breadcrumb-root {
   color: #ea580c;
   background: #fff7ed;
@@ -1344,12 +1348,23 @@
   .breadcrumb-sep {
     display: none !important;
   }
+  .breadcrumb-desktop-title {
+    display: none !important;
+  }
+  .breadcrumb-mobile-title {
+    display: inline !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
   .breadcrumb-current {
-    font-size: 13px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: calc(100vw - 180px);
   }
   .teacher-nav-pill-btn,
   .teacher-date-badge {
