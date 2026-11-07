@@ -39,7 +39,13 @@ import {
   ShieldCheck,
   Layers,
   BarChart3,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ArrowDownAZ,
+  ArrowUpZA,
+  ArrowUpDown,
+  ChevronDown,
+  Check,
+  RotateCcw
 } from 'lucide-react';
 import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 
@@ -169,6 +175,24 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
   const [pendingModalClass, setPendingModalClass] = useState('ALL');
   const [casteViewTab, setCasteViewTab] = useState('all'); // 'all', 'overall', 'upper', 'primary'
   const [showAddModal, setShowAddModal] = useState(initialOpenAdd);
+  const [sortOrder, setSortOrder] = useState('roll'); // 'roll' | 'name-asc' | 'name-desc'
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef(null);
+
+  // Close sort dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target)) {
+        setSortDropdownOpen(false);
+      }
+    };
+    if (sortDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [sortDropdownOpen]);
 
   useEffect(() => {
     if (initialOpenAdd) {
@@ -411,6 +435,24 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
       return matchesClass && matchesCaste && matchesPending && matchesSearch;
     })
     .sort((a, b) => {
+      if (sortOrder === 'name-asc') {
+        const nameA = (a.name || '').trim();
+        const nameB = (b.name || '').trim();
+        const comp = nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+        if (comp !== 0) return comp;
+        const rollA = parseInt(a.roll, 10) || 0;
+        const rollB = parseInt(b.roll, 10) || 0;
+        return rollA - rollB;
+      }
+      if (sortOrder === 'name-desc') {
+        const nameA = (a.name || '').trim();
+        const nameB = (b.name || '').trim();
+        const comp = nameB.localeCompare(nameA, undefined, { sensitivity: 'base', numeric: true });
+        if (comp !== 0) return comp;
+        const rollA = parseInt(a.roll, 10) || 0;
+        const rollB = parseInt(b.roll, 10) || 0;
+        return rollA - rollB;
+      }
       const rollA = parseInt(a.roll, 10) || 0;
       const rollB = parseInt(b.roll, 10) || 0;
       return rollA - rollB;
@@ -711,6 +753,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     setSearchQuery('');
     setCasteFilter('ALL');
     setPendingFilter(filterPending || 'ALL');
+    setSortOrder('roll');
+    setSortDropdownOpen(false);
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(`${basePath}/${classId}`);
     scrollAdminToTop();
@@ -722,6 +766,8 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     setSearchQuery('');
     setCasteFilter('ALL');
     setPendingFilter('ALL');
+    setSortOrder('roll');
+    setSortDropdownOpen(false);
     const basePath = location.pathname.startsWith('/admin') ? '/admin/students' : '/students';
     navigate(basePath);
     scrollAdminToTop();
@@ -1211,8 +1257,10 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
           </div>
 
-          {/* Quick Search & Caste Filter */}
+
+          {/* Quick Search, Sort & Filters */}
           <div className="table-controls-bar">
+            <div className="search-and-sort-group">
             <div className="search-input-box">
               <Search size={18} className="search-icon" />
               <input 
@@ -1226,6 +1274,95 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                   <X size={15} />
                 </button>
               )}
+            </div>
+
+              {/* Sort Dropdown Button */}
+              <div className="sort-dropdown-container" ref={sortDropdownRef}>
+                <button
+                  type="button"
+                  className={`sort-trigger-btn ${sortOrder !== 'roll' ? 'active' : ''}`}
+                  onClick={() => setSortDropdownOpen(prev => !prev)}
+                  title="Sort student list alphabetically (A-Z or Z-A) or by Roll No"
+                  aria-expanded={sortDropdownOpen}
+                >
+                  {sortOrder === 'name-asc' ? (
+                    <>
+                      <ArrowDownAZ size={16} className="sort-icon-active" />
+                      <span className="sort-btn-label">Sort: <strong>A to Z</strong></span>
+                    </>
+                  ) : sortOrder === 'name-desc' ? (
+                    <>
+                      <ArrowUpZA size={16} className="sort-icon-active" />
+                      <span className="sort-btn-label">Sort: <strong>Z to A</strong></span>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowUpDown size={15} />
+                      <span className="sort-btn-label">Sort</span>
+                    </>
+                  )}
+                  <ChevronDown size={14} className={`sort-chevron ${sortDropdownOpen ? 'open' : ''}`} />
+                </button>
+
+                {sortDropdownOpen && (
+                  <div className="sort-dropdown-menu">
+                    <div className="sort-dropdown-title">Sort Student Roster</div>
+                    <button
+                      type="button"
+                      className={`sort-dropdown-item ${sortOrder === 'roll' ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSortOrder('roll');
+                        setSortDropdownOpen(false);
+                      }}
+                    >
+                      <div className="sort-item-info">
+                        <ArrowUpDown size={15} className="sort-item-icon" />
+                        <div>
+                          <div className="sort-item-name">Roll No (Default)</div>
+                          <div className="sort-item-sub">Ordered 01, 02, 03...</div>
+                        </div>
+                      </div>
+                      {sortOrder === 'roll' && <Check size={15} className="sort-item-check" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`sort-dropdown-item ${sortOrder === 'name-asc' ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSortOrder('name-asc');
+                        setSortDropdownOpen(false);
+                      }}
+                    >
+                      <div className="sort-item-info">
+                        <ArrowDownAZ size={16} className="sort-item-icon az" />
+                        <div>
+                          <div className="sort-item-name">Alphabetical (A to Z)</div>
+                          <div className="sort-item-sub">Student names from A to Z</div>
+                        </div>
+                      </div>
+                      {sortOrder === 'name-asc' && <Check size={15} className="sort-item-check" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`sort-dropdown-item ${sortOrder === 'name-desc' ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSortOrder('name-desc');
+                        setSortDropdownOpen(false);
+                      }}
+                    >
+                      <div className="sort-item-info">
+                        <ArrowUpZA size={16} className="sort-item-icon za" />
+                        <div>
+                          <div className="sort-item-name">Alphabetical (Z to A)</div>
+                          <div className="sort-item-sub">Student names from Z to A</div>
+                        </div>
+                      </div>
+                      {sortOrder === 'name-desc' && <Check size={15} className="sort-item-check" />}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Table Filters: Caste & Pending Documentation */}
@@ -1322,6 +1459,27 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
             </div>
           </div>
 
+          {/* Active Sort Banner Indicator */}
+          {sortOrder !== 'roll' && (
+            <div className="sort-status-notice">
+              <div className="sort-status-left">
+                {sortOrder === 'name-asc' ? <ArrowDownAZ size={16} /> : <ArrowUpZA size={16} />}
+                <span>
+                  Sorted <strong>Alphabetically ({sortOrder === 'name-asc' ? 'A to Z' : 'Z to A'})</strong> · {displayedStudents.length} Students listed (Original Roll Numbers preserved)
+                </span>
+              </div>
+              <button 
+                type="button" 
+                className="sort-status-reset"
+                onClick={() => setSortOrder('roll')}
+                title="Reset to default Roll No order"
+              >
+                <RotateCcw size={12} />
+                <span>Reset to Roll No</span>
+              </button>
+            </div>
+          )}
+
           {/* Students Roster Container (Desktop Table + Mobile Cards) */}
           <div className="student-table-container">
             {/* 1. DESKTOP / TABLET TABLE VIEW (min-width: 769px) */}
@@ -1329,9 +1487,38 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               <table className="roster-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '70px', textAlign: 'center' }}>Roll No</th>
+                    <th 
+                      style={{ width: '80px', textAlign: 'center' }}
+                      className={`sortable-th ${sortOrder === 'roll' ? 'active-sort' : ''}`}
+                      onClick={() => setSortOrder('roll')}
+                      title="Sort by Roll Number (Default)"
+                    >
+                      <div className="th-sort-wrapper center">
+                        <span>Roll No</span>
+                        <ArrowUpDown size={12} className={`th-sort-icon ${sortOrder === 'roll' ? 'active' : 'muted'}`} />
+                      </div>
+                    </th>
                     {showStudentId && <th style={{ width: '140px' }}>Student ID</th>}
-                    <th>Student Full Name</th>
+                    <th
+                      className={`sortable-th ${sortOrder.startsWith('name') ? 'active-sort' : ''}`}
+                      onClick={() => {
+                        if (sortOrder === 'name-asc') setSortOrder('name-desc');
+                        else if (sortOrder === 'name-desc') setSortOrder('roll');
+                        else setSortOrder('name-asc');
+                      }}
+                      title="Click to sort alphabetically (A-Z / Z-A / Roll No)"
+                    >
+                      <div className="th-sort-wrapper">
+                        <span>Student Full Name</span>
+                        {sortOrder === 'name-asc' ? (
+                          <ArrowDownAZ size={15} className="th-sort-icon active" />
+                        ) : sortOrder === 'name-desc' ? (
+                          <ArrowUpZA size={15} className="th-sort-icon active" />
+                        ) : (
+                          <ArrowUpDown size={13} className="th-sort-icon muted" />
+                        )}
+                      </div>
+                    </th>
                     {isClass8 ? (
                       <>
                         <th>Father's Name</th>

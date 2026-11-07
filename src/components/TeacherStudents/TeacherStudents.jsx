@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './TeacherStudents.css';
 import {
   Users,
@@ -45,6 +45,7 @@ const TeacherStudents = ({
   const [casteFilter, setCasteFilter] = useState('all'); // 'all' | 'GEN' | 'OBC' | 'SC' | 'ST'
   const [streamFilter, setStreamFilter] = useState('all'); // 'all' | 'arts' | 'sci'
   const [viewMode, setViewMode] = useState('auto'); // 'auto' (cards on mobile, table on desktop) | 'cards' | 'table'
+  const [sortOrder, setSortOrder] = useState('roll'); // 'roll' | 'name-asc' | 'name-desc'
 
   // Determine if viewing teacher is a Vocational Teacher (VT / IT/ITeS Faculty)
   const isVT = useMemo(() => {
