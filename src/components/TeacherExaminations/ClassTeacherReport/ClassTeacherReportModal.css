@@ -1,0 +1,622 @@
+/* Modal Backdrop & Container */
+.report-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.report-modal-container {
+  background: #f1f5f9;
+  width: 100%;
+  max-width: 1440px;
+  height: 95vh;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+/* Modal Header Bar */
+.report-modal-header {
+  background: #ffffff;
+  padding: 10px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header-left h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-header-left p {
+  margin: 1px 0 0 0;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.modal-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.control-field input {
+  padding: 4px 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.session-input {
+  width: 90px;
+}
+
+.date-input {
+  width: 90px;
+}
+
+.btn-print-single {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+  transition: all 0.15s;
+}
+
+.btn-print-single:hover {
+  background: #0369a1;
+}
+
+.btn-print-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #7c3aed;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+  transition: all 0.15s;
+}
+
+.btn-print-all:hover {
+  background: #6d28d9;
+}
+
+.btn-close-modal {
+  padding: 6px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.btn-close-modal:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Modal Body */
+.report-modal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Sidebar */
+.student-selector-sidebar {
+  width: 250px;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-search {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 5px 8px 5px 24px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 11px;
+  outline: none;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.sidebar-student-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.student-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.student-list-item:hover {
+  background: #f8fafc;
+}
+
+.student-list-item.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.st-roll {
+  padding: 1.5px 4.5px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  font-size: 10px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.student-list-item.active .st-roll {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.st-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.st-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-prc {
+  font-size: 9.5px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.sidebar-pagination-controls {
+  padding: 8px 10px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.sidebar-pagination-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  font-size: 10.5px;
+}
+
+/* Right Sheet Preview Pane */
+.report-sheet-preview-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  background: #334155;
+}
+
+.document-preview-scroll-container {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.preview-page-card {
+  width: 100%;
+}
+
+.preview-page-tag {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+/* =====================================================================
+   LIVE PREVIEW CONTAINER STYLES (Matching Physical Sample)
+   ===================================================================== */
+.document-preview-scroll-container .report-page {
+  background: #ffffff;
+  padding: 26px 28px;
+  border-radius: 2px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  margin-bottom: 20px;
+  color: #000000;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* 1. Header Title Container (Centered with left space for physical seal) */
+.document-preview-scroll-container .header-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.document-preview-scroll-container .left-seal-placeholder {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+}
+
+.document-preview-scroll-container .center-title-block {
+  text-align: center;
+  flex: 1;
+}
+
+.document-preview-scroll-container .right-seal-placeholder {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.document-preview-scroll-container .main-title-text {
+  font-size: 15pt;
+  font-weight: bold;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.document-preview-scroll-container .class-title-text {
+  font-size: 12.5pt;
+  font-weight: bold;
+  margin: 2px 0;
+}
+
+.document-preview-scroll-container .season-title-text {
+  font-size: 10.5pt;
+  font-weight: bold;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* 2. Student Details Grid (2-Column Below Heading) */
+.document-preview-scroll-container .student-details-grid {
+  margin-bottom: 10px;
+}
+
+.document-preview-scroll-container .details-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 10.5pt;
+}
+
+.document-preview-scroll-container .field-col-left {
+  flex: 1.15;
+  display: flex;
+  align-items: baseline;
+  margin-right: 20px;
+}
+
+.document-preview-scroll-container .field-col-right {
+  flex: 0.85;
+  display: flex;
+  align-items: baseline;
+}
+
+.document-preview-scroll-container .field-label {
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.document-preview-scroll-container .field-value {
+  flex: 1;
+  border-bottom: 1px dotted #000000;
+  padding-left: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.document-preview-scroll-container .school-value {
+  font-size: 11pt;
+}
+
+.document-preview-scroll-container .sec-roll-wrap {
+  display: flex;
+  align-items: baseline;
+}
+
+.document-preview-scroll-container .mini-field {
+  flex: 0 0 45px !important;
+  text-align: center;
+  padding-left: 0;
+}
+
+.document-preview-scroll-container .ml-label {
+  margin-left: 14px;
+}
+
+/* 3. Section A Title: Centered directly above the table */
+.document-preview-scroll-container .scholastic-heading {
+  font-size: 11.5pt;
+  font-weight: bold;
+  text-decoration: underline;
+  text-align: center;
+  margin: 12px 0 6px 0;
+  letter-spacing: 0.5px;
+}
+
+/* 4. Table A Grid (3-Row Header Matching Original Physical Report) */
+.document-preview-scroll-container .scholastic-table-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  border: 1.5px solid #000000;
+  margin-top: 2px;
+  margin-bottom: 0px;
+}
+
+.document-preview-scroll-container .scholastic-table-grid th,
+.document-preview-scroll-container .scholastic-table-grid td {
+  border: 1px solid #000000;
+  padding: 5.5px 3px;
+  text-align: center;
+}
+
+.document-preview-scroll-container .scholastic-table-grid thead th {
+  font-weight: bold;
+  background: #ffffff;
+  line-height: 1.15;
+  padding: 4px 2px;
+}
+
+.document-preview-scroll-container .col-final-weightage {
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 2px !important;
+  letter-spacing: 0.5px;
+  background: #ffffff;
+}
+
+.document-preview-scroll-container .col-subject-name {
+  width: 130px;
+  text-align: left !important;
+  padding-left: 8px !important;
+  vertical-align: middle;
+}
+
+.document-preview-scroll-container .col-raw-exam {
+  width: 44px;
+  font-size: 8pt;
+  vertical-align: middle;
+}
+
+.document-preview-scroll-container .col-weight-item {
+  font-size: 7.5pt;
+  width: 46px;
+  vertical-align: middle;
+}
+
+.document-preview-scroll-container .col-grade-item {
+  width: 38px;
+  font-size: 8pt;
+  vertical-align: middle;
+}
+
+.document-preview-scroll-container .marks-header-row th {
+  font-size: 7.5pt;
+  font-weight: bold;
+  padding: 3px 1px !important;
+  vertical-align: middle;
+  background: #ffffff;
+}
+
+.document-preview-scroll-container .col-marks-val {
+  font-size: 7.5pt;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.document-preview-scroll-container .cell-subj {
+  text-align: left !important;
+  padding-left: 8px !important;
+  font-weight: bold;
+  font-size: 9.5pt;
+}
+
+.document-preview-scroll-container .cell-score {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9.5pt;
+}
+
+.document-preview-scroll-container .cell-preset {
+  font-weight: bold;
+}
+
+.document-preview-scroll-container .cell-total {
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10pt;
+}
+
+.document-preview-scroll-container .cell-grade-val {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+/* Summary Box */
+.document-preview-scroll-container .summary-box-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -1.5px;
+  margin-bottom: 16px;
+}
+
+.document-preview-scroll-container .summary-table-cell {
+  border: 1.5px solid #000000;
+  padding: 6px 14px;
+  font-size: 9.5pt;
+  font-weight: bold;
+  text-align: right;
+  min-width: 255px;
+  background: #ffffff;
+  line-height: 1.5;
+}
+
+.document-preview-scroll-container .summary-table-cell span {
+  font-family: 'Courier New', Courier, monospace;
+  margin-left: 8px;
+  font-size: 10pt;
+}
+
+/* Signatures */
+.document-preview-scroll-container .signatures-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 32px;
+}
+
+.document-preview-scroll-container .sig-block {
+  text-align: center;
+  width: 200px;
+}
+
+.document-preview-scroll-container .teacher-sig {
+  text-align: left;
+}
+
+.document-preview-scroll-container .guardian-sig {
+  text-align: center;
+}
+
+.document-preview-scroll-container .headmaster-sig {
+  text-align: right;
+}
+
+.document-preview-scroll-container .sig-scribble {
+  font-family: 'Brush Script MT', cursive, serif;
+  font-size: 15pt;
+  color: #1e3a8a;
+  display: block;
+  margin-bottom: 2px;
+  transform: rotate(-3deg);
+}
+
+.document-preview-scroll-container .sig-date-str {
+  font-size: 8.5pt;
+  color: #222222;
+  display: block;
+  margin-bottom: 6px;
+  font-family: monospace;
+}
+
+.document-preview-scroll-container .sig-space-holder {
+  height: 48px;
+}
+
+.document-preview-scroll-container .physical-stamp-space {
+  height: 52px;
+}
+
+.document-preview-scroll-container .sig-rule-text {
+  border-top: 1px solid #000000;
+  padding-top: 4px;
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.document-preview-scroll-container .page-break-divider {
+  border-top: 2px dashed #94a3b8;
+  margin: 16px 0;
+}

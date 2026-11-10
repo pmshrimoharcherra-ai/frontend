@@ -14,6 +14,8 @@ import {
   Laptop
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
+import ClassTeacherCoScholastic from './ClassTeacherReport/ClassTeacherCoScholastic';
+import ClassTeacherReportModal from './ClassTeacherReport/ClassTeacherReportModal';
 import {
   getSubjectMaxMarks,
   isSecondarySciencePart,
@@ -73,6 +75,39 @@ export const isClassIX = (classIdentifier) => {
   );
 };
 
+
+export const CLASS_TEACHER_REPORT_SECTIONS = [
+  'Section B: Co-Scholastic Areas',
+  'Section C: Discipline'
+];
+
+// Helper to determine if a class or student is in Class IX or XI
+export const isClassIXorXI = (classIdentifier) => {
+  if (!classIdentifier) return false;
+  const s = String(classIdentifier).trim().toLowerCase();
+  return (
+    s === 'class-9' ||
+    s === 'class-ix' ||
+    s === 'class 9' ||
+    s === 'class ix' ||
+    s === '9' ||
+    s === 'ix' ||
+    s.includes('class ix') ||
+    s.includes('class-ix') ||
+    s.includes('class 9') ||
+    s.includes('class-9') ||
+    s === 'class-11' ||
+    s === 'class-xi' ||
+    s === 'class 11' ||
+    s === 'class xi' ||
+    s === '11' ||
+    s === 'xi' ||
+    s.startsWith('class-11') ||
+    s.includes('class 11') ||
+    s.includes('class xi')
+  );
+};
+
 const TeacherExaminations = ({
   activeUser,
   teacherName,
@@ -101,6 +136,21 @@ const TeacherExaminations = ({
   const [marksSaveSuccess, setMarksSaveSuccess] = useState(false);
   const [marksSaveMessage, setMarksSaveMessage] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+
+  // Check whether current user is class teacher of Class IX or XI (or evaluating IX/XI)
+  const isClassTeacherOfIXorXI = useMemo(() => {
+    const userAssigned = activeUser?.assignedClassId;
+    return Boolean(
+      (userAssigned && isClassIXorXI(userAssigned)) ||
+      isClassIXorXI(examClassId)
+    );
+  }, [activeUser, examClassId]);
+
+  // Is current evaluation term a Co-Scholastic / Discipline section
+  const isCoScholasticSection =
+    selectedExamTerm === 'Section B: Co-Scholastic Areas' ||
+    selectedExamTerm === 'Section C: Discipline';
 
   // Check whether current exam subject is vocational/elective (specifically IT/ITeS)
   const isSubjectVocationalOrIT = useMemo(() => {
@@ -121,8 +171,11 @@ const TeacherExaminations = ({
     if (isSubjectVocationalOrIT) {
       return VOCATIONAL_EXAM_TERMS;
     }
+    if (isClassTeacherOfIXorXI) {
+      return [...EXAM_TERMS, ...CLASS_TEACHER_REPORT_SECTIONS];
+    }
     return EXAM_TERMS;
-  }, [isSubjectVocationalOrIT]);
+  }, [isSubjectVocationalOrIT, isClassTeacherOfIXorXI]);
 
   // If evaluating IT/ITeS and selected term is a Periodic Test (or not in available terms),
   // immediately auto-switch to Half Yearly (80 marks)
@@ -304,6 +357,7 @@ const TeacherExaminations = ({
 
   // Populate marks: fetch from backend first, or generate realistic marks
   useEffect(() => {
+    if (isCoScholasticSection) return;
     if (examStudents.length === 0) {
       setMarksRecords({});
       setIsLocked(false);
@@ -470,40 +524,54 @@ const TeacherExaminations = ({
           </div>
 
           <div className="exam-header-actions">
-            {isLocked ? (
+            {isClassTeacherOfIXorXI && (
               <button
                 type="button"
-                className="edit-marks-btn"
-                onClick={() => setIsLocked(false)}
-                title="Unlock marks to edit"
+                className="generate-report-header-btn"
+                onClick={() => setShowReportModal(true)}
+                title="Generate & Print Performance Report Cards (Class IX & XI)"
               >
-                <Pencil size={15} />
-                <span>Edit Marks</span>
+                <Award size={16} />
+                <span>Generate Report Cards (IX & XI)</span>
               </button>
-            ) : (
-              <button
-                type="button"
-                className="save-attendance-btn"
-                onClick={handleSaveMarks}
-                disabled={savingMarks || examStudents.length === 0}
-              >
-                {savingMarks ? (
-                  <>
-                    <RefreshCw size={15} className="spin-icon" />
-                    <span>Saving...</span>
-                  </>
-                ) : marksSaveSuccess ? (
-                  <>
-                    <CheckCircle2 size={15} />
-                    <span>Marks Saved & Locked!</span>
-                  </>
-                ) : (
-                  <>
-                    <Save size={15} />
-                    <span>Save & Lock Marks</span>
-                  </>
-                )}
-              </button>
+            )}
+
+            {!isCoScholasticSection && (
+              isLocked ? (
+                <button
+                  type="button"
+                  className="edit-marks-btn"
+                  onClick={() => setIsLocked(false)}
+                  title="Unlock marks to edit"
+                >
+                  <Pencil size={15} />
+                  <span>Edit Marks</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="save-attendance-btn"
+                  onClick={handleSaveMarks}
+                  disabled={savingMarks || examStudents.length === 0}
+                >
+                  {savingMarks ? (
+                    <>
+                      <RefreshCw size={15} className="spin-icon" />
+                      <span>Saving...</span>
+                    </>
+                  ) : marksSaveSuccess ? (
+                    <>
+                      <CheckCircle2 size={15} />
+                      <span>Marks Saved & Locked!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={15} />
+                      <span>Save & Lock Marks</span>
+                    </>
+                  )}
+                </button>
+              )
             )}
           </div>
         </div>
@@ -562,19 +630,29 @@ const TeacherExaminations = ({
           {/* Subject */}
           <div className="exam-toolbar-field">
             <label>Subject</label>
-            <select
-              value={examSubject}
-              onChange={(e) => setExamSubject(e.target.value)}
-            >
-              <option value={examSubject}>{examSubject || 'Allotted Subject'}</option>
-              {teachingList
-                .filter((tItem) => tItem.classId === examClassId && tItem.subject !== examSubject)
-                .map((tItem, idx) => (
-                  <option key={idx} value={tItem.subject}>
-                    {tItem.subject}
-                  </option>
-                ))}
-            </select>
+            {isCoScholasticSection ? (
+              <select disabled value="co-scholastic">
+                <option value="co-scholastic">
+                  {selectedExamTerm.includes('Section B')
+                    ? 'Part II: Co-Scholastic (Work, Art & Health)'
+                    : 'Part II: Discipline & Annual Remarks'}
+                </option>
+              </select>
+            ) : (
+              <select
+                value={examSubject}
+                onChange={(e) => setExamSubject(e.target.value)}
+              >
+                <option value={examSubject}>{examSubject || 'Allotted Subject'}</option>
+                {teachingList
+                  .filter((tItem) => tItem.classId === examClassId && tItem.subject !== examSubject)
+                  .map((tItem, idx) => (
+                    <option key={idx} value={tItem.subject}>
+                      {tItem.subject}
+                    </option>
+                  ))}
+              </select>
+            )}
           </div>
 
           {/* Vocational Sector Selector (Only for IT/ITeS when class has sectors) */}
@@ -627,9 +705,15 @@ const TeacherExaminations = ({
 
           {/* Max Marks Indicator & Subject Roster Pill */}
           <div className="exam-max-marks-pill">
-            <span>
-              MAX MARKS: <strong>{maxMarks}</strong>
-            </span>
+            {isCoScholasticSection ? (
+              <span>
+                EVALUATION: <strong>5-Point Scale (A to E)</strong>
+              </span>
+            ) : (
+              <span>
+                MAX MARKS: <strong>{maxMarks}</strong>
+              </span>
+            )}
             {isSubjectVocationalOrIT && (
               <>
                 <span
@@ -681,6 +765,17 @@ const TeacherExaminations = ({
           </div>
         </div>
 
+        {isCoScholasticSection ? (
+          <ClassTeacherCoScholastic
+            sectionType={selectedExamTerm.includes('Section B') ? 'section_b' : 'section_c'}
+            examClassId={examClassId}
+            students={allClassStudents.length > 0 ? allClassStudents : examStudents}
+            activeUser={activeUser}
+            teacherName={teacherName}
+            onOpenReportModal={() => setShowReportModal(true)}
+          />
+        ) : (
+          <>
         {/* Marks Entry Table */}
         <div className="register-table-wrapper">
           {examLoading ? (
@@ -871,7 +966,21 @@ const TeacherExaminations = ({
             </button>
           )}
         </div>
+        </>
+        )}
       </div>
+
+      {/* Annual Performance Report Card Modal */}
+      {showReportModal && (
+        <ClassTeacherReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          classId={examClassId}
+          className={teachingList.find((t) => t.classId === examClassId)?.className || 'Class IX'}
+          activeUser={activeUser}
+          teacherName={teacherName}
+        />
+      )}
     </div>
   );
 };

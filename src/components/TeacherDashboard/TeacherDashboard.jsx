@@ -1424,7 +1424,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
           {activeTab === 'vocational-students' && (
             <TeacherVocationalStudents
               teacher={teacherData}
-              activeUser={activeUser}
+              activeUser={{ ...activeUser, ...teacherData, assignedClassId, assignedClassName }}
               teacherName={teacherName}
               onNavigateExaminations={() => handleTabChange('examinations')}
             />

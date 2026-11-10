@@ -77,6 +77,28 @@
   gap: 12px;
 }
 
+.generate-report-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
+  transition: all 0.2s ease;
+}
+
+.generate-report-header-btn:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px -1px rgba(124, 58, 237, 0.35);
+}
+
 /* ── Action Buttons ── */
 .save-attendance-btn {
   display: inline-flex;
