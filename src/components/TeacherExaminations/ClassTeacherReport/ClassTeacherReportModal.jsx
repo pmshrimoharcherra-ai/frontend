@@ -6,7 +6,9 @@ import {
   ChevronRight,
   Search,
   Layers,
-  Award
+  Award,
+  CheckCheck,
+  Save
 } from 'lucide-react';
 import { API_BASE_URL } from '../../../config/api';
 import './ClassTeacherReportModal.css';
@@ -581,6 +583,8 @@ const ClassTeacherReportModal = ({
   const [issueDate, setIssueDate] = useState('30/03/2026');
   const [placeName, setPlaceName] = useState('Moharcherra');
   const [searchQuery, setSearchQuery] = useState('');
+  const [savingMeta, setSavingMeta] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Fetch full consolidated annual report data
   useEffect(() => {
@@ -740,7 +744,7 @@ const ClassTeacherReportModal = ({
         artEducation: meta.artEducation || 'B',
         healthPhysicalEducation: meta.healthPhysicalEducation || 'C',
         discipline: meta.discipline || 'B',
-        remarks: meta.remarks || 'v. good',
+        remarks: meta.remarks || 'Satisfactory',
         result: meta.result || 'Promoted'
       }
     };
@@ -760,6 +764,93 @@ const ClassTeacherReportModal = ({
   // Current active student
   const activeStudent = filteredStudents[selectedStudentIndex] || filteredStudents[0];
   const activePerformance = activeStudent ? calculateStudentPerformance(activeStudent) : null;
+  const activeStudentId = activeStudent ? (activeStudent.studentId || activeStudent.id) : null;
+
+  const currentRemarks = (activeStudentId && metaRecords[activeStudentId]?.remarks) || 'Satisfactory';
+  const currentResult = (activeStudentId && metaRecords[activeStudentId]?.result) || 'Promoted';
+
+  const handleStudentRemarksChange = (val) => {
+    if (!activeStudentId) return;
+    setMetaRecords((prev) => ({
+      ...prev,
+      [activeStudentId]: {
+        ...(prev[activeStudentId] || {}),
+        studentId: activeStudentId,
+        remarks: val
+      }
+    }));
+  };
+
+  const handleStudentResultChange = (val) => {
+    if (!activeStudentId) return;
+    setMetaRecords((prev) => ({
+      ...prev,
+      [activeStudentId]: {
+        ...(prev[activeStudentId] || {}),
+        studentId: activeStudentId,
+        result: val
+      }
+    }));
+  };
+
+  const handleApplyToAllStudents = (remarksVal, resultVal) => {
+    if (!students || students.length === 0) return;
+    setMetaRecords((prev) => {
+      const updated = { ...prev };
+      students.forEach((st) => {
+        const sId = st.studentId || st.id;
+        updated[sId] = {
+          ...(updated[sId] || {}),
+          studentId: sId,
+          remarks: remarksVal,
+          result: resultVal
+        };
+      });
+      return updated;
+    });
+  };
+
+  const handleSaveMetadata = async () => {
+    if (!classId || !students || students.length === 0) return;
+    try {
+      setSavingMeta(true);
+      const teacherDisplayName = teacherName || activeUser?.name || 'Sangita Das';
+      const items = students.map((st) => {
+        const sId = st.studentId || st.id;
+        const m = metaRecords[sId] || {};
+        return {
+          studentId: sId,
+          remarks: m.remarks || 'Satisfactory',
+          result: m.result || 'Promoted',
+          workEducation: m.workEducation || 'B',
+          artEducation: m.artEducation || 'B',
+          healthPhysicalEducation: m.healthPhysicalEducation || 'C',
+          discipline: m.discipline || 'B'
+        };
+      });
+
+      const res = await fetch(`${API_BASE_URL}/api/examinations/co-scholastic/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          classId,
+          sectionType: 'all',
+          items,
+          teacherName: teacherDisplayName,
+          academicYear: academicSession
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('Error saving report metadata:', err);
+    } finally {
+      setSavingMeta(false);
+    }
+  };
 
   // Helper to format academic season as "20 26 - 20 27"
   const formatAcademicSeason = (sess) => {
@@ -999,7 +1090,7 @@ const ClassTeacherReportModal = ({
             <div class="middle-left-col">
               <div class="meta-row">
                 <span class="meta-lbl">Remarks of Class Teacher:</span>
-                <span class="meta-val teacher-remark-val">${meta.remarks || 'v. good'}</span>
+                <span class="meta-val teacher-remark-val">${meta.remarks || 'Satisfactory'}</span>
               </div>
               <div class="meta-row">
                 <span class="meta-lbl">Date:</span>
@@ -1299,16 +1390,86 @@ const ClassTeacherReportModal = ({
             ) : !activeStudent ? (
               <div className="report-empty-state">No student selected.</div>
             ) : (
-              <div className="document-preview-scroll-container">
-                <div className="preview-page-card">
-                  <div className="preview-page-tag">OFFICIAL FORM PREVIEW: FRONT (PAGE 1) & BACK (PAGE 2)</div>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: generateStudentHtml(activeStudent, activePerformance)
-                    }}
-                  />
+              <>
+                {/* Evaluation Dropdown Controls Toolbar */}
+                <div className="report-evaluation-toolbar">
+                  <div className="toolbar-student-info">
+                    <span className="st-indicator">Student #{activeStudent.roll}:</span>
+                    <span className="st-name-bold">{activeStudent.name}</span>
+                  </div>
+
+                  <div className="toolbar-controls-group">
+                    <div className="toolbar-field">
+                      <label htmlFor="select-remarks">Remarks of Class Teacher:</label>
+                      <select
+                        id="select-remarks"
+                        value={currentRemarks}
+                        onChange={(e) => handleStudentRemarksChange(e.target.value)}
+                        className="eval-dropdown select-remarks"
+                      >
+                        <option value="Satisfactory">Satisfactory</option>
+                        <option value="v. good">v. good</option>
+                        <option value="Very Good">Very Good</option>
+                        <option value="Good">Good</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Outstanding">Outstanding</option>
+                        <option value="Needs Improvement">Needs Improvement</option>
+                        <option value="Hard working & sincere">Hard working & sincere</option>
+                        <option value="Regular & attentive">Regular & attentive</option>
+                        <option value="Pass">Pass</option>
+                      </select>
+                    </div>
+
+                    <div className="toolbar-field">
+                      <label htmlFor="select-result">RESULTS:</label>
+                      <select
+                        id="select-result"
+                        value={currentResult}
+                        onChange={(e) => handleStudentResultChange(e.target.value)}
+                        className="eval-dropdown select-result"
+                      >
+                        <option value="Promoted">Promoted</option>
+                        <option value="Not Promoted">Not Promoted</option>
+                        <option value="Passed">Passed</option>
+                        <option value="Compartment">Compartment</option>
+                        <option value="Detained">Detained</option>
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-toolbar-apply-all"
+                      onClick={() => handleApplyToAllStudents(currentRemarks, currentResult)}
+                      title="Apply current Remark & Result to all students in this class"
+                    >
+                      <CheckCheck size={14} />
+                      <span>Apply to All ({students.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-toolbar-save"
+                      onClick={handleSaveMetadata}
+                      disabled={savingMeta}
+                      title="Save Remarks and Results to database"
+                    >
+                      <Save size={14} />
+                      <span>{savingMeta ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+
+                <div className="document-preview-scroll-container">
+                  <div className="preview-page-card">
+                    <div className="preview-page-tag">OFFICIAL FORM PREVIEW: FRONT (PAGE 1) & BACK (PAGE 2)</div>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: generateStudentHtml(activeStudent, activePerformance)
+                      }}
+                    />
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
