@@ -329,68 +329,30 @@ const PRINTABLE_PAGE_CSS = `
   .page-back {
     background: #ffffff;
   }
-  .page2-columns-layout {
+  .back-page-two-halves {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.15fr;
-    gap: 10px;
-    margin-bottom: 8px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     align-items: stretch;
   }
-  .page2-col {
+  .back-half-left {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
   }
-  .col-attendance-scholastic .matrix-box,
-  .col-notebook-coscholastic .matrix-box,
-  .col-b-c-tables .co-scholastic-table-card {
+  .matrices-2x2-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .matrix-box {
     border: 1.5px solid #000000;
     padding: 5px;
     background: #ffffff;
     display: flex;
     flex-direction: column;
   }
-  .notebook-box {
-    flex: 1;
-  }
-  .co-scholastic-table-card {
-    flex: 1;
-  }
-  .card-title {
-    font-size: 8.5pt;
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 1.5px solid #000000;
-    padding-bottom: 2px;
-    margin-bottom: 4px;
-    line-height: 1.25;
-  }
-  .card-title .sub {
-    font-size: 7.5pt;
-    font-weight: normal;
-    display: block;
-  }
-  .co-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 8pt;
-  }
-  .co-table th, .co-table td {
-    border: 1px solid #000000;
-    padding: 2.5px 4px;
-  }
-  .co-table th {
-    background: #f8fafc;
-    font-size: 7.5pt;
-    font-weight: bold;
-    text-align: center;
-  }
-  .grade-text {
-    text-align: center;
-    font-weight: bold;
-    font-size: 9.5pt;
-  }
-
   .matrix-heading {
     font-size: 8pt;
     font-weight: bold;
@@ -437,25 +399,70 @@ const PRINTABLE_PAGE_CSS = `
     padding: 4px 8px;
     font-size: 8.5pt;
     font-weight: bold;
-    margin-bottom: 8px;
     background: #ffffff;
     text-align: center;
     letter-spacing: 0.5px;
   }
 
-  .remarks-block {
+  /* Right Half */
+  .back-half-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .co-scholastic-table-card {
+    border: 1.5px solid #000000;
+    padding: 5px;
+    background: #ffffff;
+  }
+  .card-title {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1.5px solid #000000;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+  .card-title .sub {
+    font-size: 7.5pt;
+    font-weight: normal;
+    display: block;
+  }
+  .co-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+  .co-table th, .co-table td {
+    border: 1px solid #000000;
+    padding: 2.5px 5px;
+  }
+  .co-table th {
+    background: #f8fafc;
+    font-size: 7.5pt;
+    font-weight: bold;
+    text-align: center;
+  }
+  .grade-text {
+    text-align: center;
+    font-weight: bold;
+    font-size: 9.5pt;
+  }
+
+  .remarks-results-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border: 1.5px solid #000000;
-    padding: 5px 12px;
-    font-size: 9pt;
-    margin-bottom: 12px;
+    padding: 5px 10px;
+    font-size: 8.5pt;
     background: #ffffff;
   }
-  .remarks-block span.val {
+  .remarks-results-row span.val {
     font-weight: bold;
-    margin-left: 6px;
+    margin-left: 5px;
   }
   .promoted-badge {
     border: 1px solid #047857;
@@ -466,15 +473,28 @@ const PRINTABLE_PAGE_CSS = `
     background: #ecfdf5;
   }
 
-  .back-sigs-row {
+  .right-half-sigs-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-top: 24px;
+    margin-top: 10px;
   }
-  .back-meta-left {
-    font-size: 9pt;
-    line-height: 1.5;
+  .left-sig-meta-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .place-date-text {
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+  .teacher-sig-box {
+    text-align: left;
+    width: 160px;
+  }
+  .headmaster-sig-box {
+    text-align: right;
+    width: 170px;
   }
 `;
 
@@ -859,75 +879,79 @@ const ClassTeacherReportModal = ({
 
       <!-- BACK PAGE (Page 2) -->
       <div class="report-page page-back">
-        <div class="page2-columns-layout">
-          <!-- Column 1: Attendance + Scholastic Grade Scale -->
-          <div class="page2-col col-attendance-scholastic">
-            <div class="matrix-box">
-              <div class="matrix-heading">WEIGHTAGE OF ATTENDANCE:</div>
-              <table class="matrix-table">
-                <thead><tr><th>PERCENTAGE OF ATTENDANCE</th><th style="width: 48px;">MARKS</th></tr></thead>
-                <tbody>
-                  <tr><td>90% & above</td><td>5</td></tr>
-                  <tr><td>80% to 89%</td><td>4</td></tr>
-                  <tr><td>70% to 79%</td><td>3</td></tr>
-                  <tr><td>60% to 69%</td><td>2</td></tr>
-                  <tr><td>Less than 60%</td><td>0</td></tr>
-                </tbody>
-              </table>
-            </div>
+        <div class="back-page-two-halves">
+          <!-- LEFT HALF: GRADING SCALES & INSTRUCTIONS -->
+          <div class="back-half-left">
+            <div class="matrices-2x2-grid">
+              <div class="matrix-box">
+                <div class="matrix-heading">WEIGHTAGE OF ATTENDANCE:</div>
+                <table class="matrix-table">
+                  <thead><tr><th>PERCENTAGE OF ATTENDANCE</th><th style="width: 48px;">MARKS</th></tr></thead>
+                  <tbody>
+                    <tr><td>90% & above</td><td>5</td></tr>
+                    <tr><td>80% to 89%</td><td>4</td></tr>
+                    <tr><td>70% to 79%</td><td>3</td></tr>
+                    <tr><td>60% to 69%</td><td>2</td></tr>
+                    <tr><td>Less than 60%</td><td>0</td></tr>
+                  </tbody>
+                </table>
+              </div>
 
-            <div class="matrix-box">
-              <div class="matrix-heading">GRADE SCALE: SCHOLASTIC:</div>
-              <table class="matrix-table">
-                <thead><tr><th>MARKS RANGE</th><th style="width: 55px;">GRADE</th></tr></thead>
-                <tbody>
-                  <tr><td>91-100</td><td>A1</td></tr>
-                  <tr><td>81-90</td><td>A2</td></tr>
-                  <tr><td>71-80</td><td>B1</td></tr>
-                  <tr><td>61-70</td><td>B2</td></tr>
-                  <tr><td>51-60</td><td>C1</td></tr>
-                  <tr><td>41-50</td><td>C2</td></tr>
-                  <tr><td>33-40</td><td>D</td></tr>
-                  <tr><td>32 & BELOW</td><td>E (FAILED)</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Column 2: Notebook Submission + Co-Scholastic Grade Scale -->
-          <div class="page2-col col-notebook-coscholastic">
-            <div class="matrix-box notebook-box">
-              <div class="matrix-heading">WEIGHTAGE FOR NOTEBOOK SUBMISSION:</div>
-              <div class="matrix-desc-body">
-                <div>Marks are to be given by the subject teacher based on:</div>
-                <ol>
-                  <li>(a) Regularity of assignment</li>
-                  <li>(b) Completion of assignment</li>
-                  <li>(c) Neatness</li>
-                </ol>
-                <div class="allotted-marks-tag">
-                  Full Marks Allotted: 05
+              <div class="matrix-box notebook-box">
+                <div class="matrix-heading">WEIGHTAGE FOR NOTEBOOK SUBMISSION:</div>
+                <div class="matrix-desc-body">
+                  <div>Marks are to be given by the subject teacher based on:</div>
+                  <ol>
+                    <li>(a) Regularity of assignment</li>
+                    <li>(b) Completion of assignment</li>
+                    <li>(c) Neatness</li>
+                  </ol>
+                  <div class="allotted-marks-tag">
+                    Full Marks Allotted: 05
+                  </div>
                 </div>
+              </div>
+
+              <div class="matrix-box">
+                <div class="matrix-heading">GRADE SCALE: SCHOLASTIC:</div>
+                <table class="matrix-table">
+                  <thead><tr><th>MARKS RANGE</th><th style="width: 55px;">GRADE</th></tr></thead>
+                  <tbody>
+                    <tr><td>91-100</td><td>A1</td></tr>
+                    <tr><td>81-90</td><td>A2</td></tr>
+                    <tr><td>71-80</td><td>B1</td></tr>
+                    <tr><td>61-70</td><td>B2</td></tr>
+                    <tr><td>51-60</td><td>C1</td></tr>
+                    <tr><td>41-50</td><td>C2</td></tr>
+                    <tr><td>33-40</td><td>D</td></tr>
+                    <tr><td>32 & BELOW</td><td>E (FAILED)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="matrix-box">
+                <div class="matrix-heading">GRADE SCALE: CO-SCHOLASTIC:</div>
+                <table class="matrix-table">
+                  <thead><tr><th style="width: 45px;">GRADE</th><th>REMARKS</th></tr></thead>
+                  <tbody>
+                    <tr><td>A</td><td>OUTSTANDING</td></tr>
+                    <tr><td>B</td><td>EXCELLENT</td></tr>
+                    <tr><td>C</td><td>VERY GOOD</td></tr>
+                    <tr><td>D</td><td>GOOD</td></tr>
+                    <tr><td>E</td><td>SCOPE OF IMPROVEMENT</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div class="matrix-box">
-              <div class="matrix-heading">GRADE SCALE: CO-SCHOLASTIC:</div>
-              <table class="matrix-table">
-                <thead><tr><th style="width: 45px;">GRADE</th><th>REMARKS</th></tr></thead>
-                <tbody>
-                  <tr><td>A</td><td>OUTSTANDING</td></tr>
-                  <tr><td>B</td><td>EXCELLENT</td></tr>
-                  <tr><td>C</td><td>VERY GOOD</td></tr>
-                  <tr><td>D</td><td>GOOD</td></tr>
-                  <tr><td>E</td><td>SCOPE OF IMPROVEMENT</td></tr>
-                </tbody>
-              </table>
+            <div class="pass-marks-strip">
+              PASS MARKS: 33% IN FINAL WEIGHTAGE OF MARKS IN EVERY SUBJECT.
             </div>
           </div>
 
-          <!-- Column 3: Section B (Co-Scholastic) + Section C (Discipline) -->
-          <div class="page2-col col-b-c-tables">
+          <!-- RIGHT HALF: CO-SCHOLASTIC, DISCIPLINE, REMARKS, RESULTS, SIGNATURES -->
+          <div class="back-half-right">
+            <!-- 1. B. CO-SCHOLASTIC AREAS on top & center -->
             <div class="co-scholastic-table-card">
               <div class="card-title">
                 B. CO-SCHOLASTIC AREAS<br/>
@@ -937,7 +961,7 @@ const ClassTeacherReportModal = ({
                 <thead>
                   <tr>
                     <th>Subject</th>
-                    <th style="width: 60px; text-align: center;">Grade</th>
+                    <th style="width: 65px; text-align: center;">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -948,6 +972,7 @@ const ClassTeacherReportModal = ({
               </table>
             </div>
 
+            <!-- 2. Below it: C. DISCIPLINE -->
             <div class="co-scholastic-table-card">
               <div class="card-title">
                 C. DISCIPLINE<br/>
@@ -957,7 +982,7 @@ const ClassTeacherReportModal = ({
                 <thead>
                   <tr>
                     <th>Element</th>
-                    <th style="width: 60px; text-align: center;">Grade</th>
+                    <th style="width: 65px; text-align: center;">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -968,33 +993,36 @@ const ClassTeacherReportModal = ({
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
 
-        <div class="pass-marks-strip">
-          PASS MARKS: 33% IN FINAL WEIGHTAGE OF MARKS IN EVERY SUBJECT.
-        </div>
+            <!-- 3. Below it: Remarks on left & Results on right -->
+            <div class="remarks-results-row">
+              <div class="remark-col">
+                Remarks of Class Teacher: <span class="val font-serif font-bold">${meta.remarks || 'v. good'}</span>
+              </div>
+              <div class="result-col">
+                Results: <span class="val promoted-badge">${meta.result || 'Promoted'}</span>
+              </div>
+            </div>
 
-        <div class="remarks-block">
-          <div>Remarks of Class Teacher: <span class="val font-serif font-bold">${meta.remarks || 'v. good'}</span></div>
-          <div>Results: <span class="val promoted-badge">${meta.result || 'Promoted'}</span></div>
-        </div>
+            <!-- 4. Below it: Signatures -->
+            <div class="right-half-sigs-row">
+              <div class="left-sig-meta-col">
+                <div class="place-date-text">
+                  <div><strong>Place:</strong> ${placeName}</div>
+                  <div><strong>Date:</strong> ${issueDate}</div>
+                </div>
+                <div class="teacher-sig-box">
+                  <span class="sig-scribble">${teacherDisplayName}</span>
+                  <span class="sig-date-str font-mono">${issueDate}</span>
+                  <div class="sig-rule-text">Signature of Class Teacher</div>
+                </div>
+              </div>
 
-        <div class="back-sigs-row">
-          <div class="back-meta-left">
-            <div><strong>Place:</strong> ${placeName}</div>
-            <div><strong>Date:</strong> ${issueDate}</div>
-          </div>
-
-          <div class="sig-block teacher-sig">
-            <span class="sig-scribble">${teacherDisplayName}</span>
-            <span class="sig-date-str font-mono">${issueDate}</span>
-            <div class="sig-rule-text">Signature of Class Teacher</div>
-          </div>
-
-          <div class="sig-block headmaster-sig">
-            <div class="physical-stamp-space"></div>
-            <div class="sig-rule-text">Signature of Headmaster</div>
+              <div class="headmaster-sig-box">
+                <div class="physical-stamp-space"></div>
+                <div class="sig-rule-text">Signature of Headmaster</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
