@@ -329,20 +329,35 @@ const PRINTABLE_PAGE_CSS = `
   .page-back {
     background: #ffffff;
   }
-  .back-top-banner {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
+  .page2-columns-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.15fr;
+    gap: 10px;
     margin-bottom: 8px;
+    align-items: stretch;
   }
-  .co-scholastic-table-card {
-    flex: 1;
+  .page2-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .col-attendance-scholastic .matrix-box,
+  .col-notebook-coscholastic .matrix-box,
+  .col-b-c-tables .co-scholastic-table-card {
     border: 1.5px solid #000000;
     padding: 5px;
     background: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  .notebook-box {
+    flex: 1;
+  }
+  .co-scholastic-table-card {
+    flex: 1;
   }
   .card-title {
-    font-size: 9pt;
+    font-size: 8.5pt;
     font-weight: bold;
     text-align: center;
     border-bottom: 1.5px solid #000000;
@@ -358,37 +373,24 @@ const PRINTABLE_PAGE_CSS = `
   .co-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8.5pt;
+    font-size: 8pt;
   }
   .co-table th, .co-table td {
     border: 1px solid #000000;
-    padding: 3px 5px;
+    padding: 2.5px 4px;
   }
   .co-table th {
     background: #f8fafc;
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: bold;
     text-align: center;
   }
   .grade-text {
     text-align: center;
     font-weight: bold;
-    font-size: 10pt;
+    font-size: 9.5pt;
   }
 
-  .matrices-grid {
-    display: grid;
-    grid-template-columns: 1.15fr 1.35fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .matrix-box {
-    border: 1.5px solid #000000;
-    padding: 5px;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-  }
   .matrix-heading {
     font-size: 8pt;
     font-weight: bold;
@@ -422,6 +424,13 @@ const PRINTABLE_PAGE_CSS = `
   .matrix-desc-body ol {
     margin: 3px 0 3px 14px;
     padding: 0;
+  }
+  .allotted-marks-tag {
+    margin-top: 4px;
+    font-weight: bold;
+    border-top: 1px dashed #666;
+    padding-top: 2px;
+    text-align: center;
   }
   .pass-marks-strip {
     border: 1.5px solid #000000;
@@ -850,108 +859,115 @@ const ClassTeacherReportModal = ({
 
       <!-- BACK PAGE (Page 2) -->
       <div class="report-page page-back">
-        <div class="back-top-banner">
-          <div class="co-scholastic-table-card">
-            <div class="card-title">
-              B. CO-SCHOLASTIC AREAS<br/>
-              <span class="sub">(ON 5-POINTS GRADING SCALE (A TO E))</span>
+        <div class="page2-columns-layout">
+          <!-- Column 1: Attendance + Scholastic Grade Scale -->
+          <div class="page2-col col-attendance-scholastic">
+            <div class="matrix-box">
+              <div class="matrix-heading">WEIGHTAGE OF ATTENDANCE:</div>
+              <table class="matrix-table">
+                <thead><tr><th>PERCENTAGE OF ATTENDANCE</th><th style="width: 48px;">MARKS</th></tr></thead>
+                <tbody>
+                  <tr><td>90% & above</td><td>5</td></tr>
+                  <tr><td>80% to 89%</td><td>4</td></tr>
+                  <tr><td>70% to 79%</td><td>3</td></tr>
+                  <tr><td>60% to 69%</td><td>2</td></tr>
+                  <tr><td>Less than 60%</td><td>0</td></tr>
+                </tbody>
+              </table>
             </div>
-            <table class="co-table">
-              <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th style="width: 70px; text-align: center;">Grade</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Work Education</td><td class="grade-text">${meta.workEducation || 'B'}</td></tr>
-                <tr><td>Art Education</td><td class="grade-text">${meta.artEducation || 'B'}</td></tr>
-                <tr><td>Health & Physical Education</td><td class="grade-text">${meta.healthPhysicalEducation || 'C'}</td></tr>
-              </tbody>
-            </table>
-          </div>
 
-          <div class="co-scholastic-table-card">
-            <div class="card-title">
-              C. DISCIPLINE<br/>
-              <span class="sub">(ON 5-POINTS GRADING SCALE (A TO E))</span>
+            <div class="matrix-box">
+              <div class="matrix-heading">GRADE SCALE: SCHOLASTIC:</div>
+              <table class="matrix-table">
+                <thead><tr><th>MARKS RANGE</th><th style="width: 55px;">GRADE</th></tr></thead>
+                <tbody>
+                  <tr><td>91-100</td><td>A1</td></tr>
+                  <tr><td>81-90</td><td>A2</td></tr>
+                  <tr><td>71-80</td><td>B1</td></tr>
+                  <tr><td>61-70</td><td>B2</td></tr>
+                  <tr><td>51-60</td><td>C1</td></tr>
+                  <tr><td>41-50</td><td>C2</td></tr>
+                  <tr><td>33-40</td><td>D</td></tr>
+                  <tr><td>32 & BELOW</td><td>E (FAILED)</td></tr>
+                </tbody>
+              </table>
             </div>
-            <table class="co-table">
-              <thead>
-                <tr>
-                  <th>Element</th>
-                  <th style="width: 70px; text-align: center;">Grade</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Attendance, Sincerity, Behaviour, Punctuality, Values</td>
-                  <td class="grade-text">${meta.discipline || 'B'}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="matrices-grid">
-          <div class="matrix-box">
-            <div class="matrix-heading">WEIGHTAGE OF ATTENDANCE:</div>
-            <table class="matrix-table">
-              <thead><tr><th>PERCENTAGE OF ATTENDANCE</th><th>MARKS</th></tr></thead>
-              <tbody>
-                <tr><td>90% & above</td><td>5</td></tr>
-                <tr><td>80% to 89%</td><td>4</td></tr>
-                <tr><td>70% to 79%</td><td>3</td></tr>
-                <tr><td>60% to 69%</td><td>2</td></tr>
-                <tr><td>Less than 60%</td><td>0</td></tr>
-              </tbody>
-            </table>
           </div>
 
-          <div class="matrix-box">
-            <div class="matrix-heading">WEIGHTAGE FOR NOTEBOOK SUBMISSION:</div>
-            <div class="matrix-desc-body">
-              Marks are to be given by the subject teacher based on:
-              <ol>
-                <li>(a) Regularity of assignment</li>
-                <li>(b) Completion of assignment</li>
-                <li>(c) Neatness</li>
-              </ol>
-              <div style="margin-top: 3px; font-weight: bold; border-top: 1px dashed #666; padding-top: 2px;">
-                Full Marks Allotted: 05
+          <!-- Column 2: Notebook Submission + Co-Scholastic Grade Scale -->
+          <div class="page2-col col-notebook-coscholastic">
+            <div class="matrix-box notebook-box">
+              <div class="matrix-heading">WEIGHTAGE FOR NOTEBOOK SUBMISSION:</div>
+              <div class="matrix-desc-body">
+                <div>Marks are to be given by the subject teacher based on:</div>
+                <ol>
+                  <li>(a) Regularity of assignment</li>
+                  <li>(b) Completion of assignment</li>
+                  <li>(c) Neatness</li>
+                </ol>
+                <div class="allotted-marks-tag">
+                  Full Marks Allotted: 05
+                </div>
               </div>
             </div>
+
+            <div class="matrix-box">
+              <div class="matrix-heading">GRADE SCALE: CO-SCHOLASTIC:</div>
+              <table class="matrix-table">
+                <thead><tr><th style="width: 45px;">GRADE</th><th>REMARKS</th></tr></thead>
+                <tbody>
+                  <tr><td>A</td><td>OUTSTANDING</td></tr>
+                  <tr><td>B</td><td>EXCELLENT</td></tr>
+                  <tr><td>C</td><td>VERY GOOD</td></tr>
+                  <tr><td>D</td><td>GOOD</td></tr>
+                  <tr><td>E</td><td>SCOPE OF IMPROVEMENT</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="matrix-box">
-            <div class="matrix-heading">GRADE SCALE: SCHOLASTIC:</div>
-            <table class="matrix-table">
-              <thead><tr><th>MARKS RANGE</th><th>GRADE</th></tr></thead>
-              <tbody>
-                <tr><td>91-100</td><td>A1</td></tr>
-                <tr><td>81-90</td><td>A2</td></tr>
-                <tr><td>71-80</td><td>B1</td></tr>
-                <tr><td>61-70</td><td>B2</td></tr>
-                <tr><td>51-60</td><td>C1</td></tr>
-                <tr><td>41-50</td><td>C2</td></tr>
-                <tr><td>33-40</td><td>D</td></tr>
-                <tr><td>32 & BELOW</td><td>E (FAILED)</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <!-- Column 3: Section B (Co-Scholastic) + Section C (Discipline) -->
+          <div class="page2-col col-b-c-tables">
+            <div class="co-scholastic-table-card">
+              <div class="card-title">
+                B. CO-SCHOLASTIC AREAS<br/>
+                <span class="sub">(ON 5-POINTS GRADING SCALE (A TO E))</span>
+              </div>
+              <table class="co-table">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th style="width: 60px; text-align: center;">Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Work Education</td><td class="grade-text">${meta.workEducation || 'B'}</td></tr>
+                  <tr><td>Art Education</td><td class="grade-text">${meta.artEducation || 'B'}</td></tr>
+                  <tr><td>Health & Physical Education</td><td class="grade-text">${meta.healthPhysicalEducation || 'C'}</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div class="matrix-box">
-            <div class="matrix-heading">GRADE SCALE: CO-SCHOLASTIC:</div>
-            <table class="matrix-table">
-              <thead><tr><th>GRADE</th><th>REMARKS</th></tr></thead>
-              <tbody>
-                <tr><td>A</td><td>OUTSTANDING</td></tr>
-                <tr><td>B</td><td>EXCELLENT</td></tr>
-                <tr><td>C</td><td>VERY GOOD</td></tr>
-                <tr><td>D</td><td>GOOD</td></tr>
-                <tr><td>E</td><td>SCOPE OF IMPROVEMENT</td></tr>
-              </tbody>
-            </table>
+            <div class="co-scholastic-table-card">
+              <div class="card-title">
+                C. DISCIPLINE<br/>
+                <span class="sub">(ON 5-POINTS GRADING SCALE (A TO E))</span>
+              </div>
+              <table class="co-table">
+                <thead>
+                  <tr>
+                    <th>Element</th>
+                    <th style="width: 60px; text-align: center;">Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Attendance, Sincerity, Behaviour, Punctuality, Values</td>
+                    <td class="grade-text">${meta.discipline || 'B'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
