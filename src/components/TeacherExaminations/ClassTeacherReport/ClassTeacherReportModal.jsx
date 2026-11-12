@@ -326,6 +326,9 @@ const PRINTABLE_PAGE_CSS = `
   }
 
   /* ================= PAGE 2 (BACK) ================= */
+  .page-back {
+    background: #ffffff;
+  }
   .back-top-banner {
     display: flex;
     justify-content: space-between;
@@ -336,19 +339,21 @@ const PRINTABLE_PAGE_CSS = `
     flex: 1;
     border: 1.5px solid #000000;
     padding: 5px;
+    background: #ffffff;
   }
   .card-title {
     font-size: 9pt;
     font-weight: bold;
     text-align: center;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1.5px solid #000000;
     padding-bottom: 2px;
-    margin-bottom: 3px;
-    line-height: 1.2;
+    margin-bottom: 4px;
+    line-height: 1.25;
   }
   .card-title .sub {
     font-size: 7.5pt;
     font-weight: normal;
+    display: block;
   }
   .co-table {
     width: 100%;
@@ -357,11 +362,13 @@ const PRINTABLE_PAGE_CSS = `
   }
   .co-table th, .co-table td {
     border: 1px solid #000000;
-    padding: 2.5px 5px;
+    padding: 3px 5px;
   }
   .co-table th {
-    background: #fafafa;
+    background: #f8fafc;
     font-size: 8pt;
+    font-weight: bold;
+    text-align: center;
   }
   .grade-text {
     text-align: center;
@@ -371,19 +378,23 @@ const PRINTABLE_PAGE_CSS = `
 
   .matrices-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-bottom: 6px;
+    grid-template-columns: 1.15fr 1.35fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
   }
   .matrix-box {
-    border: 1px solid #000000;
-    padding: 4px;
+    border: 1.5px solid #000000;
+    padding: 5px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
   }
   .matrix-heading {
     font-size: 8pt;
     font-weight: bold;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     text-decoration: underline;
+    text-align: center;
   }
   .matrix-table {
     width: 100%;
@@ -393,36 +404,45 @@ const PRINTABLE_PAGE_CSS = `
   }
   .matrix-table th, .matrix-table td {
     border: 1px solid #000000;
-    padding: 1.5px 2px;
+    padding: 2px 2px;
   }
   .matrix-table th {
-    background: #f5f5f5;
+    background: #f8fafc;
+    font-weight: bold;
+    font-size: 7pt;
   }
   .matrix-desc-body {
     font-size: 7.5pt;
-    line-height: 1.25;
+    line-height: 1.3;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
   .matrix-desc-body ol {
-    margin: 2px 0 2px 14px;
+    margin: 3px 0 3px 14px;
     padding: 0;
   }
   .pass-marks-strip {
-    border: 1px solid #000000;
-    padding: 3px 6px;
+    border: 1.5px solid #000000;
+    padding: 4px 8px;
     font-size: 8.5pt;
     font-weight: bold;
     margin-bottom: 8px;
-    background: #fafafa;
+    background: #ffffff;
+    text-align: center;
+    letter-spacing: 0.5px;
   }
 
   .remarks-block {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border: 1.5px solid #000000;
-    padding: 4px 10px;
+    padding: 5px 12px;
     font-size: 9pt;
-    margin-bottom: 10px;
-    background: #fafafa;
+    margin-bottom: 12px;
+    background: #ffffff;
   }
   .remarks-block span.val {
     font-weight: bold;
@@ -434,17 +454,18 @@ const PRINTABLE_PAGE_CSS = `
     padding: 1px 6px;
     border-radius: 3px;
     font-weight: bold;
+    background: #ecfdf5;
   }
 
   .back-sigs-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-top: 35px;
+    margin-top: 24px;
   }
   .back-meta-left {
     font-size: 9pt;
-    line-height: 1.45;
+    line-height: 1.5;
   }
 `;
 
@@ -935,7 +956,7 @@ const ClassTeacherReportModal = ({
         </div>
 
         <div class="pass-marks-strip">
-          ★ PASS MARKS: 33% IN FINAL WEIGHTAGE OF MARKS IN EVERY SUBJECT.
+          PASS MARKS: 33% IN FINAL WEIGHTAGE OF MARKS IN EVERY SUBJECT.
         </div>
 
         <div class="remarks-block">
