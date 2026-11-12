@@ -270,6 +270,15 @@ function App() {
           element={<AdminPanel currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />} 
         />
 
+        <Route 
+          path="/working-report" 
+          element={<AdminPanel currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />} 
+        />
+        <Route 
+          path="/admin/working-report" 
+          element={<AdminPanel currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />} 
+        />
+
         {/* =========================================================================
             PUBLIC PORTAL ROUTES
            ========================================================================= */}

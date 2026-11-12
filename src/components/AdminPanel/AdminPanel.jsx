@@ -10,6 +10,7 @@ import AdminGallery from '../AdminGallery/AdminGallery';
 import AdminTeachers from '../AdminTeachers/AdminTeachers';
 import AdminNotices from '../AdminNotices/AdminNotices';
 import AdminExaminations from '../AdminExaminations/AdminExaminations';
+import AdminWorkingReport from '../AdminWorkingReport/AdminWorkingReport';
 import { INITIAL_TEACHERS } from '../../data/teachersData';
 import {
   LayoutDashboard,
@@ -55,6 +56,7 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     if (path.includes('/calendar')) return 'calendar';
     if (path.includes('/gallery')) return 'gallery';
     if (path.includes('/notice')) return 'notices';
+    if (path.includes('/working-report')) return 'working-report';
     return 'overview';
   };
 
@@ -69,6 +71,7 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
     else if (tab === 'calendar') target = isUnderAdmin ? '/admin/calendar' : '/calendar';
     else if (tab === 'gallery') target = '/admin/gallery';
     else if (tab === 'notices') target = '/admin/notices';
+    else if (tab === 'working-report') target = isUnderAdmin ? '/admin/working-report' : '/working-report';
     else if (tab === 'overview') target = isUnderAdmin ? '/admin/dashboard' : '/dashboard';
     
     navigate(target);
@@ -617,6 +620,11 @@ const AdminPanel = ({ currentUser, onLogout, onNavigate }) => {
             <AdminNotices 
               initialOpenModal={openNoticeCreateModal}
             />
+          )}
+
+          {/* TAB 7: WORKING REPORT */}
+          {activeTab === 'working-report' && (
+            <AdminWorkingReport teachers={teachers} />
           )}
         </div>
       </div>

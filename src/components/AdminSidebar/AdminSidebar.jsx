@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Images,
   FileText,
+  FileSpreadsheet,
   ExternalLink,
   LogOut,
   ChevronLeft,
@@ -160,6 +161,17 @@ const AdminSidebar = ({
           >
             <FileText size={20} className="nav-icon" />
             <span className="nav-label">Notices & Circulars</span>
+          </button>
+
+          <button
+            type="button"
+            className={`nav-btn ${activeTab === 'working-report' ? 'active' : ''}`}
+            onClick={() => handleTabClick('working-report')}
+            title="Working Report"
+            data-tooltip="Working Report"
+          >
+            <FileSpreadsheet size={20} className="nav-icon" />
+            <span className="nav-label">Working Report</span>
           </button>
         </nav>
 
