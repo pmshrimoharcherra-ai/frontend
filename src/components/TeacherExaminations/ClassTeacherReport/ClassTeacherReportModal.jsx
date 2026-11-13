@@ -899,7 +899,7 @@ const ClassTeacherReportModal = ({
           <div class="details-row">
             <div class="field-col-left">
               <span class="field-label">Name of the School:</span>
-              <span class="field-value school-value">P.M. SHRI Moharcherra H.S. School</span>
+              <span class="field-value school-value">PM SHRI Moharcherra H.S. School</span>
             </div>
             <div class="field-col-right sec-roll-wrap">
               <span class="field-label">Section:</span>
