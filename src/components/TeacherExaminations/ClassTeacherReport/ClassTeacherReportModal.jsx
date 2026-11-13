@@ -350,6 +350,12 @@ const PRINTABLE_PAGE_CSS = `
     margin-bottom: 8px;
     width: 100%;
   }
+  .back-section-wrap.section-b-wrap {
+    margin-bottom: 24px;
+  }
+  .back-section-wrap.section-c-wrap {
+    margin-bottom: 12px;
+  }
   .back-title {
     font-size: 9.5pt;
     font-weight: bold;
@@ -1038,7 +1044,7 @@ const ClassTeacherReportModal = ({
       <div class="report-page page-back">
         <div class="back-page-content">
           <!-- 1. B. CO-SCHOLASTIC AREAS on top & center -->
-          <div class="back-section-wrap">
+          <div class="back-section-wrap section-b-wrap">
             <div class="back-title">B. CO-SCHOLASTIC AREAS</div>
             <div class="back-subtitle">(ON 5-POINTS GRADING SCALE (A TO E))</div>
             <table class="back-table">
@@ -1066,7 +1072,7 @@ const ClassTeacherReportModal = ({
           </div>
 
           <!-- 2. Below it: C. DISCIPLINE centered -->
-          <div class="back-section-wrap">
+          <div class="back-section-wrap section-c-wrap">
             <div class="back-title">C. DISCIPLINE</div>
             <div class="back-subtitle">(ON 5-POINTS GRADING SCALE (A TO E))</div>
             <table class="back-table">

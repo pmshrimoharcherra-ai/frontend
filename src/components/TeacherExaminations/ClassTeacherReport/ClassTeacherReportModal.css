@@ -776,6 +776,14 @@
   width: 100%;
 }
 
+.document-preview-scroll-container .back-section-wrap.section-b-wrap {
+  margin-bottom: 24px;
+}
+
+.document-preview-scroll-container .back-section-wrap.section-c-wrap {
+  margin-bottom: 12px;
+}
+
 .document-preview-scroll-container .back-title {
   font-size: 9.5pt;
   font-weight: bold;
