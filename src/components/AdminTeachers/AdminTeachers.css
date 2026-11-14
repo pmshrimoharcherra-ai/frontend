@@ -694,6 +694,7 @@
 }
 
 .teacher-modal-card {
+  position: relative;
   background: #ffffff;
   border-radius: 20px;
   max-width: 580px;
@@ -780,7 +781,9 @@
   color: #cbd5e1;
 }
 
+.teacher-modal-close-btn,
 .modal-close-btn {
+  position: relative;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #cbd5e1;
@@ -792,8 +795,11 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
+.teacher-modal-close-btn:hover,
 .modal-close-btn:hover {
   background: rgba(239, 68, 68, 0.2);
   color: #f87171;

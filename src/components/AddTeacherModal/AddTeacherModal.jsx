@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config/api';
 import './AddTeacherModal.css';
 import {
@@ -13,9 +13,10 @@ import {
   Hash,
   ShieldCheck,
   Briefcase,
-  GraduationCap
+  GraduationCap,
+  Calendar
 } from 'lucide-react';
-import { CLASS_OPTIONS } from '../EditTeacherModal/EditTeacherModal';
+import { CLASS_OPTIONS, formatToIsoDate, formatToDisplayDate } from '../EditTeacherModal/EditTeacherModal';
 import { getSubjectsForClass } from '../../data/curriculumData';
 import DesignationSelect from '../DesignationSelect/DesignationSelect';
 
@@ -44,6 +45,7 @@ const AddTeacherModal = ({ onClose, onTeacherAdded }) => {
     name: '',
     role: 'TGT',
     subject: '',
+    dob: '',
     phone: '',
     email: '',
     status: 'Active Faculty',
@@ -51,6 +53,8 @@ const AddTeacherModal = ({ onClose, onTeacherAdded }) => {
     assignedClassName: '',
     teachingAssignments: [],
   });
+
+  const dobPickerRef = useRef(null);
 
   const [newAllotmentClass, setNewAllotmentClass] = useState('');
   const [newAllotmentSubject, setNewAllotmentSubject] = useState('');
@@ -157,6 +161,7 @@ const AddTeacherModal = ({ onClose, onTeacherAdded }) => {
           name: cleanName,
           role: formData.role.trim() || 'Faculty Member',
           subject: cleanSubject,
+          dob: formData.dob ? formData.dob.trim() : '',
           phone: formData.phone.trim(),
           email: formData.email.trim(),
           status: formData.status,
@@ -293,6 +298,62 @@ const AddTeacherModal = ({ onClose, onTeacherAdded }) => {
                 placeholder="e.g. Mathematics & Physical Science"
                 required
               />
+            </div>
+
+            {/* Date of Birth (DOB) */}
+            <div className="at-form-field">
+              <label htmlFor="add-teacher-dob">
+                <Calendar size={14} />
+                <span>Date of Birth (DOB)</span>
+              </label>
+              <div 
+                className="dob-input-wrapper"
+                onClick={() => {
+                  try {
+                    dobPickerRef.current?.showPicker?.();
+                  } catch (err) {
+                    dobPickerRef.current?.focus();
+                  }
+                }}
+              >
+                <input
+                  id="add-teacher-dob"
+                  type="text"
+                  value={formData.dob}
+                  onChange={(e) => handleChange('dob', e.target.value)}
+                  placeholder="DD/MM/YYYY e.g. 15/08/1985"
+                  className="dob-text-input"
+                />
+                <input
+                  type="date"
+                  ref={dobPickerRef}
+                  value={formatToIsoDate(formData.dob)}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleChange('dob', formatToDisplayDate(e.target.value));
+                    }
+                  }}
+                  className="dob-native-picker"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  className="dob-picker-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try {
+                      dobPickerRef.current?.showPicker?.();
+                    } catch (err) {
+                      dobPickerRef.current?.focus();
+                    }
+                  }}
+                  title="Choose Date of Birth from calendar"
+                  aria-label="Choose Date of Birth from calendar"
+                >
+                  <Calendar size={16} />
+                </button>
+              </div>
             </div>
 
             {/* Phone */}

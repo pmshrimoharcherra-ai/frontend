@@ -45,7 +45,7 @@
 }
 
 /* Close Button */
-.modal-close-btn {
+.login-modal-overlay .modal-close-btn {
   position: absolute;
   top: 18px;
   right: 18px;
@@ -62,7 +62,7 @@
   transition: all 0.2s ease;
 }
 
-.modal-close-btn:hover {
+.login-modal-overlay .modal-close-btn:hover {
   background: #f1f5f9;
   color: #0f172a;
   transform: rotate(90deg);
@@ -511,6 +511,32 @@
 .recovery-btn-submit:hover {
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
   transform: translateY(-1px);
+}
+
+/* Interactive Date of Birth picker in recovery modals */
+.recovery-modal-card .dob-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.recovery-modal-card .dob-input-wrapper .dob-text-input {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.recovery-modal-card .dob-native-picker {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  padding: 0;
 }
 
 /* Result Card */

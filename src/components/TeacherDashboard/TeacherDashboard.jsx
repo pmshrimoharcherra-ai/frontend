@@ -756,6 +756,12 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                         <BookOpen size={13} />
                         <span>Primary Subject: <strong>{teacherSubject}</strong></span>
                       </div>
+                      {(teacherData?.dob || activeUser?.dob) && (
+                        <div className="meta-chip">
+                          <Calendar size={13} />
+                          <span>DOB: <strong>{teacherData?.dob || activeUser?.dob}</strong></span>
+                        </div>
+                      )}
                       {assignedClassId && (
                         <div className="meta-chip active-class-chip">
                           <GraduationCap size={13} />

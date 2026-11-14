@@ -202,6 +202,56 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
 }
 
+/* Date of Birth Interactive Picker */
+.at-form-field .dob-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.at-form-field .dob-input-wrapper .dob-text-input {
+  width: 100%;
+  padding-right: 42px;
+  cursor: pointer;
+}
+
+.at-form-field .dob-input-wrapper .dob-picker-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.at-form-field .dob-input-wrapper .dob-picker-btn:hover {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.at-form-field .dob-native-picker {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  padding: 0;
+}
+
 /* ── Footer Actions ── */
 .add-teacher-footer {
   display: flex;

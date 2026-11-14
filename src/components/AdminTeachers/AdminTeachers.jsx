@@ -23,7 +23,8 @@ import {
   UserPlus,
   Trash2,
   AlertTriangle,
-  GraduationCap
+  GraduationCap,
+  Calendar
 } from 'lucide-react';
 
 const AdminTeachers = ({ onTeacherCountChange }) => {
@@ -41,8 +42,8 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
   const handleSaveTeacher = (updatedTeacher) => {
     setTeachers((prev) =>
       prev.map((t) =>
-        (t._id && t._id === updatedTeacher._id) ||
-        (t.teacherId && t.teacherId === updatedTeacher.teacherId)
+        (t._id && (t._id === updatedTeacher._id || t._id === editingTeacher?._id)) ||
+        (t.teacherId && (t.teacherId === updatedTeacher.teacherId || t.teacherId === editingTeacher?.teacherId))
           ? { ...t, ...updatedTeacher }
           : t
       )
@@ -188,6 +189,7 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
         t.teacherId?.toLowerCase().includes(q) ||
         t.subject?.toLowerCase().includes(q) ||
         t.role?.toLowerCase().includes(q) ||
+        t.dob?.toLowerCase().includes(q) ||
         String(t.slNo).includes(q)
       );
     });
@@ -399,6 +401,13 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
                     </div>
                   )}
 
+                  {t.dob && (
+                    <div className="faculty-detail-item">
+                      <Calendar size={15} className="detail-icon" />
+                      <span>DOB: <strong className="font-mono">{t.dob}</strong></span>
+                    </div>
+                  )}
+
                   <div className="faculty-detail-item">
                     <Phone size={15} className="detail-icon" />
                     <span className="contact-text">{t.phone || '+91 94361 00000'}</span>
@@ -511,6 +520,12 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
                           </div>
                           <div>
                             <span className="table-teacher-name font-bold">{t.name}</span>
+                            {t.dob && (
+                              <span className="table-teacher-dob font-mono" style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
+                                <Calendar size={11} style={{ color: '#ea580c' }} />
+                                <span>{t.dob}</span>
+                              </span>
+                            )}
                             {isHead && <span className="head-badge-mini">Head of School</span>}
                           </div>
                         </div>
@@ -636,7 +651,7 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
                 </div>
               </div>
 
-              <button className="modal-close-btn" onClick={() => setViewingTeacher(null)}>
+              <button className="teacher-modal-close-btn" onClick={() => setViewingTeacher(null)} aria-label="Close modal">
                 <X size={20} />
               </button>
             </div>
@@ -718,18 +733,28 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
               </div>
 
               <div className="modal-info-box">
-                <span className="box-label">Official Email</span>
-                <a href={`mailto:${viewingTeacher.email}`} className="box-link">
-                  <Mail size={14} />
-                  <span>{viewingTeacher.email}</span>
-                </a>
+                <span className="box-label">Date of Birth (DOB)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '3px' }}>
+                  <Calendar size={15} style={{ color: '#ea580c' }} />
+                  <span className="box-val font-mono font-bold" style={{ color: viewingTeacher.dob ? '#0f172a' : '#94a3b8' }}>
+                    {viewingTeacher.dob || 'Not Recorded'}
+                  </span>
+                </div>
               </div>
 
               <div className="modal-info-box">
                 <span className="box-label">Contact Phone</span>
                 <a href={`tel:${viewingTeacher.phone}`} className="box-link">
                   <Phone size={14} />
-                  <span>{viewingTeacher.phone}</span>
+                  <span>{viewingTeacher.phone || '—'}</span>
+                </a>
+              </div>
+
+              <div className="modal-info-box" style={{ gridColumn: 'span 2' }}>
+                <span className="box-label">Official Email</span>
+                <a href={`mailto:${viewingTeacher.email}`} className="box-link">
+                  <Mail size={14} />
+                  <span>{viewingTeacher.email || '—'}</span>
                 </a>
               </div>
             </div>

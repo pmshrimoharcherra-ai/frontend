@@ -3,6 +3,7 @@ import { API_BASE_URL } from '../../config/api';
 import './LoginModal.css';
 import ForgotStudentIdModal from './ForgotStudentIdModal';
 import ForgotStudentPasswordModal from './ForgotStudentPasswordModal';
+import ForgotTeacherPasswordModal from './ForgotTeacherPasswordModal';
 import { 
   X, 
   User, 
@@ -28,6 +29,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const [success, setSuccess] = useState('');
   const [showForgotIdModal, setShowForgotIdModal] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [showTeacherForgotModal, setShowTeacherForgotModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -281,8 +283,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 e.preventDefault(); 
                 if (selectedRole === 'student') {
                   setShowForgotPasswordModal(true);
+                } else if (selectedRole === 'teacher') {
+                  setShowTeacherForgotModal(true);
                 } else {
-                  alert('Please contact the school administrative desk to reset teacher or administrator credentials.');
+                  alert('Please contact the school administrative desk to reset administrator credentials.');
                 }
               }}
             >
@@ -331,6 +335,19 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             if (!identifier) {
               setIdentifier(chosenId);
             }
+          }}
+        />
+
+        {/* Modal: Teacher Forgot Password Recovery */}
+        <ForgotTeacherPasswordModal
+          isOpen={showTeacherForgotModal}
+          onClose={() => setShowTeacherForgotModal(false)}
+          initialIdentifier={selectedRole === 'teacher' ? identifier : ''}
+          onPasswordChanged={({ teacherId: chosenId, newPassword: chosenPass }) => {
+            setIdentifier(chosenId);
+            setPassword(chosenPass);
+            setError('');
+            setSuccess('Password updated successfully! You can now sign in.');
           }}
         />
       </div>

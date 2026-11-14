@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config/api';
 import './EditTeacherModal.css';
 import {
@@ -14,10 +14,38 @@ import {
   ShieldCheck,
   Briefcase,
   GraduationCap,
-  Plus
+  Plus,
+  Calendar
 } from 'lucide-react';
 import { getSubjectsForClass } from '../../data/curriculumData';
 import DesignationSelect from '../DesignationSelect/DesignationSelect';
+
+// Helpers for Date of Birth calendar conversions (DD/MM/YYYY <-> YYYY-MM-DD)
+export const formatToIsoDate = (dStr) => {
+  if (!dStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dStr)) return dStr;
+  const parts = dStr.trim().split(/[\/\-\.]/);
+  if (parts.length === 3) {
+    let [d, m, y] = parts;
+    if (d.length === 4) {
+      return `${d}-${m.padStart(2, '0')}-${y.padStart(2, '0')}`;
+    }
+    d = d.padStart(2, '0');
+    m = m.padStart(2, '0');
+    if (y.length === 2) y = parseInt(y, 10) > 40 ? `19${y}` : `20${y}`;
+    return `${y}-${m}-${d}`;
+  }
+  return '';
+};
+
+export const formatToDisplayDate = (isoStr) => {
+  if (!isoStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) {
+    const [y, m, d] = isoStr.split('-');
+    return `${d}/${m}/${y}`;
+  }
+  return isoStr;
+};
 
 export const CLASS_OPTIONS = [
   { id: '', label: 'None / Unassigned' },
@@ -64,9 +92,11 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
   if (!teacher) return null;
 
   const [formData, setFormData] = useState({
+    teacherId: teacher.teacherId || '',
     name: teacher.name || '',
     role: teacher.role || '',
     subject: teacher.subject || '',
+    dob: teacher.dob || '',
     phone: teacher.phone || '',
     email: teacher.email || '',
     status: teacher.status || 'Active Faculty',
@@ -75,6 +105,7 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
     teachingAssignments: Array.isArray(teacher.teachingAssignments) ? teacher.teachingAssignments : [],
   });
 
+  const dobPickerRef = useRef(null);
   const [newAllotmentClass, setNewAllotmentClass] = useState('');
   const [newAllotmentSubject, setNewAllotmentSubject] = useState('');
 
@@ -94,9 +125,11 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
   // Sync form if teacher prop changes
   useEffect(() => {
     setFormData({
+      teacherId: teacher.teacherId || '',
       name: teacher.name || '',
       role: teacher.role || '',
       subject: teacher.subject || '',
+      dob: teacher.dob || '',
       phone: teacher.phone || '',
       email: teacher.email || '',
       status: teacher.status || 'Active Faculty',
@@ -165,6 +198,11 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const cleanTeacherId = (formData.teacherId || '').trim().toUpperCase();
+    if (!cleanTeacherId) {
+      setErrorMessage('Teacher Government ID is required.');
+      return;
+    }
     if (!formData.name.trim()) {
       setErrorMessage('Teacher Name is required.');
       return;
@@ -183,9 +221,11 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          teacherId: cleanTeacherId,
           name: formData.name.trim(),
           role: formData.role.trim(),
           subject: formData.subject.trim(),
+          dob: formData.dob ? formData.dob.trim() : '',
           phone: formData.phone.trim(),
           email: formData.email.trim(),
           status: formData.status,
@@ -232,7 +272,7 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
               <div className="edit-teacher-title-row">
                 <h3>Edit Teacher Profile</h3>
                 <span className="teacher-id-readonly-pill">
-                  {teacher.teacherId}
+                  {formData.teacherId || teacher.teacherId}
                 </span>
               </div>
               <p className="edit-teacher-subtitle">
@@ -315,6 +355,62 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
 
 
 
+            {/* Date of Birth (DOB) */}
+            <div className="et-form-field">
+              <label htmlFor="edit-teacher-dob">
+                <Calendar size={14} />
+                <span>Date of Birth (DOB)</span>
+              </label>
+              <div 
+                className="dob-input-wrapper"
+                onClick={() => {
+                  try {
+                    dobPickerRef.current?.showPicker?.();
+                  } catch (err) {
+                    dobPickerRef.current?.focus();
+                  }
+                }}
+              >
+                <input
+                  id="edit-teacher-dob"
+                  type="text"
+                  value={formData.dob}
+                  onChange={(e) => handleChange('dob', e.target.value)}
+                  placeholder="DD/MM/YYYY e.g. 15/08/1985"
+                  className="dob-text-input"
+                />
+                <input
+                  type="date"
+                  ref={dobPickerRef}
+                  value={formatToIsoDate(formData.dob)}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleChange('dob', formatToDisplayDate(e.target.value));
+                    }
+                  }}
+                  className="dob-native-picker"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  className="dob-picker-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try {
+                      dobPickerRef.current?.showPicker?.();
+                    } catch (err) {
+                      dobPickerRef.current?.focus();
+                    }
+                  }}
+                  title="Choose Date of Birth from calendar"
+                  aria-label="Choose Date of Birth from calendar"
+                >
+                  <Calendar size={16} />
+                </button>
+              </div>
+            </div>
+
             {/* Phone */}
             <div className="et-form-field">
               <label>
@@ -380,18 +476,21 @@ const EditTeacherModal = ({ teacher, onClose, onSave }) => {
               </select>
             </div>
 
-            {/* Teacher ID — read only */}
+            {/* Teacher Government ID */}
             <div className="et-form-field full-width">
-              <label>
+              <label htmlFor="edit-teacher-id">
                 <Hash size={14} />
-                <span>Teacher Government ID</span>
+                <span>Teacher Government ID *</span>
               </label>
               <input
+                id="edit-teacher-id"
                 type="text"
-                value={teacher.teacherId || ''}
-                readOnly
-                className="et-input-readonly"
-                title="Government-issued Teacher ID — not editable"
+                value={formData.teacherId}
+                onChange={(e) => handleChange('teacherId', e.target.value.toUpperCase())}
+                placeholder="e.g. TR45208338 or TP00693724"
+                required
+                style={{ textTransform: 'uppercase', fontFamily: 'monospace', fontWeight: '700', letterSpacing: '0.5px' }}
+                title="Tripura Government-issued Teacher ID (e.g. TR45208338, TP00693724)"
               />
             </div>
           </div>
