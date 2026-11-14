@@ -411,7 +411,10 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
             // 6th Subject: IT/ITeS (Optional)
             let subjects = [];
             if (isSecondary) {
-              const hasIT = rawSubjects.some(s => s.toLowerCase().includes('it'));
+              const hasIT = rawSubjects.some(s => {
+                const subStr = String(s || '').toLowerCase();
+                return /\b(it|ites)\b/i.test(subStr) || subStr.includes('information technology') || subStr.includes('vocational');
+              });
               subjects = ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics'];
               if (hasIT || rawSubjects.includes('IT/ITeS')) {
                 subjects.push('IT/ITeS');

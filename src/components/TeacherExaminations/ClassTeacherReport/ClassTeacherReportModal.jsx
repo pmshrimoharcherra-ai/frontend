@@ -647,13 +647,17 @@ const ClassTeacherReportModal = ({
     const sNorm = subject.toLowerCase().replace(/any other subject\s*\((.*?)\)/, '$1').trim();
     const termRecord = examRecords.find((rec) => {
       const recTerm = (rec.examTerm || '').toLowerCase();
+      const isITSubj = (val = '') => {
+        const s = String(val || '').toLowerCase();
+        return /\b(it|ites)\b/i.test(s) || s.includes('information technology') || s.includes('vocational');
+      };
       const recSub = (rec.subject || '').toLowerCase();
       const termMatches = recTerm.includes(examTerm.toLowerCase());
       const subMatches =
         recSub === sNorm ||
         recSub.includes(sNorm) ||
         sNorm.includes(recSub) ||
-        (sNorm.includes('it') && recSub.includes('it'));
+        (isITSubj(sNorm) && isITSubj(recSub));
       return termMatches && subMatches;
     });
 
@@ -668,8 +672,13 @@ const ClassTeacherReportModal = ({
     const subjects = getSubjectsList();
     const meta = metaRecords[studentId] || {};
 
+    const isITSubjectCheck = (val = '') => {
+      const s = String(val || '').toLowerCase();
+      return /\b(it|ites)\b/i.test(s) || s.includes('information technology') || s.includes('vocational');
+    };
+
     const rows = subjects.map((subj) => {
-      const isIT = subj.toLowerCase().includes('it');
+      const isIT = isITSubjectCheck(subj);
 
       let pt1 = getScore(studentId, subj, 'Periodic Test - 1');
       let hy = getScore(studentId, subj, 'Half Yearly');

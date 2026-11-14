@@ -41,17 +41,20 @@ const TeacherSidebar = ({
 
   const isClassTeacher = Boolean(assignedClassId || assignedClassName);
 
+  const isVocationalSubject = (str = '') => {
+    const s = String(str || '').toLowerCase();
+    return /\b(it|ites)\b/i.test(s) || s.includes('information technology') || s.includes('vocational');
+  };
+
   const isVocationalTeacher = Boolean(
     teacherRole === 'VT' ||
-    teacherRole?.toLowerCase().includes('vt') ||
-    teacherRole?.toLowerCase().includes('vocational') ||
-    primarySubject?.toLowerCase().includes('it') ||
-    primarySubject?.toLowerCase().includes('vocational') ||
+    /\bvt\b/i.test(String(teacherRole || '')) ||
+    String(teacherRole || '').toLowerCase().includes('vocational') ||
+    isVocationalSubject(primarySubject) ||
     (Array.isArray(teachingAssignments) && teachingAssignments.some(a => 
-      String(a.subject || '').toLowerCase().includes('it') || 
-      String(a.subject || '').toLowerCase().includes('vocational')
+      isVocationalSubject(a?.subject)
     )) ||
-    teacherName?.toLowerCase().includes('kiran samanta')
+    String(teacherName || '').toLowerCase().includes('kiran samanta')
   );
 
   const navItems = [

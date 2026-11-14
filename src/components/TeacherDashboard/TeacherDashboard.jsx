@@ -183,6 +183,30 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     activeUser?.assignedClassName || ''
   );
 
+  // Vocational Teacher detection (VT / IT/ITeS)
+  const isVocationalTeacher = useMemo(() => {
+    const roleStr = String(teacherData?.role || activeUser?.role || '').toLowerCase();
+    const subjStr = String(teacherData?.subject || activeUser?.subject || '').toLowerCase();
+    const nameStr = String(teacherData?.name || activeUser?.name || '').toLowerCase();
+
+    const isVocationalSubject = (str = '') => {
+      const s = String(str || '').toLowerCase();
+      return /\b(it|ites)\b/i.test(s) || s.includes('information technology') || s.includes('vocational');
+    };
+
+    const hasVocAssignment = Array.isArray(teacherData?.teachingAssignments) &&
+      teacherData.teachingAssignments.some((a) => isVocationalSubject(a?.subject));
+
+    return (
+      roleStr === 'vt' ||
+      /\bvt\b/i.test(roleStr) ||
+      roleStr.includes('vocational') ||
+      isVocationalSubject(subjStr) ||
+      nameStr.includes('kiran samanta') ||
+      Boolean(hasVocAssignment)
+    );
+  }, [teacherData, activeUser]);
+
   // Student list state for attendance
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -323,7 +347,10 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     if (!assignedClassId && (location.pathname.includes('/attendance') || (location.pathname.includes('/students') && !location.pathname.includes('/vocational')))) {
       navigate('/teacher/dashboard', { replace: true });
     }
-  }, [assignedClassId, location.pathname, navigate]);
+    if (!isVocationalTeacher && (location.pathname.includes('/vocational-students') || location.pathname.includes('/vocational'))) {
+      navigate('/teacher/dashboard', { replace: true });
+    }
+  }, [assignedClassId, isVocationalTeacher, location.pathname, navigate]);
 
   // Save student updates made from Teacher's Student Roster
   const handleSaveStudent = async (updatedStudent) => {
@@ -522,6 +549,27 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
     return list;
   }, [teacherData, assignedClassId, assignedClassName]);
 
+  const teacherName = teacherData?.name || activeUser?.name || 'Faculty Member';
+  const teacherSubject = teacherData?.subject || activeUser?.subject || 'English';
+  const teacherIdCode = teacherData?.teacherId || activeUser?.teacherId || 'TR76404582';
+
+  const contentPaneRef = useRef(null);
+  const [showGoTop, setShowGoTop] = useState(false);
+
+  useEffect(() => {
+    const pane = contentPaneRef.current;
+    if (!pane) return;
+    const handleScroll = () => {
+      setShowGoTop(pane.scrollTop > 300);
+    };
+    pane.addEventListener('scroll', handleScroll, { passive: true });
+    return () => pane.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    contentPaneRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // Unauthenticated Guard
   if (!activeUser) {
     return (
@@ -556,49 +604,6 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
       </div>
     );
   }
-
-  
-  // Vocational Teacher detection (VT / IT/ITeS)
-  const isVocationalTeacher = useMemo(() => {
-    const roleStr = String(teacherData?.role || activeUser?.role || '').toLowerCase();
-    const subjStr = String(teacherData?.subject || activeUser?.subject || '').toLowerCase();
-    const nameStr = String(teacherData?.name || activeUser?.name || '').toLowerCase();
-    const hasVocAssignment = Array.isArray(teacherData?.teachingAssignments) &&
-      teacherData.teachingAssignments.some((a) => {
-        const s = String(a.subject || '').toLowerCase();
-        return s.includes('it') || s.includes('vocational');
-      });
-    return (
-      roleStr === 'vt' ||
-      roleStr.includes('vt') ||
-      roleStr.includes('vocational') ||
-      subjStr.includes('it') ||
-      subjStr.includes('vocational') ||
-      nameStr.includes('kiran samanta') ||
-      Boolean(hasVocAssignment)
-    );
-  }, [teacherData, activeUser]);
-
-  const teacherName = teacherData?.name || activeUser?.name || 'Faculty Member';
-  const teacherSubject = teacherData?.subject || activeUser?.subject || 'English';
-  const teacherIdCode = teacherData?.teacherId || activeUser?.teacherId || 'TR76404582';
-
-  const contentPaneRef = useRef(null);
-  const [showGoTop, setShowGoTop] = useState(false);
-
-  useEffect(() => {
-    const pane = contentPaneRef.current;
-    if (!pane) return;
-    const handleScroll = () => {
-      setShowGoTop(pane.scrollTop > 300);
-    };
-    pane.addEventListener('scroll', handleScroll, { passive: true });
-    return () => pane.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = useCallback(() => {
-    contentPaneRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
 
   return (
     <div className="teacher-portal-layout">

@@ -114,9 +114,13 @@ const TeacherExaminations = ({
   teachingList = []
 }) => {
   // Check whether current exam subject is vocational/elective (specifically IT/ITeS)
-  const isVTUser = activeUser?.role === 'VT' || activeUser?.designation === 'VT';
+  const isVTUser = activeUser?.role === 'VT' || activeUser?.designation === 'VT' || /\bvt\b/i.test(String(activeUser?.role || ''));
   const initialSubj = String(teachingList[0]?.subject || activeUser?.subject || '').toLowerCase();
-  const isInitiallyVocational = isVTUser || initialSubj.includes('it') || initialSubj.includes('vocational');
+  const isInitiallyVocational =
+    isVTUser ||
+    /\b(it|ites)\b/i.test(initialSubj) ||
+    initialSubj.includes('information technology') ||
+    initialSubj.includes('vocational');
 
   // Examinations state (defaults to Half Yearly for Vocational / IT/ITeS)
   const [selectedExamTerm, setSelectedExamTerm] = useState(() => (
