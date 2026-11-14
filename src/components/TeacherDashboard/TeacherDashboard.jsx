@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/api';
 import './TeacherDashboard.css';
@@ -44,7 +44,8 @@ import {
   CheckSquare,
   PanelLeftOpen,
   PanelLeftClose,
-  Laptop
+  Laptop,
+  ArrowUp
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent, isTransferredOrFailed } from '../../utils/studentStatus';
@@ -582,6 +583,23 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   const teacherSubject = teacherData?.subject || activeUser?.subject || 'English';
   const teacherIdCode = teacherData?.teacherId || activeUser?.teacherId || 'TR76404582';
 
+  const contentPaneRef = useRef(null);
+  const [showGoTop, setShowGoTop] = useState(false);
+
+  useEffect(() => {
+    const pane = contentPaneRef.current;
+    if (!pane) return;
+    const handleScroll = () => {
+      setShowGoTop(pane.scrollTop > 300);
+    };
+    pane.addEventListener('scroll', handleScroll, { passive: true });
+    return () => pane.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    contentPaneRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="teacher-portal-layout">
       {/* =========================================================================
@@ -607,7 +625,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
       {/* =========================================================================
           RIGHT CONTENT PANE (Header + Main Tab Contents)
          ========================================================================= */}
-      <div className="teacher-content-pane">
+      <div className="teacher-content-pane" ref={contentPaneRef}>
         {/* Top Navbar */}
         <header className="teacher-top-navbar">
           <div className="teacher-navbar-inner">
@@ -1443,6 +1461,19 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
             />
           )}
         </main>
+
+        {/* Go to Top Floating Button */}
+        {showGoTop && (
+          <button
+            type="button"
+            className="teacher-go-top-btn"
+            onClick={scrollToTop}
+            title="Go to top"
+            aria-label="Go to top"
+          >
+            <ArrowUp size={20} />
+          </button>
+        )}
       </div>
     </div>
   );
