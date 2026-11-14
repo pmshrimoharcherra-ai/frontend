@@ -265,103 +265,107 @@ const buildDefaultNbNote = (entries) => {
 const PRINTABLE_WORKING_REPORT_CSS = `
   @page {
     size: A4 portrait;
-    margin: 18mm 20mm;
+    margin: 14mm 20mm 18mm 20mm;
   }
   * {
     box-sizing: border-box;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  body {
+  html, body {
     margin: 0;
     padding: 0;
     background: #ffffff;
     color: #000000;
     font-family: 'Times New Roman', Times, serif;
     font-size: 11.5pt;
-    line-height: 1.4;
+    line-height: 1.45;
   }
   .wr-sheet {
     width: 100%;
-    max-width: 170mm;
+    max-width: 172mm;
     margin: 0 auto;
+    padding-top: 18mm;
     color: #000000;
     font-family: 'Times New Roman', Times, serif;
   }
   .wr-doc-header {
     text-align: center;
     font-weight: bold;
-    font-size: 12.5pt;
-    line-height: 1.32;
-    margin-bottom: 26px;
+    font-size: 13pt;
+    line-height: 1.38;
+    margin-bottom: 30px;
+    letter-spacing: 0.2px;
   }
   .wr-ref-date-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 24px;
-    font-size: 11pt;
+    margin-bottom: 28px;
+    font-size: 11.5pt;
   }
   .wr-to-block {
-    margin-bottom: 20px;
-    font-size: 11pt;
-    line-height: 1.38;
+    margin-bottom: 24px;
+    font-size: 11.5pt;
+    line-height: 1.45;
   }
   .wr-to-line {
     white-space: pre-wrap;
   }
   .wr-subject-line {
-    margin-bottom: 14px;
-    font-size: 11pt;
-    line-height: 1.4;
+    margin-bottom: 20px;
+    font-size: 11.5pt;
+    line-height: 1.45;
   }
   .wr-salutation-line {
-    margin-bottom: 14px;
-    font-size: 11pt;
+    margin-bottom: 18px;
+    font-size: 11.5pt;
   }
   .wr-body-paragraph {
-    margin-bottom: 20px;
-    font-size: 11pt;
-    line-height: 1.48;
+    margin-bottom: 26px;
+    font-size: 11.5pt;
+    line-height: 1.58;
+    text-align: justify;
   }
   .wr-doc-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 14px 0 18px 0;
-    font-size: 10.5pt;
+    margin: 20px 0 24px 0;
+    font-size: 11pt;
   }
   .wr-doc-table th,
   .wr-doc-table td {
-    border: 1px solid #444444;
-    padding: 8px 8px;
+    border: 1px solid #333333;
+    padding: 10px 8px;
     text-align: center;
     vertical-align: middle;
     color: #000000;
     font-weight: normal;
   }
   .wr-doc-table th {
-    line-height: 1.25;
+    line-height: 1.3;
   }
   .wr-doc-table tbody tr {
-    height: 36px;
+    height: 42px;
   }
   .wr-closing-line {
     text-align: center;
-    margin: 18px 0 22px 0;
-    font-size: 11pt;
+    margin: 24px 0 26px 0;
+    font-size: 11.5pt;
   }
   .wr-nb-line {
     text-align: left;
-    margin-bottom: 48px;
-    font-size: 11pt;
+    margin-bottom: 42px;
+    font-size: 11.5pt;
+    line-height: 1.4;
   }
   .wr-signature-block {
     text-align: right;
-    margin-top: 20px;
-    font-size: 11pt;
+    margin-top: 24px;
+    font-size: 11.5pt;
   }
   .wr-yours-faithfully {
-    margin-bottom: 60px;
+    margin-bottom: 70px;
   }
   .wr-hm-sig-label {
     display: inline-block;
@@ -756,8 +760,8 @@ const AdminWorkingReport = ({ teachers: propTeachers = [] }) => {
       bodyStaffText = labels.join(', ');
     }
 
-    // Pad table rows to at least 3 rows matching the physical Word format
-    const totalRows = Math.max(3, staffEntries.length);
+    // Pad table rows to at least 4 rows matching the physical Word format
+    const totalRows = Math.max(4, staffEntries.length);
     const tableRowsHtml = Array.from({ length: totalRows })
       .map((_, idx) => {
         const entry = staffEntries[idx];

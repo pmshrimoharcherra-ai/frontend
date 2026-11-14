@@ -573,10 +573,10 @@
 .wr-paper-sheet {
   width: 100%;
   max-width: 760px;
-  min-height: 920px;
+  min-height: 980px;
   background: #ffffff;
   color: #000000;
-  padding: 52px 58px;
+  padding: 68px 58px 60px 58px;
   border-radius: 2px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   font-family: 'Times New Roman', Times, serif;
@@ -588,15 +588,16 @@
   color: #000000;
   font-family: 'Times New Roman', Times, serif;
   font-size: 11.5pt;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .wr-paper-sheet .wr-doc-header {
   text-align: center;
   font-weight: bold;
-  font-size: 12.5pt;
-  line-height: 1.32;
-  margin-bottom: 26px;
+  font-size: 13pt;
+  line-height: 1.38;
+  margin-bottom: 30px;
+  letter-spacing: 0.2px;
 }
 
 .wr-paper-sheet .wr-ref-date-row {
@@ -605,14 +606,14 @@
   align-items: baseline;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
-  font-size: 11pt;
+  margin-bottom: 28px;
+  font-size: 11.5pt;
 }
 
 .wr-paper-sheet .wr-to-block {
-  margin-bottom: 20px;
-  font-size: 11pt;
-  line-height: 1.38;
+  margin-bottom: 24px;
+  font-size: 11.5pt;
+  line-height: 1.45;
 }
 
 .wr-paper-sheet .wr-preview-placeholder {
@@ -621,33 +622,34 @@
 }
 
 .wr-paper-sheet .wr-subject-line {
-  margin-bottom: 14px;
-  font-size: 11pt;
-  line-height: 1.4;
+  margin-bottom: 20px;
+  font-size: 11.5pt;
+  line-height: 1.45;
 }
 
 .wr-paper-sheet .wr-salutation-line {
-  margin-bottom: 14px;
-  font-size: 11pt;
+  margin-bottom: 18px;
+  font-size: 11.5pt;
 }
 
 .wr-paper-sheet .wr-body-paragraph {
-  margin-bottom: 20px;
-  font-size: 11pt;
-  line-height: 1.48;
+  margin-bottom: 26px;
+  font-size: 11.5pt;
+  line-height: 1.58;
+  text-align: justify;
 }
 
 .wr-paper-sheet .wr-doc-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 14px 0 18px 0;
-  font-size: 10.5pt;
+  margin: 20px 0 24px 0;
+  font-size: 11pt;
 }
 
 .wr-paper-sheet .wr-doc-table th,
 .wr-paper-sheet .wr-doc-table td {
-  border: 1px solid #6b7280;
-  padding: 8px 8px;
+  border: 1px solid #333333;
+  padding: 10px 8px;
   text-align: center;
   vertical-align: middle;
   color: #000000;
@@ -656,33 +658,34 @@
 }
 
 .wr-paper-sheet .wr-doc-table th {
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .wr-paper-sheet .wr-doc-table tbody tr {
-  height: 36px;
+  height: 42px;
 }
 
 .wr-paper-sheet .wr-closing-line {
   text-align: center;
-  margin: 18px 0 22px 0;
-  font-size: 11pt;
+  margin: 24px 0 26px 0;
+  font-size: 11.5pt;
 }
 
 .wr-paper-sheet .wr-nb-line {
   text-align: left;
-  margin-bottom: 48px;
-  font-size: 11pt;
+  margin-bottom: 42px;
+  font-size: 11.5pt;
+  line-height: 1.4;
 }
 
 .wr-paper-sheet .wr-signature-block {
   text-align: right;
-  margin-top: 20px;
-  font-size: 11pt;
+  margin-top: 24px;
+  font-size: 11.5pt;
 }
 
 .wr-paper-sheet .wr-yours-faithfully {
-  margin-bottom: 60px;
+  margin-bottom: 70px;
 }
 
 .wr-paper-sheet .wr-hm-sig-label {
