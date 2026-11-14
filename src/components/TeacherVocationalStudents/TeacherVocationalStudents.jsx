@@ -155,14 +155,11 @@ const TeacherVocationalStudents = ({
 
   // Table Density / Layout ('fit' = Fit Screen Auto-Responsive, 'wide' = All 12 Columns Grid)
   const [tableLayout, setTableLayout] = useState('fit');
-  // Expanded student row IDs for Quick View inline detail drawer
-  const [expandedRows, setExpandedRows] = useState({});
+  // Single active expanded student row ID (Accordion behavior: only one open at a time)
+  const [expandedRowId, setExpandedRowId] = useState(null);
 
   const toggleRowExpanded = (studentKey) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [studentKey]: !prev[studentKey]
-    }));
+    setExpandedRowId((prev) => (prev === studentKey ? null : studentKey));
   };
 
   // Modals state
@@ -315,6 +312,7 @@ const TeacherVocationalStudents = ({
   // Safe tab selection that resets incompatible filters to prevent empty state deadlocks
   const handleSelectClassTab = (tabId) => {
     setSelectedClassTab(tabId);
+    setExpandedRowId(null);
     if (tabId === 'class-9' || tabId === 'class-10') {
       if (selectedStream !== 'all') setSelectedStream('all');
     } else if (tabId === 'class-12') {
@@ -331,6 +329,7 @@ const TeacherVocationalStudents = ({
     setCasteFilter('all');
     setStatusFilter('all');
     setSearchQuery('');
+    setExpandedRowId(null);
   };
 
   // Clear secondary filters while keeping class tab
@@ -635,27 +634,6 @@ const TeacherVocationalStudents = ({
     sortBy,
     sortDirection
   ]);
-
-  const expandAllRows = () => {
-    const all = {};
-    filteredStudents.forEach((st) => {
-      const key = st.studentId || st.id || st._id;
-      all[key] = true;
-    });
-    setExpandedRows(all);
-  };
-
-  const collapseAllRows = () => {
-    setExpandedRows({});
-  };
-
-  const allExpanded = useMemo(() => {
-    if (!filteredStudents || filteredStudents.length === 0) return false;
-    return filteredStudents.every((st) => {
-      const key = st.studentId || st.id || st._id;
-      return !!expandedRows[key];
-    });
-  }, [filteredStudents, expandedRows]);
 
   const handleRowClick = (e, studentKey) => {
     if (e.target.closest('button, a, input, select, .copyable, .voc-pen-badge, .voc-id-pill, .voc-aadhaar-pill, .clickable-name, .voc-avatar')) {
@@ -1274,16 +1252,18 @@ const TeacherVocationalStudents = ({
                   </button>
                 </div>
 
-                {/* Expand All / Collapse All */}
-                <button
-                  type="button"
-                  className="toggle-all-rows-btn"
-                  onClick={allExpanded ? collapseAllRows : expandAllRows}
-                  title={allExpanded ? 'Collapse all student detail cards' : 'Expand all student detail cards'}
-                >
-                  {allExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                  <span>{allExpanded ? 'Collapse All' : 'Expand All'}</span>
-                </button>
+                {/* Close Active Detail if open */}
+                {expandedRowId && (
+                  <button
+                    type="button"
+                    className="toggle-all-rows-btn"
+                    onClick={() => setExpandedRowId(null)}
+                    title="Close opened student details"
+                  >
+                    <ChevronUp size={12} />
+                    <span>Close Detail</span>
+                  </button>
+                )}
               </div>
             )}
 
@@ -1420,7 +1400,7 @@ const TeacherVocationalStudents = ({
                   const aadhaar = st.aadhaar || '';
                   const isClassX = String(st.classId || '').includes('10');
                   const isTransferred = isTransferredStudent(st);
-                  const isExpanded = !!expandedRows[studentKey];
+                  const isExpanded = expandedRowId === studentKey;
 
                   return (
                     <React.Fragment key={studentKey}>
