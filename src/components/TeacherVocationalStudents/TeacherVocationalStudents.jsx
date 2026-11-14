@@ -27,11 +27,17 @@ import {
   ArrowUpDown,
   FileSpreadsheet,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Maximize2,
+  Minimize2,
   ShieldCheck,
   Building,
   UserCheck,
   UserX,
-  RotateCcw
+  RotateCcw,
+  Fingerprint,
+  MapPin
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
@@ -146,6 +152,18 @@ const TeacherVocationalStudents = ({
   }, [userToggledView]);
   const [sortBy, setSortBy] = useState('roll'); // 'roll' | 'name' | 'class' | 'sector'
   const [sortDirection, setSortDirection] = useState('asc'); // 'asc' | 'desc'
+
+  // Table Density / Layout ('fit' = Fit Screen Auto-Responsive, 'wide' = All 12 Columns Grid)
+  const [tableLayout, setTableLayout] = useState('fit');
+  // Expanded student row IDs for Quick View inline detail drawer
+  const [expandedRows, setExpandedRows] = useState({});
+
+  const toggleRowExpanded = (studentKey) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [studentKey]: !prev[studentKey]
+    }));
+  };
 
   // Modals state
   const [viewingStudent, setViewingStudent] = useState(null);
@@ -617,6 +635,34 @@ const TeacherVocationalStudents = ({
     sortBy,
     sortDirection
   ]);
+
+  const expandAllRows = () => {
+    const all = {};
+    filteredStudents.forEach((st) => {
+      const key = st.studentId || st.id || st._id;
+      all[key] = true;
+    });
+    setExpandedRows(all);
+  };
+
+  const collapseAllRows = () => {
+    setExpandedRows({});
+  };
+
+  const allExpanded = useMemo(() => {
+    if (!filteredStudents || filteredStudents.length === 0) return false;
+    return filteredStudents.every((st) => {
+      const key = st.studentId || st.id || st._id;
+      return !!expandedRows[key];
+    });
+  }, [filteredStudents, expandedRows]);
+
+  const handleRowClick = (e, studentKey) => {
+    if (e.target.closest('button, a, input, select, .copyable, .voc-pen-badge, .voc-id-pill, .voc-aadhaar-pill, .clickable-name, .voc-avatar')) {
+      return;
+    }
+    toggleRowExpanded(studentKey);
+  };
 
   // Export current filtered list as responsive Excel sheet (.xlsx)
   const handleExportExcel = () => {
@@ -1203,31 +1249,70 @@ const TeacherVocationalStudents = ({
             )}
           </div>
 
-          <div className="sort-controls-row no-print">
-            <span className="sort-label">
-              <ArrowUpDown size={13} />
-              <span>Sort by:</span>
-            </span>
-            <select
-              className="sort-dropdown"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="roll">Roll Number</option>
-              <option value="name">Student Name</option>
-              <option value="class">Class</option>
-              <option value="sector">Vocational Sector</option>
-              <option value="attendance">Attendance %</option>
-              <option value="gender">Gender</option>
-            </select>
-            <button
-              type="button"
-              className="sort-direction-btn"
-              onClick={() => setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))}
-              title={sortDirection === 'asc' ? 'Ascending (1 to 9)' : 'Descending (9 to 1)'}
-            >
-              {sortDirection === 'asc' ? '▲ Asc' : '▼ Desc'}
-            </button>
+          <div className="subbar-controls-right no-print">
+            {viewMode === 'table' && (
+              <div className="table-view-options">
+                {/* Table Density / Layout Switcher */}
+                <div className="table-layout-pill-group" title="Switch table display layout">
+                  <button
+                    type="button"
+                    className={`table-layout-pill-btn ${tableLayout === 'fit' ? 'active' : ''}`}
+                    onClick={() => setTableLayout('fit')}
+                    title="Fit Screen: Responsive compact layout with no horizontal scrolling"
+                  >
+                    <Minimize2 size={12} />
+                    <span>Fit Screen</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`table-layout-pill-btn ${tableLayout === 'wide' ? 'active' : ''}`}
+                    onClick={() => setTableLayout('wide')}
+                    title="All 12 Columns: Extended spreadsheet layout with sticky columns"
+                  >
+                    <Maximize2 size={12} />
+                    <span>All 12 Cols</span>
+                  </button>
+                </div>
+
+                {/* Expand All / Collapse All */}
+                <button
+                  type="button"
+                  className="toggle-all-rows-btn"
+                  onClick={allExpanded ? collapseAllRows : expandAllRows}
+                  title={allExpanded ? 'Collapse all student detail cards' : 'Expand all student detail cards'}
+                >
+                  {allExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  <span>{allExpanded ? 'Collapse All' : 'Expand All'}</span>
+                </button>
+              </div>
+            )}
+
+            <div className="sort-controls-row">
+              <span className="sort-label">
+                <ArrowUpDown size={13} />
+                <span>Sort by:</span>
+              </span>
+              <select
+                className="sort-dropdown"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="roll">Roll Number</option>
+                <option value="name">Student Name</option>
+                <option value="class">Class</option>
+                <option value="sector">Vocational Sector</option>
+                <option value="attendance">Attendance %</option>
+                <option value="gender">Gender</option>
+              </select>
+              <button
+                type="button"
+                className="sort-direction-btn"
+                onClick={() => setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))}
+                title={sortDirection === 'asc' ? 'Ascending (1 to 9)' : 'Descending (9 to 1)'}
+              >
+                {sortDirection === 'asc' ? '▲ Asc' : '▼ Desc'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1280,28 +1365,50 @@ const TeacherVocationalStudents = ({
               1. RICH TABLE VIEW
              =================================================================== */
           <div className="voc-table-responsive-wrapper">
-            <div className="voc-table-scroll-hint no-print">
-              <span className="scroll-hint-icon">⇄</span>
-              <span>Swipe horizontally to view full table details (12 columns)</span>
-            </div>
-            <table className="voc-students-table">
+            {tableLayout === 'wide' && (
+              <div className="voc-table-scroll-hint no-print">
+                <span className="scroll-hint-icon">⇄</span>
+                <span>Scroll horizontally to view all 12 columns • Actions & Student Name are pinned</span>
+              </div>
+            )}
+            <table className={`voc-students-table table-layout-${tableLayout}`}>
               <thead>
-                <tr>
-                  <th style={{ width: '75px', textAlign: 'center' }}>Roll</th>
-                  <th>Student & PEN</th>
-                  <th style={{ width: '135px' }}>Class / Wing</th>
-                  <th style={{ width: '125px', textAlign: 'center' }}>Sector / Trade</th>
-                  <th style={{ width: '155px' }}>APAAR ID</th>
-                  <th style={{ width: '145px' }}>Aadhaar No.</th>
-                  <th>Parents / Guardian</th>
-                  <th style={{ width: '120px' }}>Contact</th>
-                  <th style={{ width: '75px', textAlign: 'center' }}>Caste</th>
-                  <th style={{ width: '80px', textAlign: 'center' }}>Att %</th>
-                  <th style={{ width: '90px', textAlign: 'center' }}>Status</th>
-                  <th style={{ width: '110px', textAlign: 'center' }} className="no-print">
-                    Actions
-                  </th>
-                </tr>
+                {tableLayout === 'fit' ? (
+                  /* =========================================================
+                      FIT SCREEN (COMPACT RESPONSIVE) HEADERS - 7 COLUMNS
+                     ========================================================= */
+                  <tr>
+                    <th style={{ width: '60px', textAlign: 'center' }} className="sticky-col-roll">Roll</th>
+                    <th style={{ minWidth: '190px' }}>Student & Identifiers</th>
+                    <th style={{ width: '145px' }}>Class & Sector</th>
+                    <th style={{ width: '165px' }}>Govt IDs (APAAR / UID)</th>
+                    <th style={{ width: '200px' }}>Parents & Contact</th>
+                    <th style={{ width: '130px', textAlign: 'center' }}>Attendance & Status</th>
+                    <th style={{ width: '115px', textAlign: 'center' }} className="no-print sticky-col-actions">
+                      Actions
+                    </th>
+                  </tr>
+                ) : (
+                  /* =========================================================
+                      ALL 12 COLUMNS SPREADSHEET HEADERS
+                     ========================================================= */
+                  <tr>
+                    <th style={{ width: '70px', textAlign: 'center' }} className="sticky-col-roll">Roll</th>
+                    <th style={{ minWidth: '180px' }} className="sticky-col-student">Student & PEN</th>
+                    <th style={{ width: '135px' }}>Class / Wing</th>
+                    <th style={{ width: '120px', textAlign: 'center' }}>Sector / Trade</th>
+                    <th style={{ width: '150px' }}>APAAR ID</th>
+                    <th style={{ width: '145px' }}>Aadhaar No.</th>
+                    <th style={{ minWidth: '190px' }}>Parents / Guardian</th>
+                    <th style={{ width: '125px' }}>Contact</th>
+                    <th style={{ width: '75px', textAlign: 'center' }}>Caste</th>
+                    <th style={{ width: '80px', textAlign: 'center' }}>Att %</th>
+                    <th style={{ width: '90px', textAlign: 'center' }}>Status</th>
+                    <th style={{ width: '115px', textAlign: 'center' }} className="no-print sticky-col-actions">
+                      Actions
+                    </th>
+                  </tr>
+                )}
               </thead>
               <tbody>
                 {filteredStudents.map((st) => {
@@ -1313,215 +1420,766 @@ const TeacherVocationalStudents = ({
                   const aadhaar = st.aadhaar || '';
                   const isClassX = String(st.classId || '').includes('10');
                   const isTransferred = isTransferredStudent(st);
+                  const isExpanded = !!expandedRows[studentKey];
 
                   return (
-                    <tr key={studentKey} className={`voc-student-row ${isTransferred ? 'transferred-row' : ''}`}>
-                      {/* Roll No */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="voc-roll-pill font-mono">
-                          #{st.roll || '00'}
-                        </span>
-                      </td>
+                    <React.Fragment key={studentKey}>
+                      <tr
+                        className={`voc-student-row ${isTransferred ? 'transferred-row' : ''} ${isExpanded ? 'row-is-expanded' : ''}`}
+                        onClick={(e) => handleRowClick(e, studentKey)}
+                        title="Click to expand full student details"
+                      >
+                        {tableLayout === 'fit' ? (
+                          /* -------------------------------------------------
+                              FIT SCREEN ROW (7 COMPACT COLUMNS)
+                             ------------------------------------------------- */
+                          <>
+                            {/* 1. Roll No */}
+                            <td style={{ textAlign: 'center' }} className="sticky-col-roll">
+                              <span className="voc-roll-pill font-mono">
+                                #{st.roll || '00'}
+                              </span>
+                            </td>
 
-                      {/* Student Name & Avatar & PEN */}
-                      <td>
-                        <div className="voc-name-cell">
-                          <div className={`voc-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}>
-                            {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
-                          </div>
-                          <div className="voc-name-meta">
-                            <span className="voc-student-fullname font-bold">
-                              {st.name}
-                            </span>
-                            <div className="voc-sub-meta-row">
-                              {pen ? (
-                                <span
-                                  className="voc-pen-badge font-mono"
-                                  title="Click to copy PEN Number"
-                                  onClick={() => handleCopyText(pen, `pen-${studentKey}`)}
+                            {/* 2. Student & Identifiers */}
+                            <td>
+                              <div className="voc-name-cell">
+                                <div
+                                  className={`voc-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingStudent(st);
+                                  }}
+                                  title="View full profile"
                                 >
-                                  <span>PEN: {pen}</span>
-                                  {copiedId === `pen-${studentKey}` ? (
+                                  {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
+                                </div>
+                                <div className="voc-name-meta">
+                                  <span
+                                    className="voc-student-fullname font-bold clickable-name"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setViewingStudent(st);
+                                    }}
+                                    title="Click to view full student profile modal"
+                                  >
+                                    {st.name}
+                                  </span>
+                                  <div className="voc-sub-meta-row">
+                                    {pen ? (
+                                      <span
+                                        className="voc-pen-badge font-mono"
+                                        title="Click to copy PEN Number"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleCopyText(pen, `pen-${studentKey}`);
+                                        }}
+                                      >
+                                        <span>PEN: {pen}</span>
+                                        {copiedId === `pen-${studentKey}` ? (
+                                          <Check size={11} className="copied-icon" />
+                                        ) : (
+                                          <Copy size={11} className="copy-icon" />
+                                        )}
+                                      </span>
+                                    ) : (
+                                      <span className="voc-pen-badge badge-pending font-mono">
+                                        PEN: Pending
+                                      </span>
+                                    )}
+                                    {st.admissionNo && (
+                                      <span className="voc-adm-tag">Adm #{st.admissionNo}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 3. Class & Sector */}
+                            <td>
+                              <div className="voc-class-sector-cell">
+                                <div className="class-sector-badge-row">
+                                  <span className="voc-class-badge font-bold">
+                                    {st.className || st.classId || 'Class'}
+                                  </span>
+                                  {sector === 'Sector 1' ? (
+                                    <span className="voc-sector-pill sector-1-pill font-bold" title="Sector 1 IT/ITeS Batch">
+                                      Sector 1
+                                    </span>
+                                  ) : sector === 'Sector 2' ? (
+                                    <span className="voc-sector-pill sector-2-pill font-bold" title="Sector 2 IT/ITeS Batch">
+                                      Sector 2
+                                    </span>
+                                  ) : (
+                                    <span className="voc-sector-pill sector-general-pill" title="NSQF IT/ITeS Trade">
+                                      IT/ITeS
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="voc-wing-text">
+                                  {st.classId?.includes('sci')
+                                    ? 'Science Stream'
+                                    : st.classId?.includes('arts')
+                                    ? 'Arts Stream'
+                                    : isClassX
+                                    ? 'Secondary (Board)'
+                                    : 'Secondary'}
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* 4. Govt IDs (APAAR & Aadhaar Stacked) */}
+                            <td>
+                              <div className="voc-stacked-ids-cell">
+                                <div className="stacked-id-line">
+                                  <span className="id-sublabel font-mono">APAAR:</span>
+                                  {apaar ? (
+                                    <span
+                                      className="voc-id-pill font-mono compact-id-pill"
+                                      title="Click to copy APAAR ID"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyText(apaar, `apaar-${studentKey}`);
+                                      }}
+                                    >
+                                      <span>{formatIdGrouped(apaar)}</span>
+                                      {copiedId === `apaar-${studentKey}` ? (
+                                        <Check size={11} className="copied-icon" />
+                                      ) : (
+                                        <Copy size={11} className="copy-icon" />
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span className="voc-id-pill badge-pending font-mono compact-id-pill">
+                                      {st.apaarId === 'Not Available' ? 'Not Available' : 'Pending'}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="stacked-id-line">
+                                  <span className="id-sublabel font-mono">UID:</span>
+                                  {aadhaar ? (
+                                    <span
+                                      className="voc-aadhaar-pill font-mono compact-id-pill"
+                                      title="Click to copy Aadhaar"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyText(aadhaar, `aadhaar-${studentKey}`);
+                                      }}
+                                    >
+                                      <span>{formatIdGrouped(aadhaar)}</span>
+                                      {copiedId === `aadhaar-${studentKey}` ? (
+                                        <Check size={11} className="copied-icon" />
+                                      ) : (
+                                        <Copy size={11} className="copy-icon" />
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-dash font-mono">—</span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 5. Parents & Contact */}
+                            <td>
+                              <div className="voc-parents-contact-cell">
+                                <div className="parent-lines-block">
+                                  {st.father && (
+                                    <span className="parent-line" title={`Father: ${st.father}`}>
+                                      <strong>F:</strong> {st.father}
+                                    </span>
+                                  )}
+                                  {st.mother && (
+                                    <span className="parent-line text-muted" title={`Mother: ${st.mother}`}>
+                                      <strong>M:</strong> {st.mother}
+                                    </span>
+                                  )}
+                                  {!st.father && !st.mother && st.guardian && (
+                                    <span className="parent-line" title={`Guardian: ${st.guardian}`}>
+                                      <strong>G:</strong> {st.guardian}
+                                    </span>
+                                  )}
+                                  {!st.father && !st.mother && !st.guardian && (
+                                    <span className="text-muted-dash">—</span>
+                                  )}
+                                </div>
+                                {st.phone && (
+                                  <div className="parent-phone-row">
+                                    <a
+                                      href={`tel:${st.phone}`}
+                                      className="voc-phone-link font-mono"
+                                      title={`Call ${st.phone}`}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Phone size={11} />
+                                      <span>{st.phone}</span>
+                                    </a>
+                                    <button
+                                      type="button"
+                                      className="mini-copy-btn"
+                                      title="Copy phone number"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyText(st.phone, `phone-${studentKey}`);
+                                      }}
+                                    >
+                                      {copiedId === `phone-${studentKey}` ? (
+                                        <Check size={10} className="copied-icon" />
+                                      ) : (
+                                        <Copy size={10} />
+                                      )}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* 6. Attendance & Status */}
+                            <td style={{ textAlign: 'center' }}>
+                              <div className="voc-status-att-cell">
+                                <span
+                                  className={`voc-status-pill status-${(st.status || 'Enrolled').toLowerCase()}`}
+                                >
+                                  {st.status || 'Enrolled'}
+                                </span>
+                                <div className="att-caste-mini-row">
+                                  <span className="voc-att-pill font-mono font-bold" title="Attendance Percentage">
+                                    {st.attendance || '95%'}
+                                  </span>
+                                  <span
+                                    className={`voc-caste-pill caste-${(st.caste || 'GEN').toLowerCase()}`}
+                                    title={`Category: ${st.caste || 'GEN'}`}
+                                  >
+                                    {st.caste || 'GEN'}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          /* -------------------------------------------------
+                              ALL 12 COLUMNS ROW
+                             ------------------------------------------------- */
+                          <>
+                            {/* 1. Roll No */}
+                            <td style={{ textAlign: 'center' }} className="sticky-col-roll">
+                              <span className="voc-roll-pill font-mono">
+                                #{st.roll || '00'}
+                              </span>
+                            </td>
+
+                            {/* 2. Student Name & PEN */}
+                            <td className="sticky-col-student">
+                              <div className="voc-name-cell">
+                                <div
+                                  className={`voc-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingStudent(st);
+                                  }}
+                                  title="View full profile"
+                                >
+                                  {isBoy ? <BoyIcon size={16} /> : <GirlIcon size={16} />}
+                                </div>
+                                <div className="voc-name-meta">
+                                  <span
+                                    className="voc-student-fullname font-bold clickable-name"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setViewingStudent(st);
+                                    }}
+                                    title="Click to view full student profile modal"
+                                  >
+                                    {st.name}
+                                  </span>
+                                  <div className="voc-sub-meta-row">
+                                    {pen ? (
+                                      <span
+                                        className="voc-pen-badge font-mono"
+                                        title="Click to copy PEN Number"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleCopyText(pen, `pen-${studentKey}`);
+                                        }}
+                                      >
+                                        <span>PEN: {pen}</span>
+                                        {copiedId === `pen-${studentKey}` ? (
+                                          <Check size={11} className="copied-icon" />
+                                        ) : (
+                                          <Copy size={11} className="copy-icon" />
+                                        )}
+                                      </span>
+                                    ) : (
+                                      <span className="voc-pen-badge badge-pending font-mono">
+                                        PEN: Pending
+                                      </span>
+                                    )}
+                                    {st.admissionNo && (
+                                      <span className="voc-adm-tag">Adm #{st.admissionNo}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 3. Class / Wing */}
+                            <td>
+                              <div className="voc-class-cell">
+                                <span className="voc-class-badge font-bold">
+                                  {st.className || st.classId || 'Class'}
+                                </span>
+                                <span className="voc-wing-text">
+                                  {st.classId?.includes('sci')
+                                    ? 'Science Stream'
+                                    : st.classId?.includes('arts')
+                                    ? 'Arts Stream'
+                                    : isClassX
+                                    ? 'Secondary (Board)'
+                                    : 'Secondary'}
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* 4. Sector / Trade */}
+                            <td style={{ textAlign: 'center' }}>
+                              {sector === 'Sector 1' ? (
+                                <span className="voc-sector-pill sector-1-pill font-bold" title="Sector 1 IT/ITeS Batch">
+                                  Sector 1
+                                </span>
+                              ) : sector === 'Sector 2' ? (
+                                <span className="voc-sector-pill sector-2-pill font-bold" title="Sector 2 IT/ITeS Batch">
+                                  Sector 2
+                                </span>
+                              ) : (
+                                <span className="voc-sector-pill sector-general-pill" title="NSQF IT/ITeS Trade">
+                                  IT/ITeS
+                                </span>
+                              )}
+                            </td>
+
+                            {/* 5. APAAR ID */}
+                            <td>
+                              {apaar ? (
+                                <span
+                                  className="voc-id-pill font-mono"
+                                  title="Click to copy 12-digit APAAR ID"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCopyText(apaar, `apaar-${studentKey}`);
+                                  }}
+                                >
+                                  <span>{formatIdGrouped(apaar)}</span>
+                                  {copiedId === `apaar-${studentKey}` ? (
+                                    <Check size={12} className="copied-icon" />
+                                  ) : (
+                                    <Copy size={12} className="copy-icon" />
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="voc-id-pill badge-pending font-mono">
+                                  {st.apaarId === 'Not Available' ? 'Not Available' : 'Pending'}
+                                </span>
+                              )}
+                            </td>
+
+                            {/* 6. Aadhaar */}
+                            <td>
+                              {aadhaar ? (
+                                <span
+                                  className="voc-aadhaar-pill font-mono"
+                                  title="Aadhaar Card No. (Click to copy)"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCopyText(aadhaar, `aadhaar-${studentKey}`);
+                                  }}
+                                >
+                                  <span>{formatIdGrouped(aadhaar)}</span>
+                                  {copiedId === `aadhaar-${studentKey}` ? (
                                     <Check size={11} className="copied-icon" />
                                   ) : (
                                     <Copy size={11} className="copy-icon" />
                                   )}
                                 </span>
                               ) : (
-                                <span className="voc-pen-badge badge-pending font-mono">
-                                  PEN: Pending
-                                </span>
+                                <span className="text-muted-dash font-mono">—</span>
                               )}
-                              {st.admissionNo && (
-                                <span className="voc-adm-tag">Adm #{st.admissionNo}</span>
+                            </td>
+
+                            {/* 7. Parents / Guardian */}
+                            <td>
+                              <div className="voc-parents-cell">
+                                {st.father && (
+                                  <span className="parent-line">
+                                    <strong>F:</strong> {st.father}
+                                  </span>
+                                )}
+                                {st.mother && (
+                                  <span className="parent-line text-muted">
+                                    <strong>M:</strong> {st.mother}
+                                  </span>
+                                )}
+                                {!st.father && !st.mother && st.guardian && (
+                                  <span className="parent-line">
+                                    <strong>G:</strong> {st.guardian}
+                                  </span>
+                                )}
+                                {!st.father && !st.mother && !st.guardian && (
+                                  <span className="text-muted-dash">—</span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* 8. Contact Phone */}
+                            <td>
+                              {st.phone ? (
+                                <a
+                                  href={`tel:${st.phone}`}
+                                  className="voc-phone-link font-mono"
+                                  title={`Call ${st.phone}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Phone size={12} />
+                                  <span>{st.phone}</span>
+                                </a>
+                              ) : (
+                                <span className="text-muted-dash font-mono">—</span>
                               )}
-                            </div>
+                            </td>
+
+                            {/* 9. Caste / Category */}
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`voc-caste-pill caste-${(st.caste || 'GEN').toLowerCase()}`}>
+                                {st.caste || 'GEN'}
+                              </span>
+                            </td>
+
+                            {/* 10. Attendance */}
+                            <td style={{ textAlign: 'center' }}>
+                              <span className="voc-att-pill font-mono font-bold">
+                                {st.attendance || '95%'}
+                              </span>
+                            </td>
+
+                            {/* 11. Status */}
+                            <td style={{ textAlign: 'center' }}>
+                              <span
+                                className={`voc-status-pill status-${(st.status || 'Enrolled').toLowerCase()}`}
+                              >
+                                {st.status || 'Enrolled'}
+                              </span>
+                            </td>
+                          </>
+                        )}
+
+                        {/* Actions Column (Sticky Right on both layouts) */}
+                        <td style={{ textAlign: 'center' }} className="no-print sticky-col-actions">
+                          <div className="voc-actions-row">
+                            <button
+                              type="button"
+                              className={`voc-action-icon-btn expand-btn ${isExpanded ? 'active-expanded' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleRowExpanded(studentKey);
+                              }}
+                              title={isExpanded ? 'Collapse Full Details' : 'Quick View Full Details'}
+                              aria-expanded={isExpanded}
+                            >
+                              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                            </button>
+                            <button
+                              type="button"
+                              className="voc-action-icon-btn view-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingStudent(st);
+                              }}
+                              title="View Full Student Profile"
+                            >
+                              <Eye size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              className="voc-action-icon-btn edit-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingStudent(st);
+                              }}
+                              title="Edit Student Details"
+                            >
+                              <Pencil size={14} />
+                            </button>
                           </div>
-                        </div>
-                      </td>
+                        </td>
+                      </tr>
 
-                      {/* Class / Wing */}
-                      <td>
-                        <div className="voc-class-cell">
-                          <span className="voc-class-badge font-bold">
-                            {st.className || st.classId || 'Class'}
-                          </span>
-                          <span className="voc-wing-text">
-                            {st.classId?.includes('sci')
-                              ? 'Science Stream'
-                              : st.classId?.includes('arts')
-                              ? 'Arts Stream'
-                              : isClassX
-                              ? 'Secondary (Board)'
-                              : 'Secondary'}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Sector / Trade */}
-                      <td style={{ textAlign: 'center' }}>
-                        {sector === 'Sector 1' ? (
-                          <span className="voc-sector-pill sector-1-pill font-bold" title="Sector 1 IT/ITeS Batch">
-                            Sector 1
-                          </span>
-                        ) : sector === 'Sector 2' ? (
-                          <span className="voc-sector-pill sector-2-pill font-bold" title="Sector 2 IT/ITeS Batch">
-                            Sector 2
-                          </span>
-                        ) : (
-                          <span className="voc-sector-pill sector-general-pill" title="NSQF IT/ITeS Trade">
-                            IT/ITeS
-                          </span>
-                        )}
-                      </td>
-
-                      {/* APAAR ID */}
-                      <td>
-                        {apaar ? (
-                          <span
-                            className="voc-id-pill font-mono"
-                            title="Click to copy 12-digit APAAR ID"
-                            onClick={() => handleCopyText(apaar, `apaar-${studentKey}`)}
+                      {/* =======================================================
+                          INLINE QUICK VIEW DETAIL DRAWER
+                         ======================================================= */}
+                      {isExpanded && (
+                        <tr className="voc-detail-drawer-row">
+                          <td
+                            colSpan={tableLayout === 'fit' ? 7 : 12}
+                            className="voc-detail-drawer-cell"
                           >
-                            <span>{formatIdGrouped(apaar)}</span>
-                            {copiedId === `apaar-${studentKey}` ? (
-                              <Check size={12} className="copied-icon" />
-                            ) : (
-                              <Copy size={12} className="copy-icon" />
-                            )}
-                          </span>
-                        ) : (
-                          <span className="voc-id-pill badge-pending font-mono">
-                            {st.apaarId === 'Not Available' ? 'Not Available' : 'Pending'}
-                          </span>
-                        )}
-                      </td>
+                            <div className="voc-detail-drawer-card">
+                              {/* Drawer Header */}
+                              <div className="drawer-header">
+                                <div className="drawer-student-profile">
+                                  <div className={`drawer-avatar ${isBoy ? 'avatar-boy' : 'avatar-girl'}`}>
+                                    {isBoy ? <BoyIcon size={20} /> : <GirlIcon size={20} />}
+                                  </div>
+                                  <div>
+                                    <div className="drawer-title-row">
+                                      <span className="drawer-name">{st.name}</span>
+                                      <span className="drawer-roll font-mono">Roll #{st.roll || '00'}</span>
+                                      <span className={`drawer-gender-tag ${isBoy ? 'boy' : 'girl'}`}>
+                                        {isBoy ? 'Boy' : 'Girl'}
+                                      </span>
+                                      <span
+                                        className={`voc-status-pill status-${(st.status || 'Enrolled').toLowerCase()}`}
+                                      >
+                                        {st.status || 'Enrolled'}
+                                      </span>
+                                      {sector && (
+                                        <span
+                                          className={`voc-sector-pill ${
+                                            sector === 'Sector 1'
+                                              ? 'sector-1-pill'
+                                              : sector === 'Sector 2'
+                                              ? 'sector-2-pill'
+                                              : 'sector-general-pill'
+                                          } font-bold`}
+                                        >
+                                          {sector}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="drawer-subtitle">
+                                      <span>{st.className || st.classId || 'Class'}</span>
+                                      <span>•</span>
+                                      <span>NSQF Trade: Information Technology (IT/ITeS)</span>
+                                      {st.admissionNo && (
+                                        <>
+                                          <span>•</span>
+                                          <span>Admission No: #{st.admissionNo}</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="drawer-header-actions no-print">
+                                  <button
+                                    type="button"
+                                    className="drawer-action-btn btn-view-full"
+                                    onClick={() => setViewingStudent(st)}
+                                    title="Open Comprehensive Student Profile Modal"
+                                  >
+                                    <Eye size={13} />
+                                    <span>Full Profile Modal</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="drawer-action-btn btn-edit-student"
+                                    onClick={() => setEditingStudent(st)}
+                                    title="Edit Student Information"
+                                  >
+                                    <Pencil size={13} />
+                                    <span>Edit</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="drawer-action-btn btn-collapse"
+                                    onClick={() => toggleRowExpanded(studentKey)}
+                                    title="Close Details Drawer"
+                                  >
+                                    <ChevronUp size={13} />
+                                    <span>Close</span>
+                                  </button>
+                                </div>
+                              </div>
 
-                      {/* Aadhaar */}
-                      <td>
-                        {aadhaar ? (
-                          <span
-                            className="voc-aadhaar-pill font-mono"
-                            title="Aadhaar Card No. (Click to copy)"
-                            onClick={() => handleCopyText(aadhaar, `aadhaar-${studentKey}`)}
-                          >
-                            <span>{formatIdGrouped(aadhaar)}</span>
-                            {copiedId === `aadhaar-${studentKey}` ? (
-                              <Check size={11} className="copied-icon" />
-                            ) : (
-                              <Copy size={11} className="copy-icon" />
-                            )}
-                          </span>
-                        ) : (
-                          <span className="text-muted-dash font-mono">—</span>
-                        )}
-                      </td>
+                              {/* Drawer Info Cards Grid */}
+                              <div className="drawer-content-grid">
+                                {/* Box 1: Government & School IDs */}
+                                <div className="drawer-info-box">
+                                  <div className="drawer-box-title">
+                                    <ShieldCheck size={14} />
+                                    <span>Government & School IDs</span>
+                                  </div>
+                                  <div className="drawer-box-list">
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">APAAR ID (12-Digit)</span>
+                                      {apaar ? (
+                                        <span
+                                          className="drawer-v font-mono copyable-val"
+                                          onClick={() => handleCopyText(apaar, `apaar-${studentKey}`)}
+                                          title="Click to copy APAAR ID"
+                                        >
+                                          <span>{formatIdGrouped(apaar)}</span>
+                                          {copiedId === `apaar-${studentKey}` ? (
+                                            <Check size={12} className="copied-icon" />
+                                          ) : (
+                                            <Copy size={12} className="copy-icon" />
+                                          )}
+                                        </span>
+                                      ) : (
+                                        <span className="drawer-v text-muted font-mono">
+                                          {st.apaarId === 'Not Available' ? 'Not Available' : 'Pending'}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">PEN (Permanent Edu No.)</span>
+                                      {pen ? (
+                                        <span
+                                          className="drawer-v font-mono copyable-val"
+                                          onClick={() => handleCopyText(pen, `pen-${studentKey}`)}
+                                          title="Click to copy PEN"
+                                        >
+                                          <span>{pen}</span>
+                                          {copiedId === `pen-${studentKey}` ? (
+                                            <Check size={12} className="copied-icon" />
+                                          ) : (
+                                            <Copy size={12} className="copy-icon" />
+                                          )}
+                                        </span>
+                                      ) : (
+                                        <span className="drawer-v text-muted font-mono">Pending</span>
+                                      )}
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Aadhaar Card No.</span>
+                                      {aadhaar ? (
+                                        <span
+                                          className="drawer-v font-mono copyable-val"
+                                          onClick={() => handleCopyText(aadhaar, `aadhaar-${studentKey}`)}
+                                          title="Click to copy Aadhaar"
+                                        >
+                                          <span>{formatIdGrouped(aadhaar)}</span>
+                                          {copiedId === `aadhaar-${studentKey}` ? (
+                                            <Check size={12} className="copied-icon" />
+                                          ) : (
+                                            <Copy size={12} className="copy-icon" />
+                                          )}
+                                        </span>
+                                      ) : (
+                                        <span className="drawer-v text-muted font-mono">—</span>
+                                      )}
+                                    </div>
+                                    {st.admissionNo && (
+                                      <div className="drawer-kv-item">
+                                        <span className="drawer-k">Admission Number</span>
+                                        <span className="drawer-v font-mono">#{st.admissionNo}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
 
-                      {/* Parents / Guardian */}
-                      <td>
-                        <div className="voc-parents-cell">
-                          {st.father && (
-                            <span className="parent-line">
-                              <strong>F:</strong> {st.father}
-                            </span>
-                          )}
-                          {st.mother && (
-                            <span className="parent-line text-muted">
-                              <strong>M:</strong> {st.mother}
-                            </span>
-                          )}
-                          {!st.father && !st.mother && st.guardian && (
-                            <span className="parent-line">
-                              <strong>G:</strong> {st.guardian}
-                            </span>
-                          )}
-                          {!st.father && !st.mother && !st.guardian && (
-                            <span className="text-muted-dash">—</span>
-                          )}
-                        </div>
-                      </td>
+                                {/* Box 2: Family & Contact */}
+                                <div className="drawer-info-box">
+                                  <div className="drawer-box-title">
+                                    <Users size={14} />
+                                    <span>Family & Contact Details</span>
+                                  </div>
+                                  <div className="drawer-box-list">
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Father's Name</span>
+                                      <span className="drawer-v font-bold">{st.father || '—'}</span>
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Mother's Name</span>
+                                      <span className="drawer-v">{st.mother || '—'}</span>
+                                    </div>
+                                    {st.guardian && (
+                                      <div className="drawer-kv-item">
+                                        <span className="drawer-k">Legal Guardian</span>
+                                        <span className="drawer-v">{st.guardian}</span>
+                                      </div>
+                                    )}
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Contact Phone</span>
+                                      {st.phone ? (
+                                        <div className="drawer-phone-wrap">
+                                          <a
+                                            href={`tel:${st.phone}`}
+                                            className="drawer-phone-link font-mono"
+                                            title={`Call ${st.phone}`}
+                                          >
+                                            <Phone size={12} />
+                                            <span>{st.phone}</span>
+                                          </a>
+                                          <button
+                                            type="button"
+                                            className="drawer-copy-btn"
+                                            onClick={() => handleCopyText(st.phone, `phone-${studentKey}`)}
+                                            title="Copy Phone"
+                                          >
+                                            {copiedId === `phone-${studentKey}` ? (
+                                              <Check size={11} className="copied-icon" />
+                                            ) : (
+                                              <Copy size={11} />
+                                            )}
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <span className="drawer-v text-muted font-mono">—</span>
+                                      )}
+                                    </div>
+                                    {st.address && (
+                                      <div className="drawer-kv-item">
+                                        <span className="drawer-k">Address</span>
+                                        <span className="drawer-v">{st.address}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
 
-                      {/* Contact Phone */}
-                      <td>
-                        {st.phone ? (
-                          <a
-                            href={`tel:${st.phone}`}
-                            className="voc-phone-link font-mono"
-                            title={`Call ${st.phone}`}
-                          >
-                            <Phone size={12} />
-                            <span>{st.phone}</span>
-                          </a>
-                        ) : (
-                          <span className="text-muted-dash font-mono">—</span>
-                        )}
-                      </td>
-
-                      {/* Caste / Category */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className={`voc-caste-pill caste-${(st.caste || 'GEN').toLowerCase()}`}>
-                          {st.caste || 'GEN'}
-                        </span>
-                      </td>
-
-                      {/* Attendance */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="voc-att-pill font-mono font-bold">
-                          {st.attendance || '95%'}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span
-                          className={`voc-status-pill status-${(st.status || 'Enrolled').toLowerCase()}`}
-                        >
-                          {st.status || 'Enrolled'}
-                        </span>
-                      </td>
-
-                      {/* Action Buttons */}
-                      <td style={{ textAlign: 'center' }} className="no-print">
-                        <div className="voc-actions-row">
-                          <button
-                            type="button"
-                            className="voc-action-icon-btn view-btn"
-                            onClick={() => setViewingStudent(st)}
-                            title="View Full Student Profile"
-                          >
-                            <Eye size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            className="voc-action-icon-btn edit-btn"
-                            onClick={() => setEditingStudent(st)}
-                            title="Edit Student Details"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                                {/* Box 3: Academic Profile & Attendance */}
+                                <div className="drawer-info-box">
+                                  <div className="drawer-box-title">
+                                    <GraduationCap size={14} />
+                                    <span>Academic & NSQF Profile</span>
+                                  </div>
+                                  <div className="drawer-box-list">
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Trade Course</span>
+                                      <span className="drawer-v font-bold">IT / ITeS (Vocational)</span>
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Assigned Sector</span>
+                                      <span className="drawer-v font-bold">
+                                        {sector || 'General IT/ITeS'}
+                                      </span>
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Attendance Percentage</span>
+                                      <span
+                                        className="drawer-v font-mono font-bold"
+                                        style={{ color: '#16a34a' }}
+                                      >
+                                        {st.attendance || '95%'}
+                                      </span>
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Category / Caste</span>
+                                      <span
+                                        className={`voc-caste-pill caste-${(st.caste || 'GEN').toLowerCase()}`}
+                                      >
+                                        {st.caste || 'GEN'}
+                                      </span>
+                                    </div>
+                                    <div className="drawer-kv-item">
+                                      <span className="drawer-k">Academic Session</span>
+                                      <span className="drawer-v">{st.academicYear || '2026-2027'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>

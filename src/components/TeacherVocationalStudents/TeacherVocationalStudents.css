@@ -922,6 +922,75 @@
   border: 1px solid #e9d5ff;
 }
 
+.subbar-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.table-view-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-layout-pill-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.table-layout-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.table-layout-pill-btn:hover {
+  color: #0f172a;
+}
+
+.table-layout-pill-btn.active {
+  background: #ffffff;
+  color: #7c3aed;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.toggle-all-rows-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-all-rows-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
 .sort-controls-row {
   display: flex;
   align-items: center;
@@ -970,39 +1039,69 @@
   -webkit-overflow-scrolling: touch;
   min-height: 380px;
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.voc-table-responsive-wrapper::-webkit-scrollbar {
+  height: 7px;
+  width: 7px;
+}
+
+.voc-table-responsive-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.voc-table-responsive-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.voc-table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .voc-table-scroll-hint {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #f1f5f9;
-  border-bottom: 1px solid #e2e8f0;
-  color: #64748b;
-  font-size: 11.5px;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f5f3ff;
+  border-bottom: 1px solid #ddd6fe;
+  color: #6d28d9;
+  font-size: 12px;
   font-weight: 600;
   text-align: center;
 }
 
 .voc-table-scroll-hint .scroll-hint-icon {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   color: #7c3aed;
   animation: hintSwipe 1.5s ease-in-out infinite alternate;
 }
 
 @keyframes hintSwipe {
-  from { transform: translateX(-3px); }
-  to { transform: translateX(3px); }
+  from { transform: translateX(-4px); }
+  to { transform: translateX(4px); }
 }
 
 .voc-students-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 13px;
   text-align: left;
+}
+
+.voc-students-table.table-layout-fit {
+  width: 100%;
+}
+
+.voc-students-table.table-layout-wide {
+  min-width: 1380px;
 }
 
 .voc-students-table thead tr {
@@ -1018,26 +1117,90 @@
   letter-spacing: 0.05em;
   color: #475569;
   white-space: nowrap;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
-.voc-students-table tbody tr {
+.voc-students-table tbody tr.voc-student-row {
   border-bottom: 1px solid #f1f5f9;
   transition: background 0.12s ease;
+  cursor: pointer;
 }
 
-.voc-students-table tbody tr:hover {
+.voc-students-table tbody tr.voc-student-row:hover {
   background: #f8fafc;
 }
 
+.voc-students-table tbody tr.voc-student-row.row-is-expanded {
+  background: #fdfcff;
+}
+
+.voc-students-table tbody tr.voc-student-row.row-is-expanded td {
+  border-bottom-color: transparent;
+}
+
 .voc-students-table td {
-  padding: 12px 14px;
+  padding: 11px 14px;
   color: #1e293b;
   vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.voc-students-table tbody tr.voc-student-row:hover td {
+  background: #f8fafc;
+}
+
+.voc-students-table tbody tr.voc-student-row.row-is-expanded td {
+  background: #fdfcff;
+}
+
+/* =========================================================================
+   STICKY COLUMNS (Left: Roll & Student, Right: Actions)
+   ========================================================================= */
+.voc-students-table th.sticky-col-roll,
+.voc-students-table td.sticky-col-roll {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.voc-students-table thead th.sticky-col-roll {
+  z-index: 12;
+  background: #f8fafc;
+}
+
+.voc-students-table th.sticky-col-student,
+.voc-students-table td.sticky-col-student {
+  position: sticky;
+  left: 60px;
+  z-index: 3;
+  box-shadow: 4px 0 8px -3px rgba(0, 0, 0, 0.06);
+}
+
+.voc-students-table thead th.sticky-col-student {
+  z-index: 12;
+  background: #f8fafc;
+}
+
+.voc-students-table th.sticky-col-actions,
+.voc-students-table td.sticky-col-actions {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  box-shadow: -4px 0 8px -3px rgba(0, 0, 0, 0.06);
+}
+
+.voc-students-table thead th.sticky-col-actions {
+  z-index: 12;
+  background: #f8fafc;
 }
 
 .transferred-row {
   opacity: 0.65;
-  background: #f8fafc;
 }
 
 /* Cell Elements */
@@ -1066,6 +1229,11 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.voc-avatar:hover {
+  transform: scale(1.08);
 }
 
 .avatar-boy {
@@ -1090,6 +1258,16 @@
   font-size: 13.5px;
   font-weight: 700;
   color: #0f172a;
+}
+
+.voc-student-fullname.clickable-name {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.voc-student-fullname.clickable-name:hover {
+  color: #7c3aed;
+  text-decoration: underline;
 }
 
 .voc-sub-meta-row {
@@ -1149,12 +1327,26 @@
   color: #64748b;
 }
 
+/* Compact Fit Screen: Class & Sector combined cell */
+.voc-class-sector-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.class-sector-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 /* Sector Badges (Exact colors matching ExamMarksheetTable) */
 .voc-sector-pill {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-size: 11px;
   text-align: center;
   white-space: nowrap;
 }
@@ -1208,6 +1400,31 @@
   cursor: default;
 }
 
+/* Stacked IDs Cell (Compact Fit Screen) */
+.voc-stacked-ids-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stacked-id-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.id-sublabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 44px;
+}
+
+.compact-id-pill {
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
 /* Parents Cell */
 .voc-parents-cell {
   display: flex;
@@ -1220,12 +1437,51 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  max-width: 200px;
 }
 
 .parent-line strong {
   color: #64748b;
   font-size: 11px;
+}
+
+/* Parents & Contact combined cell (Fit Screen) */
+.voc-parents-contact-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.parent-lines-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.parent-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.mini-copy-btn {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.mini-copy-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 /* Phone link */
@@ -1235,12 +1491,26 @@
   gap: 5px;
   color: #2563eb;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
 .voc-phone-link:hover {
   text-decoration: underline;
+}
+
+/* Status & Attendance Cell (Fit Screen) */
+.voc-status-att-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.att-caste-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Caste Badge */
@@ -1280,7 +1550,7 @@
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   color: #15803d;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 /* Status Pill */
@@ -1322,13 +1592,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .voc-action-icon-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 29px;
+  height: 29px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1336,6 +1606,24 @@
   background: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.expand-btn {
+  color: #7c3aed;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.expand-btn:hover {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+}
+
+.expand-btn.active-expanded {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
 }
 
 .view-btn {
@@ -1354,6 +1642,274 @@
 .edit-btn:hover {
   background: #ecfdf5;
   border-color: #a7f3d0;
+}
+
+/* =========================================================================
+   INLINE QUICK VIEW DETAIL DRAWER
+   ========================================================================= */
+.voc-detail-drawer-row td.voc-detail-drawer-cell {
+  background: #fdfcff;
+  padding: 0 16px 16px 16px;
+  border-bottom: 2px solid #ddd6fe;
+}
+
+.voc-detail-drawer-card {
+  background: #ffffff;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.08);
+  animation: drawerSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.drawer-student-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drawer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drawer-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.drawer-roll {
+  font-size: 12px;
+  font-weight: 800;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.drawer-gender-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.drawer-gender-tag.boy {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.drawer-gender-tag.girl {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.drawer-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.drawer-action-btn.btn-view-full {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.drawer-action-btn.btn-view-full:hover {
+  background: #dbeafe;
+}
+
+.drawer-action-btn.btn-edit-student {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+.drawer-action-btn.btn-edit-student:hover {
+  background: #d1fae5;
+}
+
+.drawer-action-btn.btn-collapse {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.drawer-action-btn.btn-collapse:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.drawer-content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.drawer-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-box-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.drawer-box-title svg {
+  color: #7c3aed;
+}
+
+.drawer-box-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-kv-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.drawer-k {
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.drawer-v {
+  color: #0f172a;
+  text-align: right;
+  word-break: break-word;
+}
+
+.copyable-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.copyable-val:hover {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.drawer-phone-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.drawer-phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.drawer-phone-link:hover {
+  text-decoration: underline;
+}
+
+.drawer-copy-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.drawer-copy-btn:hover {
+  color: #0f172a;
+  border-color: #94a3b8;
 }
 
 /* =========================================================================
@@ -1731,7 +2287,10 @@
   }
 
   .voc-students-table th:last-child,
-  .voc-students-table td:last-child {
+  .voc-students-table td:last-child,
+  .voc-detail-drawer-row,
+  .table-view-options,
+  .toggle-all-rows-btn {
     display: none !important;
   }
 }
@@ -1765,8 +2324,12 @@
     display: flex;
   }
 
-  .voc-students-table {
+  .voc-students-table.table-layout-wide {
     min-width: 1100px;
+  }
+
+  .voc-students-table.table-layout-fit {
+    min-width: 700px;
   }
 }
 
