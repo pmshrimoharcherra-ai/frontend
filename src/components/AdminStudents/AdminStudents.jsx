@@ -622,9 +622,12 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
               )}
               {stats.pending > 0 && (
                 <div 
-                  className="caste-segment pending" 
+                  className="caste-segment pending clickable" 
                   style={{ width: `${stats.pendingPercent}%` }} 
-                  title={`Pending / Unrecorded: ${stats.pending} (${stats.pendingPercent}%)`}
+                  onClick={() => handleOpenPendingModal('caste', badgeClass)}
+                  title={`Pending / Unrecorded: ${stats.pending} (${stats.pendingPercent}%) — Click to view list of pending students`}
+                  role="button"
+                  tabIndex={0}
                 />
               )}
             </div>
@@ -682,10 +685,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
           </div>
 
           {stats.pending > 0 && (
-            <div className="caste-metric-pill pending" title={`${stats.pending} records awaiting caste entry`}>
+            <div 
+              className="caste-metric-pill pending clickable" 
+              onClick={() => handleOpenPendingModal('caste', badgeClass)}
+              title={`${stats.pending} records awaiting caste entry — Click to view list of pending students`}
+              role="button"
+              tabIndex={0}
+            >
               <div className="caste-metric-header">
                 <span className="caste-dot pending" />
                 <span className="caste-metric-name">Pending</span>
+                <span className="caste-metric-click-hint">View ↗</span>
               </div>
               <div className="caste-metric-numbers">
                 <strong className="caste-count">{stats.pending}</strong>
@@ -735,12 +745,24 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
         )}
 
         {/* Caste breakdown mini tags inside class card */}
-        {stats.total > 0 && casteStats.recordedTotal > 0 && (
-          <div className="card-caste-mini-row" title={`Caste: SC: ${casteStats.sc}, OBC: ${casteStats.obc}, UR: ${casteStats.ur}, ST: ${casteStats.st}`}>
+        {stats.total > 0 && (casteStats.recordedTotal > 0 || casteStats.pending > 0) && (
+          <div className="card-caste-mini-row" title={`Caste: SC: ${casteStats.sc}, OBC: ${casteStats.obc}, UR: ${casteStats.ur}, ST: ${casteStats.st}${casteStats.pending > 0 ? `, Pending: ${casteStats.pending}` : ''}`}>
             {casteStats.sc > 0 && <span className="mini-caste-badge sc">SC {casteStats.sc}</span>}
             {casteStats.obc > 0 && <span className="mini-caste-badge obc">OBC {casteStats.obc}</span>}
             {casteStats.ur > 0 && <span className="mini-caste-badge ur">UR {casteStats.ur}</span>}
             {casteStats.st > 0 && <span className="mini-caste-badge st">ST {casteStats.st}</span>}
+            {casteStats.pending > 0 && (
+              <span 
+                className="mini-caste-badge pending clickable"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenPendingModal('caste', classId);
+                }}
+                title={`${casteStats.pending} students have unrecorded caste in this class. Click to inspect.`}
+              >
+                Pending {casteStats.pending}
+              </span>
+            )}
           </div>
         )}
 

@@ -434,6 +434,67 @@
   border-color: #e2e8f0;
 }
 
+.caste-metric-pill.pending.clickable {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.caste-metric-pill.pending.clickable:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.caste-metric-pill.pending.clickable:active {
+  transform: translateY(0);
+}
+
+.caste-metric-click-hint {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #64748b;
+  margin-left: auto;
+  opacity: 0.85;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: #e2e8f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.caste-metric-pill.pending.clickable:hover .caste-metric-click-hint {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.caste-segment.pending.clickable {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.caste-segment.pending.clickable:hover {
+  filter: brightness(0.85);
+}
+
+.mini-caste-badge.pending {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+}
+
+.mini-caste-badge.pending.clickable {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mini-caste-badge.pending.clickable:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-style: solid;
+}
+
 .caste-metric-header {
   display: flex;
   align-items: center;

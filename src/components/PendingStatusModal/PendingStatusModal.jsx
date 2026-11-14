@@ -25,7 +25,8 @@ import {
   ShieldCheck,
   Printer,
   Save,
-  Loader2
+  Loader2,
+  Award
 } from 'lucide-react';
 
 import { isTransferredStudent, isFailedStudent, isTransferredOrFailed, isFieldPending } from '../../utils/studentStatus';
@@ -88,6 +89,24 @@ export const PENDING_FIELD_CONFIG = {
     checkFn: (s) => !isTransferredStudent(s) && isFieldPending(s.phone),
     getValue: (s) => s.phone || '—'
   },
+  caste: {
+    key: 'caste',
+    title: 'Caste / Category',
+    fullTitle: 'Social Category / Caste Status',
+    shortName: 'Caste',
+    icon: Award,
+    themeColor: '#ea580c',
+    accentClass: 'theme-caste',
+    badgeClass: 'badge-caste',
+    fieldLabel: 'Caste / Category',
+    description: 'Students awaiting official social category (SC, ST, OBC, UR/General) roster classification',
+    checkFn: (s) => {
+      if (isTransferredOrFailed(s)) return false;
+      const c = (s.caste || '').trim().toUpperCase();
+      return !['SC', 'ST', 'OBC', 'UR', 'GEN', 'GENERAL'].includes(c);
+    },
+    getValue: (s) => s.caste || 'Pending'
+  },
   any: {
     key: 'any',
     title: 'All Incomplete',
@@ -110,6 +129,9 @@ export const PENDING_FIELD_CONFIG = {
     }
   }
 };
+
+const UPPER_CLASSES = ['class-6', 'class-7', 'class-8', 'class-9', 'class-10', 'class-11-sci', 'class-11-arts', 'class-12-sci', 'class-12-arts'];
+const PRIMARY_CLASSES = ['class-1', 'class-2', 'class-3', 'class-4', 'class-5'];
 
 const PendingStatusModal = ({
   activeField = 'apaarId',
@@ -136,7 +158,8 @@ const PendingStatusModal = ({
     apaarId: '',
     penNumber: '',
     aadhaar: '',
-    phone: ''
+    phone: '',
+    caste: ''
   });
   const [quickFillSaving, setQuickFillSaving] = useState(false);
   const [showAllFieldsInQuickFill, setShowAllFieldsInQuickFill] = useState(false);
@@ -148,7 +171,8 @@ const PendingStatusModal = ({
       apaarId: isFieldPending(st.apaarId) ? '' : String(st.apaarId || '').trim(),
       penNumber: isFieldPending(st.penNumber) ? '' : String(st.penNumber || '').trim(),
       aadhaar: isFieldPending(st.aadhaar) ? '' : String(st.aadhaar || '').trim(),
-      phone: isFieldPending(st.phone) ? '' : String(st.phone || '').trim()
+      phone: isFieldPending(st.phone) ? '' : String(st.phone || '').trim(),
+      caste: (st.caste || '').trim()
     });
     setShowAllFieldsInQuickFill(false);
   };
@@ -197,6 +221,17 @@ const PendingStatusModal = ({
         theme: 'phone'
       });
     }
+    const casteVal = (quickFillStudent.caste || '').trim().toUpperCase();
+    if (!['SC', 'ST', 'OBC', 'UR', 'GEN', 'GENERAL'].includes(casteVal)) {
+      fields.push({
+        key: 'caste',
+        label: 'Caste / Social Category',
+        icon: Award,
+        type: 'select',
+        placeholder: 'Select Caste (SC/ST/OBC/UR)',
+        theme: 'caste'
+      });
+    }
     return fields;
   }, [quickFillStudent]);
 
@@ -215,6 +250,10 @@ const PendingStatusModal = ({
     }
     if (!isFieldPending(quickFillStudent.phone)) {
       fields.push({ key: 'phone', label: 'Contact Phone Number', icon: Phone, value: quickFillStudent.phone, maxLength: 10 });
+    }
+    const casteVal = (quickFillStudent.caste || '').trim().toUpperCase();
+    if (['SC', 'ST', 'OBC', 'UR', 'GEN', 'GENERAL'].includes(casteVal)) {
+      fields.push({ key: 'caste', label: 'Caste / Category', icon: Award, value: quickFillStudent.caste, type: 'select' });
     }
     return fields;
   }, [quickFillStudent]);
@@ -236,27 +275,33 @@ const PendingStatusModal = ({
     // Check if any entered pending field is incomplete (has characters but hasn't reached required maxLength)
     const hasIncompletePending = pendingFieldsForQuickFill.some((f) => {
       const val = (quickFillData[f.key] || '').trim();
-      return val.length > 0 && val.length < f.maxLength;
+      if (f.type === 'select') return false;
+      return val.length > 0 && f.maxLength && val.length < f.maxLength;
     });
     if (hasIncompletePending) return false;
 
     // Check if any entered recorded field is incomplete
     const hasIncompleteRecorded = recordedFieldsForQuickFill.some((rf) => {
       const val = (quickFillData[rf.key] || '').trim();
-      return val.length > 0 && val.length < rf.maxLength;
+      if (rf.type === 'select') return false;
+      return val.length > 0 && rf.maxLength && val.length < rf.maxLength;
     });
     if (hasIncompleteRecorded) return false;
 
-    // Must have at least one pending field completely fulfilled (length === maxLength)
+    // Must have at least one pending field completely fulfilled
     // OR at least one recorded field changed and complete
     const hasFulfilledPending = pendingFieldsForQuickFill.some((f) => {
       const val = (quickFillData[f.key] || '').trim();
-      return val.length === f.maxLength;
+      if (f.type === 'select') return val.length > 0;
+      return f.maxLength ? val.length === f.maxLength : val.length > 0;
     });
 
     const hasChangedRecorded = recordedFieldsForQuickFill.some((rf) => {
       const val = (quickFillData[rf.key] || '').trim();
-      return val !== String(rf.value || '').trim() && val.length === rf.maxLength;
+      if (rf.type === 'select') {
+        return val !== String(rf.value || '').trim() && val.length > 0;
+      }
+      return val !== String(rf.value || '').trim() && (rf.maxLength ? val.length === rf.maxLength : val.length > 0);
     });
 
     return hasFulfilledPending || hasChangedRecorded;
@@ -266,7 +311,7 @@ const PendingStatusModal = ({
     e.preventDefault();
     if (!quickFillStudent || !isFormReadyToSave) return;
 
-    // Check if at least one pending field has an integer entered, or recorded field was changed
+    // Check if at least one pending field has an entry, or recorded field was changed
     const hasAnyFilled = pendingFieldsForQuickFill.some(
       (f) => (quickFillData[f.key] || '').trim().length > 0
     ) || recordedFieldsForQuickFill.some(
@@ -274,7 +319,7 @@ const PendingStatusModal = ({
     );
 
     if (!hasAnyFilled) {
-      alert('Please enter at least one integer value before saving.');
+      alert('Please enter or select at least one value before saving.');
       return;
     }
 
@@ -293,6 +338,9 @@ const PendingStatusModal = ({
     }
     if (quickFillData.phone !== undefined && quickFillData.phone.trim() !== '') {
       updated.phone = quickFillData.phone.trim();
+    }
+    if (quickFillData.caste !== undefined && quickFillData.caste.trim() !== '') {
+      updated.caste = quickFillData.caste.trim();
     }
 
     setQuickFillSaving(true);
@@ -326,13 +374,35 @@ const PendingStatusModal = ({
 
   const currentConfig = PENDING_FIELD_CONFIG[selectedField] || PENDING_FIELD_CONFIG.apaarId;
   const targetClassObj = classes.find((c) => c.id === selectedClassFilter);
+  const isUpperWingFilter = selectedClassFilter === 'upper' || selectedClassFilter === 'WING_UPPER';
+  const isPrimaryWingFilter = selectedClassFilter === 'primary' || selectedClassFilter === 'WING_PRIMARY';
 
-  // Scoped students based on selected class filter (single class vs all school)
+  const filterDisplayName = useMemo(() => {
+    if (targetClassObj) return targetClassObj.name;
+    if (isUpperWingFilter) return 'Classes VI – XII';
+    if (isPrimaryWingFilter) return 'Classes I – V';
+    return null;
+  }, [targetClassObj, isUpperWingFilter, isPrimaryWingFilter]);
+
+  const filterSubtitle = useMemo(() => {
+    if (targetClassObj) return `${targetClassObj.wing} ${targetClassObj.stream ? `· ${targetClassObj.stream} Stream` : ''}`;
+    if (isUpperWingFilter) return 'Higher Secondary Section (Classes VI – XII)';
+    if (isPrimaryWingFilter) return 'Primary Section (Classes I – V)';
+    return null;
+  }, [targetClassObj, isUpperWingFilter, isPrimaryWingFilter]);
+
+  // Scoped students based on selected class filter (single class vs wing vs all school)
   const scopedStudents = useMemo(() => {
-    const active = students.filter((s) => !isTransferredStudent(s));
-    if (selectedClassFilter === 'ALL') return active;
+    const active = students.filter((s) => !isTransferredOrFailed(s));
+    if (selectedClassFilter === 'ALL' || selectedClassFilter === 'overall') return active;
+    if (isUpperWingFilter) {
+      return active.filter((s) => UPPER_CLASSES.includes(s.classId));
+    }
+    if (isPrimaryWingFilter) {
+      return active.filter((s) => PRIMARY_CLASSES.includes(s.classId));
+    }
     return active.filter((s) => s.classId === selectedClassFilter);
-  }, [students, selectedClassFilter]);
+  }, [students, selectedClassFilter, isUpperWingFilter, isPrimaryWingFilter]);
 
   // Calculate counts for all pending fields (scoped to selected class or school)
   const fieldCounts = useMemo(() => {
@@ -341,6 +411,7 @@ const PendingStatusModal = ({
       penNumber: 0,
       aadhaar: 0,
       phone: 0,
+      caste: 0,
       any: 0
     };
     scopedStudents.forEach((s) => {
@@ -348,11 +419,14 @@ const PendingStatusModal = ({
       const isPen = isFieldPending(s.penNumber);
       const isAadhaar = isFieldPending(s.aadhaar);
       const isPhone = isFieldPending(s.phone);
+      const c = (s.caste || '').trim().toUpperCase();
+      const isCaste = !['SC', 'ST', 'OBC', 'UR', 'GEN', 'GENERAL'].includes(c);
 
       if (isApaar) counts.apaarId++;
       if (isPen) counts.penNumber++;
       if (isAadhaar) counts.aadhaar++;
       if (isPhone) counts.phone++;
+      if (isCaste) counts.caste++;
       if (isApaar || isPen || isAadhaar || isPhone) counts.any++;
     });
     return counts;
@@ -367,11 +441,15 @@ const PendingStatusModal = ({
     const groups = [];
 
     classes.forEach((cls) => {
-      if (selectedClassFilter !== 'ALL' && cls.id !== selectedClassFilter) {
+      if (isUpperWingFilter) {
+        if (!UPPER_CLASSES.includes(cls.id)) return;
+      } else if (isPrimaryWingFilter) {
+        if (!PRIMARY_CLASSES.includes(cls.id)) return;
+      } else if (selectedClassFilter !== 'ALL' && selectedClassFilter !== 'overall' && cls.id !== selectedClassFilter) {
         return;
       }
 
-      const classStudents = students.filter((s) => s.classId === cls.id && !isTransferredStudent(s));
+      const classStudents = students.filter((s) => s.classId === cls.id && !isTransferredOrFailed(s));
       const pendingStudents = classStudents
         .filter((s) => checkFn(s))
         .filter((s) => {
@@ -396,7 +474,7 @@ const PendingStatusModal = ({
     });
 
     return groups;
-  }, [students, classes, currentConfig, searchQuery, selectedClassFilter]);
+  }, [students, classes, currentConfig, searchQuery, selectedClassFilter, isUpperWingFilter, isPrimaryWingFilter]);
 
   const totalPendingInView = useMemo(() => {
     return classWisePendingGroups.reduce((acc, g) => acc + g.students.length, 0);
@@ -494,9 +572,9 @@ const PendingStatusModal = ({
               </div>
               <div className="pending-title-row">
                 <h2 id="pending-modal-title">
-                  {targetClassObj ? (
+                  {filterDisplayName ? (
                     <>
-                      <span className="target-class-title-tag">{targetClassObj.name}</span>
+                      <span className="target-class-title-tag">{filterDisplayName}</span>
                       {' — '}
                       {currentConfig.title} Pending
                     </>
@@ -509,9 +587,9 @@ const PendingStatusModal = ({
                     <span className="pulse-indicator-dot" />
                     <strong>{currentPendingCount}</strong> Students Pending
                   </span>
-                  {targetClassObj ? (
+                  {filterSubtitle ? (
                     <span className="pending-classes-chip selected-class-pill">
-                      {targetClassObj.wing} {targetClassObj.stream ? `· ${targetClassObj.stream} Stream` : ''}
+                      {filterSubtitle}
                     </span>
                   ) : (
                     <span className="pending-classes-chip">
@@ -521,9 +599,9 @@ const PendingStatusModal = ({
                 </div>
               </div>
               <p className="pending-header-desc">
-                {targetClassObj ? (
+                {filterDisplayName ? (
                   <>
-                    Showing pending students strictly for <strong>{targetClassObj.name}</strong> ({targetClassObj.wing}).{' '}
+                    Showing pending students strictly for <strong>{filterDisplayName}</strong> ({filterSubtitle}).{' '}
                     <button 
                       type="button" 
                       className="inline-switch-all-btn"
@@ -608,6 +686,16 @@ const PendingStatusModal = ({
 
             <button
               type="button"
+              className={`pending-tab-pill tab-caste ${selectedField === 'caste' ? 'active' : ''}`}
+              onClick={() => handleFieldChange('caste')}
+            >
+              <Award size={14} className="tab-pill-icon" />
+              <span className="tab-pill-title">Caste / Category</span>
+              <span className="tab-pill-badge">{fieldCounts.caste}</span>
+            </button>
+
+            <button
+              type="button"
               className={`pending-tab-pill tab-any ${selectedField === 'any' ? 'active' : ''}`}
               onClick={() => handleFieldChange('any')}
             >
@@ -645,16 +733,20 @@ const PendingStatusModal = ({
                 className="pending-class-select"
               >
                 <option value="ALL">All Classes (Entire School)</option>
-                {classes.map((cls) => {
-                  const checkFn = currentConfig.checkFn;
-                  const cCount = students.filter((s) => s.classId === cls.id && checkFn(s)).length;
-                  if (cCount === 0) return null;
-                  return (
-                    <option key={cls.id} value={cls.id}>
-                      {cls.name} ({cCount} pending)
-                    </option>
-                  );
-                })}
+                <option value="upper">Classes VI – XII (Higher Secondary Section)</option>
+                <option value="primary">Classes I – V (Primary Section)</option>
+                <optgroup label="Individual Classes">
+                  {classes.map((cls) => {
+                    const checkFn = currentConfig.checkFn;
+                    const cCount = students.filter((s) => s.classId === cls.id && checkFn(s)).length;
+                    if (cCount === 0) return null;
+                    return (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name} ({cCount} pending)
+                      </option>
+                    );
+                  })}
+                </optgroup>
               </select>
 
               {selectedClassFilter !== 'ALL' && (
@@ -823,6 +915,8 @@ const PendingStatusModal = ({
                               const penPending = isFieldPending(st.penNumber);
                               const aadhaarPending = isFieldPending(st.aadhaar);
                               const phonePending = isFieldPending(st.phone);
+                              const cUpper = (st.caste || '').trim().toUpperCase();
+                              const castePending = !['SC', 'ST', 'OBC', 'UR', 'GEN', 'GENERAL'].includes(cUpper);
 
                               return (
                                 <tr key={st.id || st.studentId}>
@@ -865,12 +959,40 @@ const PendingStatusModal = ({
 
                                   {/* Primary Field Status */}
                                   <td>
-                                    {selectedField === 'any' ? (
+                                    {selectedField === 'caste' ? (
+                                      <div className="pending-caste-assign-wrap">
+                                        <select
+                                          className="pending-caste-select"
+                                          value={st.caste && ['SC', 'ST', 'OBC', 'UR'].includes(st.caste.toUpperCase()) ? st.caste.toUpperCase() : ''}
+                                          onChange={async (e) => {
+                                            const newCaste = e.target.value;
+                                            if (!newCaste) return;
+                                            try {
+                                              if (onSaveStudent) {
+                                                await onSaveStudent({ ...st, caste: newCaste });
+                                                setCopiedNotification(`Saved! Caste updated to ${newCaste} for ${st.name}.`);
+                                                setTimeout(() => setCopiedNotification(''), 3000);
+                                              }
+                                            } catch (err) {
+                                              console.error('Error updating caste:', err);
+                                            }
+                                          }}
+                                          title={`Assign Caste for ${st.name}`}
+                                        >
+                                          <option value="">Select Caste...</option>
+                                          <option value="SC">SC (Scheduled Caste)</option>
+                                          <option value="ST">ST (Scheduled Tribe)</option>
+                                          <option value="OBC">OBC (Other Backward)</option>
+                                          <option value="UR">UR / General</option>
+                                        </select>
+                                      </div>
+                                    ) : selectedField === 'any' ? (
                                       <div className="any-missing-chips">
                                         {apaarPending && <span className="missing-chip apaar">No APAAR</span>}
                                         {penPending && <span className="missing-chip pen">No PEN</span>}
                                         {aadhaarPending && <span className="missing-chip aadhaar">No Aadhaar</span>}
                                         {phonePending && <span className="missing-chip phone">No Phone</span>}
+                                        {castePending && <span className="missing-chip caste">No Caste</span>}
                                       </div>
                                     ) : (
                                       <span className="missing-primary-badge">
@@ -913,6 +1035,14 @@ const PendingStatusModal = ({
                                           title={phonePending ? 'Phone: Missing' : `Phone: ${st.phone}`}
                                         >
                                           Phone: {phonePending ? '✗' : '✓'}
+                                        </span>
+                                      )}
+                                      {selectedField !== 'caste' && (
+                                        <span 
+                                          className={`cred-status-dot ${castePending ? 'pending' : 'ok'}`}
+                                          title={castePending ? 'Caste: Missing / Unrecorded' : `Caste: ${st.caste}`}
+                                        >
+                                          Caste: {castePending ? '✗' : '✓'}
                                         </span>
                                       )}
                                     </div>
@@ -1027,18 +1157,33 @@ const PendingStatusModal = ({
                           <span className="qf-required-tag">Missing / Required</span>
                         </label>
                         <div className="qf-input-wrapper">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            autoFocus={idx === 0}
-                            placeholder={field.placeholder}
-                            value={currentVal}
-                            onChange={(e) => handleCredentialInputChange(field.key, e.target.value, field.maxLength)}
-                            className={`qf-input ${isComplete ? 'is-complete' : ''}`}
-                            maxLength={field.maxLength}
-                            autoComplete="off"
-                          />
-                          {currentVal ? (
+                          {field.type === 'select' ? (
+                            <select
+                              value={currentVal}
+                              onChange={(e) => setQuickFillData((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                              className="qf-select-dropdown"
+                              autoFocus={idx === 0}
+                            >
+                              <option value="">-- Select Caste / Category --</option>
+                              <option value="SC">SC (Scheduled Caste)</option>
+                              <option value="ST">ST (Scheduled Tribe)</option>
+                              <option value="OBC">OBC (Other Backward Class)</option>
+                              <option value="UR">UR / General</option>
+                            </select>
+                          ) : (
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              autoFocus={idx === 0}
+                              placeholder={field.placeholder}
+                              value={currentVal}
+                              onChange={(e) => handleCredentialInputChange(field.key, e.target.value, field.maxLength)}
+                              className={`qf-input ${isComplete ? 'is-complete' : ''}`}
+                              maxLength={field.maxLength}
+                              autoComplete="off"
+                            />
+                          )}
+                          {currentVal && field.type !== 'select' ? (
                             <button
                               type="button"
                               className="qf-input-clear-btn"
@@ -1050,10 +1195,16 @@ const PendingStatusModal = ({
                           ) : null}
                         </div>
                         <div className="qf-field-hint-line">
-                          {field.helper && <span className="qf-helper-text">{field.helper}</span>}
-                          <span className={`qf-char-counter ${isComplete ? 'complete' : (currentVal.length > 0 ? 'incomplete' : '')}`}>
-                            {field.maxLength ? `${currentVal.length}/${field.maxLength}` : currentVal.length}
-                          </span>
+                          {field.type === 'select' ? (
+                            <span className="qf-helper-text">Select official social category for scholarship & statutory roster</span>
+                          ) : (
+                            <>
+                              {field.helper && <span className="qf-helper-text">{field.helper}</span>}
+                              <span className={`qf-char-counter ${isComplete ? 'complete' : (currentVal.length > 0 ? 'incomplete' : '')}`}>
+                                {field.maxLength ? `${currentVal.length}/${field.maxLength}` : currentVal.length}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     );
@@ -1089,14 +1240,28 @@ const PendingStatusModal = ({
                                 <span>{rf.label}</span>
                                 <span className="qf-recorded-ok-tag">Recorded ✓</span>
                               </label>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={rVal}
-                                onChange={(e) => handleCredentialInputChange(rf.key, e.target.value, rf.maxLength)}
-                                className="qf-input small"
-                                maxLength={rf.maxLength}
-                              />
+                              {rf.type === 'select' ? (
+                                <select
+                                  value={rVal}
+                                  onChange={(e) => setQuickFillData((prev) => ({ ...prev, [rf.key]: e.target.value }))}
+                                  className="qf-select-dropdown small"
+                                >
+                                  <option value="">-- Select Caste --</option>
+                                  <option value="SC">SC (Scheduled Caste)</option>
+                                  <option value="ST">ST (Scheduled Tribe)</option>
+                                  <option value="OBC">OBC (Other Backward Class)</option>
+                                  <option value="UR">UR / General</option>
+                                </select>
+                              ) : (
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={rVal}
+                                  onChange={(e) => handleCredentialInputChange(rf.key, e.target.value, rf.maxLength)}
+                                  className="qf-input small"
+                                  maxLength={rf.maxLength}
+                                />
+                              )}
                             </div>
                           );
                         })}
