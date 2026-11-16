@@ -770,10 +770,15 @@
   border-radius: 5px;
 }
 
-.modal-header-left h3 {
-  font-size: 19px;
+.modal-header-left h3,
+.modal-top-strip .modal-header-left h3,
+.teacher-modal-card .modal-header-left h3,
+.modal-teacher-name {
+  font-size: 20px;
   font-weight: 800;
   margin: 0;
+  color: #ffffff !important;
+  line-height: 1.25;
 }
 
 .modal-role-text {

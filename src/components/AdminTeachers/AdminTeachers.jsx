@@ -646,7 +646,7 @@ const AdminTeachers = ({ onTeacherCountChange }) => {
                     <span className="modal-sl-tag">Faculty #{String(viewingTeacher.slNo).padStart(2, '0')}</span>
                     <span className="modal-status-badge">Active Faculty</span>
                   </div>
-                  <h3>{viewingTeacher.name}</h3>
+                  <h3 className="modal-teacher-name" style={{ color: '#ffffff' }}>{viewingTeacher.name}</h3>
                   <span className="modal-role-text">{viewingTeacher.role}</span>
                 </div>
               </div>
