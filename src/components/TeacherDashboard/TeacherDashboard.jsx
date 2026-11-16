@@ -89,7 +89,11 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   // Active Tab: 'dashboard' | 'attendance' | 'students' | 'examinations'
   const getTabFromPath = (path) => {
     if (path.includes('/attendance')) return 'attendance';
-    if (path.includes('/vocational-students') || path.includes('/vocational')) return 'vocational-students';
+    if (
+      path.includes('/vocational-students') || 
+      path.includes('/vocational') ||
+      path.startsWith('/class')
+    ) return 'vocational-students';
     if (path.includes('/students')) return 'students';
     if (path.includes('/examinations') || path.includes('/exams')) return 'examinations';
     return defaultTab || 'dashboard';
@@ -665,8 +669,28 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
                   {activeTab === 'students' && `Student's Database — ${assignedClassName || 'Class'}`}
                   {activeTab === 'vocational-students' && (
                     <>
-                      <span className="breadcrumb-desktop-title">Vocational Students Directory — IT/ITeS</span>
-                      <span className="breadcrumb-mobile-title">Vocational Students</span>
+                      <span className="breadcrumb-desktop-title">
+                        {location.pathname === '/class99' || location.pathname === '/class9' || location.pathname.includes('class-9') || location.pathname.includes('class9') || location.pathname.includes('class-ix')
+                          ? 'Vocational Directory / Class IX'
+                          : location.pathname === '/class10' || location.pathname.includes('class-10') || location.pathname.includes('class10') || location.pathname.includes('class-x')
+                          ? 'Vocational Directory / Class X'
+                          : location.pathname === '/class11' || location.pathname.includes('class-11') || location.pathname.includes('class11') || location.pathname.includes('class-xi')
+                          ? 'Vocational Directory / Class XI'
+                          : location.pathname === '/class12' || location.pathname.includes('class-12') || location.pathname.includes('class12') || location.pathname.includes('class-xii')
+                          ? 'Vocational Directory / Class XII'
+                          : 'Vocational Education Dashboard — IT/ITeS'}
+                      </span>
+                      <span className="breadcrumb-mobile-title">
+                        {location.pathname === '/class99' || location.pathname === '/class9' || location.pathname.includes('class-9')
+                          ? 'Class IX'
+                          : location.pathname === '/class10' || location.pathname.includes('class-10')
+                          ? 'Class X'
+                          : location.pathname === '/class11' || location.pathname.includes('class-11')
+                          ? 'Class XI'
+                          : location.pathname === '/class12' || location.pathname.includes('class-12')
+                          ? 'Class XII'
+                          : 'Vocational'}
+                      </span>
                     </>
                   )}
                   {activeTab === 'examinations' && 'Examinations & Marks Evaluation'}

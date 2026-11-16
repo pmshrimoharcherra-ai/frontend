@@ -173,7 +173,68 @@ function App() {
           element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
         />
         <Route 
+          path="/teacher/vocational-students/:classId" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
           path="/teacher/vocational" 
+          element={<Navigate to="/teacher/vocational-students" replace />} 
+        />
+        {/* Dedicated Class Roster Routes */}
+        <Route 
+          path="/class99" 
+          element={<Navigate to="/class9" replace />} 
+        />
+        <Route 
+          path="/class9" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class10" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class11" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class12" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-9" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-10" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-11" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-12" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-ix" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-x" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-xi" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-xii" 
+          element={<TeacherDashboard currentUser={currentUser} onLogout={handleLogout} />} 
+        />
+        <Route 
+          path="/class-all" 
           element={<Navigate to="/teacher/vocational-students" replace />} 
         />
         <Route 

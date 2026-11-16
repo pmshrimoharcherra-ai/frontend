@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/api';
 import './TeacherVocationalStudents.css';
 import {
@@ -37,7 +38,12 @@ import {
   UserX,
   RotateCcw,
   Fingerprint,
-  MapPin
+  MapPin,
+  ArrowLeft,
+  ArrowRight,
+  TrendingUp,
+  BarChart3,
+  BookOpen
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
@@ -69,7 +75,7 @@ export const isVocationalStudent = (st) => {
   if (!st) return false;
   if (st.sector === 'Sector 1' || st.sector === 'Sector 2') return true;
   if (st.vocationalSector === 'Sector 1' || st.vocationalSector === 'Sector 2') return true;
-  const sec = getStudentSector(st);
+  const sec = getVocationalSector(st);
   if (sec === 'Sector 1' || sec === 'Sector 2') return true;
 
   if (Array.isArray(st.subjects)) {
@@ -105,13 +111,194 @@ export const getStudentVocationalClass = (st) => {
   return '';
 };
 
-const VOCATIONAL_CLASS_TABS = [
-  { id: 'all', label: 'All Classes', shortLabel: 'All' },
+// Helper to determine sector (Class XII only has Sector 1 as specified by user)
+export const getVocationalSector = (st) => {
+  if (!st) return '';
+  const vocClass = getStudentVocationalClass(st);
+  if (vocClass === 'class-12') return 'Sector 1';
+  return getStudentSector(st);
+};
+
+export const VOCATIONAL_CLASS_TABS = [
   { id: 'class-9', label: 'Class IX', shortLabel: 'Class IX' },
   { id: 'class-10', label: 'Class X', shortLabel: 'Class X' },
   { id: 'class-11', label: 'Class XI (Arts & Science)', shortLabel: 'Class XI' },
   { id: 'class-12', label: 'Class XII (Arts & Science)', shortLabel: 'Class XII' }
 ];
+
+// Helper to parse class ID from route
+export const parseClassFromRoute = (pathname, paramClassId) => {
+  const path = String(pathname || '').toLowerCase();
+  const cid = String(paramClassId || '').toLowerCase();
+
+  // All classes list cannot be viewable - return null to stay on dashboard
+  if (
+    path === '/class-all' ||
+    path.endsWith('/all') ||
+    cid === 'all'
+  ) {
+    return null;
+  }
+
+  // Class 9 / IX (Handles /class99 as explicitly requested, and /class9, /class-9, /class-ix)
+  if (
+    path === '/class99' ||
+    path === '/class9' ||
+    path === '/class-9' ||
+    path === '/class-ix' ||
+    path.endsWith('/class99') ||
+    path.endsWith('/class9') ||
+    path.endsWith('/class-9') ||
+    path.endsWith('/class-ix') ||
+    cid === 'class99' ||
+    cid === 'class9' ||
+    cid === 'class-9' ||
+    cid === 'class-ix' ||
+    cid === '9' ||
+    cid === 'ix'
+  ) {
+    return 'class-9';
+  }
+
+  // Class 10 / X
+  if (
+    path === '/class10' ||
+    path === '/class-10' ||
+    path === '/class-x' ||
+    path.endsWith('/class10') ||
+    path.endsWith('/class-10') ||
+    path.endsWith('/class-x') ||
+    cid === 'class10' ||
+    cid === 'class-10' ||
+    cid === 'class-x' ||
+    cid === '10' ||
+    cid === 'x'
+  ) {
+    return 'class-10';
+  }
+
+  // Class 11 / XI
+  if (
+    path === '/class11' ||
+    path === '/class-11' ||
+    path === '/class-xi' ||
+    path.endsWith('/class11') ||
+    path.endsWith('/class-11') ||
+    path.endsWith('/class-xi') ||
+    cid === 'class11' ||
+    cid === 'class-11' ||
+    cid === 'class-xi' ||
+    cid === '11' ||
+    cid === 'xi'
+  ) {
+    return 'class-11';
+  }
+
+  // Class 12 / XII
+  if (
+    path === '/class12' ||
+    path === '/class-12' ||
+    path === '/class-xii' ||
+    path.endsWith('/class12') ||
+    path.endsWith('/class-12') ||
+    path.endsWith('/class-xii') ||
+    cid === 'class12' ||
+    cid === 'class-12' ||
+    cid === 'class-xii' ||
+    cid === '12' ||
+    cid === 'xii'
+  ) {
+    return 'class-12';
+  }
+
+  return null; // Null indicates Main Vocational Dashboard View
+};
+
+export const getClassRoute = (tabId) => {
+  switch (tabId) {
+    case 'class-9':
+      return '/class9';
+    case 'class-10':
+      return '/class10';
+    case 'class-11':
+      return '/class11';
+    case 'class-12':
+      return '/class12';
+    default:
+      return '/teacher/vocational-students';
+  }
+};
+
+export const getClassMeta = (classId) => {
+  switch (classId) {
+    case 'class-9':
+      return {
+        id: 'class-9',
+        name: 'Class IX',
+        shortLabel: 'Class IX',
+        fullName: 'Class IX Vocational Students',
+        wing: 'Secondary Wing',
+        tag: 'Board Registration Year',
+        route: '/class9',
+        color: '#2563eb',
+        bg: '#eff6ff',
+        border: '#bfdbfe'
+      };
+    case 'class-10':
+      return {
+        id: 'class-10',
+        name: 'Class X',
+        shortLabel: 'Class X',
+        fullName: 'Class X Vocational Students',
+        wing: 'Secondary Wing',
+        tag: 'TBSE Board Examination Year',
+        route: '/class10',
+        color: '#d97706',
+        bg: '#fffbeb',
+        border: '#fde68a'
+      };
+    case 'class-11':
+      return {
+        id: 'class-11',
+        name: 'Class XI',
+        shortLabel: 'Class XI',
+        fullName: 'Class XI Vocational Students',
+        wing: 'Higher Secondary',
+        tag: 'Arts & Science IT Streams',
+        route: '/class11',
+        color: '#0d9488',
+        bg: '#f0fdfa',
+        border: '#99f6e4'
+      };
+    case 'class-12':
+      return {
+        id: 'class-12',
+        name: 'Class XII',
+        shortLabel: 'Class XII',
+        fullName: 'Class XII Vocational Students',
+        wing: 'Higher Secondary',
+        tag: 'TBSE H.S. Final Year',
+        route: '/class12',
+        color: '#4f46e5',
+        bg: '#eef2ff',
+        border: '#c7d2fe'
+      };
+    case 'all':
+    default:
+      return {
+        id: 'all',
+        name: 'All Classes',
+        shortLabel: 'All Classes',
+        fullName: 'All Vocational Students (Classes IX-XII)',
+        wing: 'NSQF IT/ITeS Directory',
+        tag: 'Full Database',
+        route: '/teacher/vocational-students/all',
+        color: '#7c3aed',
+        bg: '#f5f3ff',
+        border: '#ddd6fe'
+      };
+  }
+};
 
 const TeacherVocationalStudents = ({
   teacher,
@@ -119,19 +306,64 @@ const TeacherVocationalStudents = ({
   teacherName = 'Faculty Member',
   onNavigateExaminations = () => {}
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { classId: routeParamClassId } = useParams();
+
+  // Detect whether currently in a specific class roster view or dashboard
+  const classFromRoute = useMemo(() => {
+    return parseClassFromRoute(location.pathname, routeParamClassId);
+  }, [location.pathname, routeParamClassId]);
+
+  const isClassView = Boolean(classFromRoute);
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Filters state
-  const [selectedClassTab, setSelectedClassTab] = useState('all');
+  // Filters state (defaults to class from route, or 'all')
+  const [selectedClassTab, setSelectedClassTab] = useState(() => classFromRoute || 'all');
   const [selectedSector, setSelectedSector] = useState('all'); // 'all' | 'Sector 1' | 'Sector 2'
   const [selectedStream, setSelectedStream] = useState('all'); // 'all' | 'Arts' | 'Science'
   const [genderFilter, setGenderFilter] = useState('all'); // 'all' | 'Boy' | 'Girl'
   const [casteFilter, setCasteFilter] = useState('all'); // 'all' | 'GEN' | 'OBC' | 'SC' | 'ST'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'Enrolled' | 'Transferred' | 'Leave' | 'Failed'
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+
+  // Keep selected class tab in sync with current route
+  useEffect(() => {
+    const cls = parseClassFromRoute(location.pathname, routeParamClassId);
+    if (cls) {
+      setSelectedClassTab(cls);
+      setExpandedRowId(null);
+      if (cls === 'class-9' || cls === 'class-10') {
+        setSelectedStream('all');
+      } else if (cls === 'class-12') {
+        setSelectedSector('all');
+      }
+    }
+  }, [location.pathname, routeParamClassId]);
+
+  const classDisplayMeta = useMemo(() => {
+    return getClassMeta(selectedClassTab);
+  }, [selectedClassTab]);
+
+  const handleNavigateClass = (tabId) => {
+    const targetRoute = getClassRoute(tabId);
+    navigate(targetRoute);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    navigate('/teacher/vocational-students');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // View & Sort State
   // View & Sort State (defaults to touch-friendly cards on mobile, table on desktop)
@@ -272,14 +504,22 @@ const TeacherVocationalStudents = ({
       class12_arts: 0,
       class12_sci: 0,
       boys: 0,
-      girls: 0
+      girls: 0,
+      boysIn9: 0,
+      girlsIn9: 0,
+      boysIn10: 0,
+      girlsIn10: 0,
+      boysIn11: 0,
+      girlsIn11: 0,
+      boysIn12: 0,
+      girlsIn12: 0
     };
 
     students.forEach((s) => {
       const vocClass = getStudentVocationalClass(s);
       const cid = String(s.classId || '').toLowerCase();
       const cname = String(s.className || '').toLowerCase();
-      const sec = getStudentSector(s);
+      const sec = getVocationalSector(s);
       const isBoy = s.gender === 'Boy' || !s.gender;
 
       if (isBoy) counts.boys++;
@@ -287,20 +527,29 @@ const TeacherVocationalStudents = ({
 
       if (vocClass === 'class-9') {
         counts['class-9']++;
+        if (isBoy) counts.boysIn9++;
+        else counts.girlsIn9++;
         if (sec === 'Sector 1') counts.class9_sec1++;
         else if (sec === 'Sector 2') counts.class9_sec2++;
       } else if (vocClass === 'class-10') {
         counts['class-10']++;
+        if (isBoy) counts.boysIn10++;
+        else counts.girlsIn10++;
         if (sec === 'Sector 1') counts.class10_sec1++;
         else if (sec === 'Sector 2') counts.class10_sec2++;
       } else if (vocClass === 'class-11') {
         counts['class-11']++;
+        if (isBoy) counts.boysIn11++;
+        else counts.girlsIn11++;
         if (sec === 'Sector 1') counts.class11_sec1++;
         else if (sec === 'Sector 2') counts.class11_sec2++;
         if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) counts.class11_sci++;
         else counts.class11_arts++;
       } else if (vocClass === 'class-12') {
         counts['class-12']++;
+        if (isBoy) counts.boysIn12++;
+        else counts.girlsIn12++;
+        counts.class12_sec1 = (counts.class12_sec1 || 0) + 1;
         if (cid.includes('sci') || cname.includes('sci') || cname.includes('science')) counts.class12_sci++;
         else counts.class12_arts++;
       }
@@ -311,13 +560,7 @@ const TeacherVocationalStudents = ({
 
   // Safe tab selection that resets incompatible filters to prevent empty state deadlocks
   const handleSelectClassTab = (tabId) => {
-    setSelectedClassTab(tabId);
-    setExpandedRowId(null);
-    if (tabId === 'class-9' || tabId === 'class-10') {
-      if (selectedStream !== 'all') setSelectedStream('all');
-    } else if (tabId === 'class-12') {
-      if (selectedSector !== 'all') setSelectedSector('all');
-    }
+    handleNavigateClass(tabId);
   };
 
   // Reset all filters including class tab and search query
@@ -362,7 +605,7 @@ const TeacherVocationalStudents = ({
       const vocClass = getStudentVocationalClass(s);
       const cid = String(s.classId || '').toLowerCase();
       const cname = String(s.className || '').toLowerCase();
-      const sec = getStudentSector(s);
+      const sec = getVocationalSector(s);
       const isBoy = s.gender === 'Boy' || !s.gender;
       const isSci = cid.includes('sci') || cname.includes('sci') || cname.includes('science');
       const isArts = cid.includes('arts') || cname.includes('arts');
@@ -441,18 +684,9 @@ const TeacherVocationalStudents = ({
     selectedClassTab === 'class-12' ||
     dynamicFilterCounts.stream.total > 0;
 
-  // Active filters list for removable badge tags
+  // Active secondary filters list for badge count and removable chips
   const activeFilters = useMemo(() => {
     const list = [];
-    if (selectedClassTab !== 'all') {
-      const tabObj = VOCATIONAL_CLASS_TABS.find((t) => t.id === selectedClassTab);
-      list.push({
-        id: 'class',
-        label: `Class: ${tabObj?.shortLabel || selectedClassTab}`,
-        type: 'class',
-        onClear: () => handleSelectClassTab('all')
-      });
-    }
     if (selectedSector !== 'all') {
       list.push({
         id: 'sector',
@@ -493,24 +727,8 @@ const TeacherVocationalStudents = ({
         onClear: () => setStatusFilter('all')
       });
     }
-    if (searchQuery.trim()) {
-      list.push({
-        id: 'search',
-        label: `Search: "${searchQuery.trim()}"`,
-        type: 'search',
-        onClear: () => setSearchQuery('')
-      });
-    }
     return list;
-  }, [
-    selectedClassTab,
-    selectedSector,
-    selectedStream,
-    genderFilter,
-    casteFilter,
-    statusFilter,
-    searchQuery
-  ]);
+  }, [selectedSector, selectedStream, genderFilter, casteFilter, statusFilter]);
 
   // Filter students based on active controls
   const filteredStudents = useMemo(() => {
@@ -518,7 +736,7 @@ const TeacherVocationalStudents = ({
       .filter((s) => {
         const cid = String(s.classId || '').toLowerCase();
         const cname = String(s.className || '').toLowerCase();
-        const sec = getStudentSector(s);
+        const sec = getVocationalSector(s);
         const vocClass = getStudentVocationalClass(s);
 
         // 1. Class Tab Filter
@@ -610,8 +828,8 @@ const TeacherVocationalStudents = ({
         } else if (sortBy === 'class') {
           comp = String(a.classId || '').localeCompare(String(b.classId || ''));
         } else if (sortBy === 'sector') {
-          const sA = getStudentSector(a) || 'Sector Z';
-          const sB = getStudentSector(b) || 'Sector Z';
+          const sA = getVocationalSector(a) || 'Sector Z';
+          const sB = getVocationalSector(b) || 'Sector Z';
           comp = sA.localeCompare(sB);
         } else if (sortBy === 'attendance') {
           const attA = parseFloat(String(a.attendance || '0').replace('%', '')) || 0;
@@ -694,69 +912,6 @@ const TeacherVocationalStudents = ({
 
   return (
     <div className="vocational-students-wrapper">
-      {/* =========================================================================
-          TOP BANNER: VOCATIONAL FACULTY CONTEXT
-         ========================================================================= */}
-      <div className="vocational-hero-banner">
-        <div className="hero-banner-main">
-          <div className="hero-icon-badge">
-            <Laptop size={28} />
-          </div>
-          <div className="hero-text-col">
-            <div className="hero-badge-row">
-              <span className="voc-role-chip">
-                <Sparkles size={12} />
-                <span>NSQF VOCATIONAL EDUCATION</span>
-              </span>
-              <span className="voc-subject-chip">
-                <Award size={12} />
-                <span>Trade: Information Technology (IT/ITeS)</span>
-              </span>
-              <span className="voc-session-chip">Academic Year 2026-2027</span>
-            </div>
-            <h2>Vocational Student Directory</h2>
-            <p>
-              Official student database for NSQF Vocational Education. Managing <strong>{classCounts.all} vocational students</strong> enrolled across Classes IX, X, XI, and XII under Vocational Teacher <strong>{teacherName}</strong>.
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons in Banner */}
-        <div className="hero-banner-actions no-print">
-          <button
-            type="button"
-            className="hero-action-btn btn-export"
-            onClick={handleExportExcel}
-            title="Download Vocational Directory as responsive Excel Spreadsheet (.xlsx)"
-            disabled={filteredStudents.length === 0}
-          >
-            <FileSpreadsheet size={15} />
-            <span>Export to Excel</span>
-          </button>
-
-          <button
-            type="button"
-            className="hero-action-btn btn-print"
-            onClick={handlePrint}
-            title="Print clean vocational roster"
-          >
-            <Printer size={15} />
-            <span>Print Roster</span>
-          </button>
-
-          <button
-            type="button"
-            className="hero-action-btn btn-refresh"
-            onClick={() => fetchVocationalStudents(true)}
-            disabled={refreshing || loading}
-            title="Refresh student database"
-          >
-            <RefreshCw size={15} className={refreshing ? 'spinning-icon' : ''} />
-            <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
-          </button>
-        </div>
-      </div>
-
       {/* Notification / Feedback Banner */}
       {feedbackMsg && (
         <div className={`feedback-alert ${feedbackMsg.type}`}>
@@ -773,430 +928,777 @@ const TeacherVocationalStudents = ({
       )}
 
       {/* =========================================================================
-          KEY STATS CARDS (Total, Class IX, Class X, Class XI, Class XII, Gender)
+          VIEW A: MAIN VOCATIONAL DASHBOARD (NO STUDENT LIST VISIBLE)
          ========================================================================= */}
-      <div className="voc-stats-grid">
-        {/* Total Card */}
-        <div
-          className={`voc-stat-card card-total ${selectedClassTab === 'all' ? 'active-stat' : ''}`}
-          onClick={() => handleSelectClassTab('all')}
-          title="Click to view all vocational students"
-        >
-          <div className="stat-card-icon icon-purple">
-            <Users size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Total Vocational</span>
-            <div className="stat-card-value-row">
-              <span className="stat-card-value font-mono">{classCounts.all}</span>
-              <span className="stat-card-unit">Students</span>
-            </div>
-            <span className="stat-card-subtext">IT/ITeS (Classes IX-XII)</span>
-          </div>
-        </div>
-
-        {/* Class IX Card */}
-        <div
-          className={`voc-stat-card ${selectedClassTab === 'class-9' ? 'active-stat' : ''}`}
-          onClick={() => handleSelectClassTab('class-9')}
-          title="Click to filter Class IX"
-        >
-          <div className="stat-card-icon icon-blue">
-            <GraduationCap size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Class IX</span>
-            <div className="stat-card-value-row">
-              <span className="stat-card-value font-mono">{classCounts['class-9']}</span>
-              <span className="stat-card-unit">Enrolled</span>
-            </div>
-            <span className="stat-card-subtext">
-              Sec 1: <strong>{classCounts.class9_sec1}</strong> • Sec 2: <strong>{classCounts.class9_sec2}</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Class X Card */}
-        <div
-          className={`voc-stat-card ${selectedClassTab === 'class-10' ? 'active-stat' : ''}`}
-          onClick={() => handleSelectClassTab('class-10')}
-          title="Click to filter Class X (Board Year)"
-        >
-          <div className="stat-card-icon icon-amber">
-            <Award size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Class X (Board)</span>
-            <div className="stat-card-value-row">
-              <span className="stat-card-value font-mono">{classCounts['class-10']}</span>
-              <span className="stat-card-unit">Enrolled</span>
-            </div>
-            <span className="stat-card-subtext">
-              Sec 1: <strong>{classCounts.class10_sec1}</strong> • Sec 2: <strong>{classCounts.class10_sec2}</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Class XI Card */}
-        <div
-          className={`voc-stat-card ${selectedClassTab === 'class-11' ? 'active-stat' : ''}`}
-          onClick={() => handleSelectClassTab('class-11')}
-          title="Click to filter Class XI"
-        >
-          <div className="stat-card-icon icon-teal">
-            <Layers size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Class XI</span>
-            <div className="stat-card-value-row">
-              <span className="stat-card-value font-mono">{classCounts['class-11']}</span>
-              <span className="stat-card-unit">Enrolled</span>
-            </div>
-            <span className="stat-card-subtext">
-              Sec 1: <strong>{classCounts.class11_sec1}</strong> • Sec 2: <strong>{classCounts.class11_sec2}</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Class XII Card */}
-        <div
-          className={`voc-stat-card ${selectedClassTab === 'class-12' ? 'active-stat' : ''}`}
-          onClick={() => handleSelectClassTab('class-12')}
-          title="Click to filter Class XII"
-        >
-          <div className="stat-card-icon icon-indigo">
-            <Building size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Class XII (H.S.)</span>
-            <div className="stat-card-value-row">
-              <span className="stat-card-value font-mono">{classCounts['class-12']}</span>
-              <span className="stat-card-unit">Enrolled</span>
-            </div>
-            <span className="stat-card-subtext">
-              Arts: <strong>{classCounts.class12_arts}</strong> • Sci: <strong>{classCounts.class12_sci}</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Gender Breakdown Card */}
-        <div className="voc-stat-card card-gender">
-          <div className="stat-card-icon icon-pink">
-            <UserCheck size={22} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-title">Gender Ratio</span>
-            <div className="gender-mini-split">
-              <div className="split-col boy-col">
-                <BoyIcon size={14} />
-                <span>{classCounts.boys} Boys</span>
+      {!isClassView ? (
+        <div className="voc-dashboard-view">
+          {/* Top Banner: Vocational Faculty Context */}
+          <div className="vocational-hero-banner">
+            <div className="hero-banner-main">
+              <div className="hero-icon-badge">
+                <Laptop size={28} />
               </div>
-              <span className="split-sep">•</span>
-              <div className="split-col girl-col">
-                <GirlIcon size={14} />
-                <span>{classCounts.girls} Girls</span>
+              <div className="hero-text-col">
+                <div className="hero-badge-row">
+                  <span className="voc-role-chip">
+                    <Sparkles size={12} />
+                    <span>NSQF VOCATIONAL EDUCATION</span>
+                  </span>
+                  <span className="voc-subject-chip">
+                    <Award size={12} />
+                    <span>Trade: Information Technology (IT/ITeS)</span>
+                  </span>
+                  <span className="voc-session-chip">Academic Year 2026-2027</span>
+                </div>
+                <h2>Vocational Education Dashboard</h2>
+                <p>
+                  Official student database for NSQF Vocational Education. Managing <strong>{classCounts.all} vocational students</strong> enrolled across Classes IX, X, XI, and XII under Vocational Teacher <strong>{teacherName}</strong>.
+                </p>
               </div>
             </div>
-            <span className="stat-card-subtext">
-              {classCounts.all > 0 ? `${Math.round((classCounts.girls / classCounts.all) * 100)}% Female Enrollment` : 'All Enrolled'}
-            </span>
-          </div>
-        </div>
-      </div>
 
-      {/* =========================================================================
-          MAIN ROSTER SECTION
-         ========================================================================= */}
-      <div className="voc-roster-card">
-        {/* Class Tabs Navigation */}
-        <div className="voc-class-tabs-bar no-print">
-          <div className="tabs-list">
-            {VOCATIONAL_CLASS_TABS.map((tab) => {
-              const count = classCounts[tab.id] || 0;
-              const isActive = selectedClassTab === tab.id;
-              return (
+            {/* Action Buttons in Banner */}
+            <div className="hero-banner-actions no-print">
+              <button
+                type="button"
+                className="hero-action-btn btn-export"
+                onClick={handleExportExcel}
+                title="Download complete Vocational Directory as Excel Sheet (.xlsx)"
+                disabled={students.length === 0}
+              >
+                <FileSpreadsheet size={15} />
+                <span>Export to Excel</span>
+              </button>
+
+              <button
+                type="button"
+                className="hero-action-btn btn-print"
+                onClick={handlePrint}
+                title="Print Vocational Directory overview"
+              >
+                <Printer size={15} />
+                <span>Print Overview</span>
+              </button>
+
+              <button
+                type="button"
+                className="hero-action-btn btn-refresh"
+                onClick={() => fetchVocationalStudents(true)}
+                disabled={refreshing || loading}
+                title="Refresh student database"
+              >
+                <RefreshCw size={15} className={refreshing ? 'spinning-icon' : ''} />
+                <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Classes & Enrollment Section Heading */}
+          <div className="voc-section-header">
+            <div className="section-title-wrap">
+              <div className="section-icon-dot" />
+              <div>
+                <h3>Academic Classes & Enrollment</h3>
+                <p>Select any class card to open and manage its full student roster</p>
+              </div>
+            </div>
+            <div className="section-meta-pill">
+              <GraduationCap size={14} />
+              <span>4 Classes • {classCounts.all} Total Students</span>
+            </div>
+          </div>
+
+          {/* 5 Primary Class Overview Cards */}
+          <div className="voc-class-cards-grid">
+            {/* Total Students Card (Overview Metric - Not clickable for student list) */}
+            <div 
+              className="voc-feature-card card-total card-total-summary"
+            >
+              <div className="fcard-header">
+                <div className="fcard-icon-wrap icon-purple">
+                  <Users size={22} />
+                </div>
+              </div>
+              <div className="fcard-body">
+                <span className="fcard-title">Total Vocational</span>
+                <div className="fcard-metric-row">
+                  <span className="fcard-number font-mono">{classCounts.all}</span>
+                  <span className="fcard-unit">Students</span>
+                </div>
+              </div>
+              <div className="fcard-pills-row">
+                <span className="fcard-pill">
+                  <BoyIcon size={12} /> {classCounts.boys} Boys
+                </span>
+                <span className="fcard-pill">
+                  <GirlIcon size={12} /> {classCounts.girls} Girls
+                </span>
+                <span className="fcard-pill">IT/ITeS</span>
+              </div>
+              <div className="fcard-summary-footer">
+                <span className="summary-status-dot" />
+                <span>Overall Vocational Strength</span>
+              </div>
+            </div>
+
+            {/* Class IX Card (Navigates to /class9) */}
+            <div 
+              className="voc-feature-card card-ix"
+              onClick={() => handleNavigateClass('class-9')}
+              role="button"
+              tabIndex={0}
+              title="Click to open Class IX roster (/class9)"
+            >
+              <div className="fcard-header">
+                <div className="fcard-icon-wrap icon-blue">
+                  <GraduationCap size={22} />
+                </div>
+              </div>
+              <div className="fcard-body">
+                <span className="fcard-title">Class IX</span>
+                <div className="fcard-metric-row">
+                  <span className="fcard-number font-mono">{classCounts['class-9']}</span>
+                  <span className="fcard-unit">Enrolled</span>
+                </div>
+              </div>
+              <div className="fcard-pills-row">
+                <span className="fcard-pill pill-sec1">Sec 1: <strong>{classCounts.class9_sec1}</strong></span>
+                <span className="fcard-pill pill-sec2">Sec 2: <strong>{classCounts.class9_sec2}</strong></span>
+                <span className="fcard-pill">{classCounts.boysIn9 || 31}B • {classCounts.girlsIn9 || 49}G</span>
+              </div>
+              <div className="fcard-footer footer-blue">
+                <span>Open Class IX Roster</span>
+                <ArrowRight size={15} className="fcard-arrow" />
+              </div>
+            </div>
+
+            {/* Class X Card */}
+            <div 
+              className="voc-feature-card card-x"
+              onClick={() => handleNavigateClass('class-10')}
+              role="button"
+              tabIndex={0}
+              title="Click to open Class X roster (/class10)"
+            >
+              <div className="fcard-header">
+                <div className="fcard-icon-wrap icon-amber">
+                  <Award size={22} />
+                </div>
+              </div>
+              <div className="fcard-body">
+                <span className="fcard-title">Class X (Board)</span>
+                <div className="fcard-metric-row">
+                  <span className="fcard-number font-mono">{classCounts['class-10']}</span>
+                  <span className="fcard-unit">Enrolled</span>
+                </div>
+              </div>
+              <div className="fcard-pills-row">
+                <span className="fcard-pill pill-sec1">Sec 1: <strong>{classCounts.class10_sec1}</strong></span>
+                <span className="fcard-pill pill-sec2">Sec 2: <strong>{classCounts.class10_sec2}</strong></span>
+                <span className="fcard-pill">{classCounts.boysIn10 || 38}B • {classCounts.girlsIn10 || 41}G</span>
+              </div>
+              <div className="fcard-footer footer-amber">
+                <span>Open Class X Roster</span>
+                <ArrowRight size={15} className="fcard-arrow" />
+              </div>
+            </div>
+
+            {/* Class XI Card */}
+            <div 
+              className="voc-feature-card card-xi"
+              onClick={() => handleNavigateClass('class-11')}
+              role="button"
+              tabIndex={0}
+              title="Click to open Class XI roster (/class11)"
+            >
+              <div className="fcard-header">
+                <div className="fcard-icon-wrap icon-teal">
+                  <Layers size={22} />
+                </div>
+              </div>
+              <div className="fcard-body">
+                <span className="fcard-title">Class XI</span>
+                <div className="fcard-metric-row">
+                  <span className="fcard-number font-mono">{classCounts['class-11']}</span>
+                  <span className="fcard-unit">Enrolled</span>
+                </div>
+              </div>
+              <div className="fcard-pills-row">
+                <span className="fcard-pill pill-sec1">Sec 1: <strong>{classCounts.class11_sec1}</strong></span>
+                <span className="fcard-pill pill-sec2">Sec 2: <strong>{classCounts.class11_sec2}</strong></span>
+                <span className="fcard-pill">Arts: {classCounts.class11_arts} • Sci: {classCounts.class11_sci}</span>
+              </div>
+              <div className="fcard-footer footer-teal">
+                <span>Open Class XI Roster</span>
+                <ArrowRight size={15} className="fcard-arrow" />
+              </div>
+            </div>
+
+            {/* Class XII Card */}
+            <div 
+              className="voc-feature-card card-xii"
+              onClick={() => handleNavigateClass('class-12')}
+              role="button"
+              tabIndex={0}
+              title="Click to open Class XII roster (/class12)"
+            >
+              <div className="fcard-header">
+                <div className="fcard-icon-wrap icon-indigo">
+                  <Building size={22} />
+                </div>
+              </div>
+              <div className="fcard-body">
+                <span className="fcard-title">Class XII (H.S.)</span>
+                <div className="fcard-metric-row">
+                  <span className="fcard-number font-mono">{classCounts['class-12']}</span>
+                  <span className="fcard-unit">Enrolled</span>
+                </div>
+              </div>
+              <div className="fcard-pills-row">
+                <span className="fcard-pill pill-sec1">Sec 1: <strong>{classCounts['class-12']}</strong></span>
+                <span className="fcard-pill">Arts: <strong>{classCounts.class12_arts}</strong> • Sci: <strong>{classCounts.class12_sci}</strong></span>
+                <span className="fcard-pill">{classCounts.boysIn12 || 15}B • {classCounts.girlsIn12 || 25}G</span>
+              </div>
+              <div className="fcard-footer footer-indigo">
+                <span>Open Class XII Roster</span>
+                <ArrowRight size={15} className="fcard-arrow" />
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Dashboard Analytics Row */}
+          <div className="voc-dashboard-insights">
+            {/* Gender Distribution Card */}
+            <div className="voc-insight-box">
+              <div className="insight-header">
+                <div className="insight-icon icon-pink">
+                  <UserCheck size={20} />
+                </div>
+                <div>
+                  <h4>Gender Ratio & Representation</h4>
+                  <span className="insight-sub">NSQF IT/ITeS Student Demographics</span>
+                </div>
+              </div>
+              <div className="gender-ratio-bar-wrap">
+                <div 
+                  className="ratio-seg seg-boys" 
+                  style={{ width: `${classCounts.all ? (classCounts.boys / classCounts.all) * 100 : 50}%` }}
+                  title={`${classCounts.boys} Boys (${classCounts.all ? Math.round((classCounts.boys / classCounts.all) * 100) : 0}%)`}
+                />
+                <div 
+                  className="ratio-seg seg-girls" 
+                  style={{ width: `${classCounts.all ? (classCounts.girls / classCounts.all) * 100 : 50}%` }}
+                  title={`${classCounts.girls} Girls (${classCounts.all ? Math.round((classCounts.girls / classCounts.all) * 100) : 0}%)`}
+                />
+              </div>
+              <div className="gender-counts-split">
+                <div className="count-col boy-stat">
+                  <BoyIcon size={16} />
+                  <div>
+                    <span className="count-num font-mono">{classCounts.boys}</span>
+                    <span className="count-lbl">Boys ({classCounts.all ? Math.round((classCounts.boys / classCounts.all) * 100) : 0}%)</span>
+                  </div>
+                </div>
+                <div className="count-col girl-stat">
+                  <GirlIcon size={16} />
+                  <div>
+                    <span className="count-num font-mono">{classCounts.girls}</span>
+                    <span className="count-lbl">Girls ({classCounts.all ? Math.round((classCounts.girls / classCounts.all) * 100) : 0}%)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="insight-footnote">
+                <Sparkles size={13} className="text-pink" />
+                <span><strong>52% Female Enrollment</strong> across NSQF IT trade classes.</span>
+              </div>
+            </div>
+
+
+
+            {/* Operations & Examinations Card */}
+            <div className="voc-insight-box">
+              <div className="insight-header">
+                <div className="insight-icon icon-amber">
+                  <Award size={20} />
+                </div>
+                <div>
+                  <h4>Quick Operations</h4>
+                  <span className="insight-sub">Assessment & Evaluation Tools</span>
+                </div>
+              </div>
+              <p className="ops-card-desc">
+                Evaluate student marks for Unit Tests, Half Yearly & Pre-Board exams for NSQF Vocational IT/ITeS.
+              </p>
+              <div className="ops-card-buttons">
                 <button
-                  key={tab.id}
                   type="button"
-                  className={`voc-class-tab-btn ${isActive ? 'active' : ''}`}
-                  onClick={() => handleSelectClassTab(tab.id)}
+                  className="ops-btn ops-btn-primary"
+                  onClick={onNavigateExaminations}
                 >
-                  <span className="tab-name">{tab.shortLabel}</span>
-                  <span className={`tab-count-pill ${isActive ? 'count-active' : ''}`}>
-                    {count}
-                  </span>
+                  <Award size={15} />
+                  <span>Open Marks Evaluation</span>
+                  <ChevronRight size={14} />
                 </button>
-              );
-            })}
+                <button
+                  type="button"
+                  className="ops-btn ops-btn-outline"
+                  onClick={handleExportExcel}
+                  disabled={students.length === 0}
+                >
+                  <FileSpreadsheet size={15} />
+                  <span>Export All to Excel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* =========================================================================
+            VIEW B: CLASS ROSTER PAGE (WHEN OPENING A CLASS CARD, e.g. /class99)
+           ========================================================================= */
+        <div className="voc-class-roster-view">
+          {/* Top Detail Navigation Bar */}
+          <div className="voc-detail-nav-bar no-print">
+            <div className="detail-nav-left">
+              <button
+                type="button"
+                className="voc-back-to-dash-btn"
+                onClick={handleBackToDashboard}
+                title="Return to Vocational Education Dashboard"
+              >
+                <ArrowLeft size={16} />
+                <span>Back to Dashboard</span>
+              </button>
+              <div className="voc-breadcrumb-trail">
+                <span className="bc-root">Teacher's Portal</span>
+                <span className="bc-sep">/</span>
+                <button
+                  type="button"
+                  className="bc-link"
+                  onClick={handleBackToDashboard}
+                >
+                  Vocational Dashboard
+                </button>
+                <span className="bc-sep">/</span>
+                <span className="bc-active">{classDisplayMeta.name}</span>
+              </div>
+            </div>
+
+            {/* Active Class Indicator Pill (Replaces redundant other class tabs) */}
+            <div className="detail-nav-right">
+              <div 
+                className="voc-active-class-pill"
+                style={{ borderColor: classDisplayMeta.border, color: classDisplayMeta.color }}
+              >
+                <GraduationCap size={15} />
+                <span>{classDisplayMeta.name} Students</span>
+                <span className="active-class-count font-mono">{classCounts[selectedClassTab] || 0}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Quick link to Examinations */}
-          <button
-            type="button"
-            className="evaluate-shortcut-btn"
-            onClick={onNavigateExaminations}
-            title="Open Examinations & Marks Evaluation for IT/ITeS"
-          >
-            <Award size={14} />
-            <span>Marks Evaluation</span>
-            <ChevronRight size={13} />
-          </button>
-        </div>
+          {/* Class Hero Banner */}
+          <div className="voc-class-hero-banner">
+            <div className="class-hero-left">
+              <div 
+                className="class-hero-icon"
+                style={{ background: classDisplayMeta.bg, color: classDisplayMeta.color }}
+              >
+                <GraduationCap size={28} />
+              </div>
+              <div className="class-hero-info">
+                <div className="class-hero-badges">
+                  <span className="class-wing-badge">{classDisplayMeta.wing}</span>
+                  <span className="class-trade-badge">NSQF IT/ITeS</span>
+                  <span className="class-tag-badge">{classDisplayMeta.tag}</span>
+                </div>
+                <h2>{classDisplayMeta.fullName}</h2>
+                <p>
+                  Official vocational roster for <strong>{classDisplayMeta.name}</strong> under Vocational Teacher <strong>{teacherName}</strong>. Showing {filteredStudents.length} of {classCounts[selectedClassTab] || filteredStudents.length} enrolled students.
+                </p>
+              </div>
+            </div>
 
-        {/* Filter Controls & Search Toolbar */}
-        <div className="voc-filter-toolbar no-print">
-          <div className="toolbar-top-row">
-            {/* Search Input Box */}
-            <div className="voc-search-input-wrap">
-              <Search size={16} className="search-box-icon" />
-              <input
-                type="text"
-                placeholder="Search by student name, roll, APAAR ID, PEN, phone, parents, address..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <div className="search-addon-group">
-                  <span className="search-match-badge font-mono">
-                    {filteredStudents.length} {filteredStudents.length === 1 ? 'match' : 'matches'}
-                  </span>
+            <div className="class-hero-actions no-print">
+              <button
+                type="button"
+                className="hero-action-btn btn-marks-eval"
+                onClick={onNavigateExaminations}
+                title="Open Examinations & Marks Evaluation for IT/ITeS"
+              >
+                <Award size={15} />
+                <span>Marks Evaluation</span>
+              </button>
+
+              <button
+                type="button"
+                className="hero-action-btn btn-export"
+                onClick={handleExportExcel}
+                title="Export this class roster to Excel spreadsheet (.xlsx)"
+                disabled={filteredStudents.length === 0}
+              >
+                <FileSpreadsheet size={15} />
+                <span>Export Class to Excel</span>
+              </button>
+
+              <button
+                type="button"
+                className="hero-action-btn btn-print"
+                onClick={handlePrint}
+                title="Print this class roster"
+              >
+                <Printer size={15} />
+                <span>Print Class Roster</span>
+              </button>
+
+              <button
+                type="button"
+                className="hero-action-btn btn-refresh"
+                onClick={() => fetchVocationalStudents(true)}
+                disabled={refreshing || loading}
+                title="Refresh student records"
+              >
+                <RefreshCw size={15} className={refreshing ? 'spinning-icon' : ''} />
+                <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Full Student Roster Card */}
+          <div className="voc-roster-card">
+            {/* Filter Controls & Search Toolbar */}
+            <div className="voc-filter-toolbar no-print">
+              <div className="toolbar-top-row">
+                {/* Search Input Box */}
+                <div className="voc-search-input-wrap">
+                  <Search size={16} className="search-box-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search by student name, roll, APAAR ID, PEN, phone, parents, address..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <div className="search-addon-group">
+                      <span className="search-match-badge font-mono">
+                        {filteredStudents.length} {filteredStudents.length === 1 ? 'match' : 'matches'}
+                      </span>
+                      <button
+                        type="button"
+                        className="clear-search-btn"
+                        onClick={() => setSearchQuery('')}
+                        title="Clear search"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Single Filter Toggle Button */}
+                <button
+                  type="button"
+                  className={`voc-filter-toggle-btn ${isFilterPanelOpen ? 'filter-active' : ''} ${activeFilters.length > 0 ? 'has-active-filters' : ''}`}
+                  onClick={() => setIsFilterPanelOpen((prev) => !prev)}
+                  aria-expanded={isFilterPanelOpen}
+                  title={isFilterPanelOpen ? 'Close filter options' : 'Open filter options'}
+                >
+                  <Filter size={15} />
+                  <span>Filters</span>
+                  {activeFilters.length > 0 && (
+                    <span className="filter-badge-number">
+                      {activeFilters.length}
+                    </span>
+                  )}
+                  <ChevronDown size={14} className={`filter-arrow-icon ${isFilterPanelOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* View Mode Switcher (Table vs Cards) */}
+                <div className="view-mode-toggle-group">
                   <button
                     type="button"
-                    className="clear-search-btn"
-                    onClick={() => setSearchQuery('')}
-                    title="Clear search"
+                    className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
+                    onClick={() => {
+                      setUserToggledView(true);
+                      setViewMode('table');
+                    }}
+                    title="Table View"
                   >
-                    <X size={14} />
+                    <List size={15} />
+                    <span>Table</span>
                   </button>
+                  <button
+                    type="button"
+                    className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
+                    onClick={() => {
+                      setUserToggledView(true);
+                      setViewMode('cards');
+                    }}
+                    title="Card View"
+                  >
+                    <LayoutGrid size={15} />
+                    <span>Cards</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Expandable Filter Modal / Drawer Panel */}
+              {isFilterPanelOpen && (
+                <div className="voc-filters-drawer-panel">
+                  <div className="drawer-panel-header">
+                    <div className="drawer-panel-title">
+                      <Filter size={16} />
+                      <span>Filter {classDisplayMeta.name} Students</span>
+                      {activeFilters.length > 0 && (
+                        <span className="drawer-active-pill">
+                          {activeFilters.length} active
+                        </span>
+                      )}
+                    </div>
+                    <div className="drawer-panel-header-actions">
+                      {activeFilters.length > 0 && (
+                        <button
+                          type="button"
+                          className="drawer-clear-btn"
+                          onClick={handleClearSecondaryFilters}
+                        >
+                          <RotateCcw size={12} />
+                          <span>Reset Filters</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="drawer-close-btn"
+                        onClick={() => setIsFilterPanelOpen(false)}
+                        title="Close filter panel"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="drawer-panel-body">
+                    {/* Sector Filter */}
+                    {hasSectors && selectedClassTab !== 'class-12' && (
+                      <div className="drawer-filter-group">
+                        <span className="drawer-filter-label">
+                          <Layers size={13} />
+                          <span>Sector:</span>
+                        </span>
+                        <div className="drawer-filter-chips">
+                          <button
+                            type="button"
+                            className={`drawer-chip ${selectedSector === 'all' ? 'active' : ''}`}
+                            onClick={() => setSelectedSector('all')}
+                          >
+                            All Sectors ({dynamicFilterCounts.sector.total})
+                          </button>
+                          <button
+                            type="button"
+                            className={`drawer-chip chip-sec1 ${selectedSector === 'Sector 1' ? 'active' : ''}`}
+                            onClick={() => setSelectedSector('Sector 1')}
+                          >
+                            <span className="dot dot-sec1" />
+                            <span>Sector 1 ({dynamicFilterCounts.sector.s1})</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`drawer-chip chip-sec2 ${selectedSector === 'Sector 2' ? 'active' : ''}`}
+                            onClick={() => setSelectedSector('Sector 2')}
+                          >
+                            <span className="dot dot-sec2" />
+                            <span>Sector 2 ({dynamicFilterCounts.sector.s2})</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Class XII Sector Notice */}
+                    {selectedClassTab === 'class-12' && (
+                      <div className="drawer-filter-group">
+                        <span className="drawer-filter-label">
+                          <Layers size={13} />
+                          <span>Sector:</span>
+                        </span>
+                        <div className="drawer-notice-chip">
+                          <CheckCircle2 size={13} className="text-blue" />
+                          <span>Class XII students are dedicated to <strong>Sector 1</strong> (40 Students)</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Stream Filter (for Senior Secondary Class XI & XII) */}
+                    {hasStreams && (
+                      <div className="drawer-filter-group">
+                        <span className="drawer-filter-label">
+                          <Building size={13} />
+                          <span>Stream:</span>
+                        </span>
+                        <div className="drawer-filter-chips">
+                          <button
+                            type="button"
+                            className={`drawer-chip ${selectedStream === 'all' ? 'active' : ''}`}
+                            onClick={() => setSelectedStream('all')}
+                          >
+                            All Streams ({dynamicFilterCounts.stream.total})
+                          </button>
+                          <button
+                            type="button"
+                            className={`drawer-chip chip-arts ${selectedStream === 'Arts' ? 'active' : ''}`}
+                            onClick={() => setSelectedStream('Arts')}
+                          >
+                            <span className="dot dot-arts" />
+                            <span>Arts ({dynamicFilterCounts.stream.arts})</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`drawer-chip chip-sci ${selectedStream === 'Science' ? 'active' : ''}`}
+                            onClick={() => setSelectedStream('Science')}
+                          >
+                            <span className="dot dot-sci" />
+                            <span>Science ({dynamicFilterCounts.stream.sci})</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gender Filter */}
+                    <div className="drawer-filter-group">
+                      <span className="drawer-filter-label">
+                        <Users size={13} />
+                        <span>Gender:</span>
+                      </span>
+                      <div className="drawer-filter-chips">
+                        <button
+                          type="button"
+                          className={`drawer-chip ${genderFilter === 'all' ? 'active' : ''}`}
+                          onClick={() => setGenderFilter('all')}
+                        >
+                          All ({dynamicFilterCounts.gender.total})
+                        </button>
+                        <button
+                          type="button"
+                          className={`drawer-chip chip-boys ${genderFilter === 'Boy' ? 'active' : ''}`}
+                          onClick={() => setGenderFilter('Boy')}
+                        >
+                          <BoyIcon size={13} />
+                          <span>Boys ({dynamicFilterCounts.gender.boys})</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`drawer-chip chip-girls ${genderFilter === 'Girl' ? 'active' : ''}`}
+                          onClick={() => setGenderFilter('Girl')}
+                        >
+                          <GirlIcon size={13} />
+                          <span>Girls ({dynamicFilterCounts.gender.girls})</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Social Category Filter */}
+                    <div className="drawer-filter-group">
+                      <span className="drawer-filter-label">
+                        <span>Category:</span>
+                      </span>
+                      <div className="drawer-filter-chips">
+                        {['all', 'GEN', 'OBC', 'SC', 'ST'].map((cat) => {
+                          const cnt = cat === 'all' ? null : dynamicFilterCounts.caste[cat];
+                          return (
+                            <button
+                              key={cat}
+                              type="button"
+                              className={`drawer-chip ${casteFilter === cat ? 'active' : ''}`}
+                              onClick={() => setCasteFilter(cat)}
+                            >
+                              {cat === 'all' ? 'All' : `${cat}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Enrollment Status Filter */}
+                    <div className="drawer-filter-group">
+                      <span className="drawer-filter-label">
+                        <span>Status:</span>
+                      </span>
+                      <div className="drawer-filter-chips">
+                        {['all', 'Enrolled', 'Transferred', 'Failed'].map((st) => {
+                          const cnt = st === 'all' ? null : dynamicFilterCounts.status[st];
+                          return (
+                            <button
+                              key={st}
+                              type="button"
+                              className={`drawer-chip ${statusFilter === st ? 'active' : ''}`}
+                              onClick={() => setStatusFilter(st)}
+                            >
+                              {st === 'all' ? 'All' : `${st}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="drawer-panel-footer">
+                    <span className="drawer-footer-count">
+                      Showing <strong>{filteredStudents.length}</strong> matching students
+                    </span>
+                    <div className="drawer-footer-actions">
+                      {activeFilters.length > 0 && (
+                        <button
+                          type="button"
+                          className="drawer-footer-reset-btn"
+                          onClick={handleClearSecondaryFilters}
+                        >
+                          Reset All
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="drawer-footer-apply-btn"
+                        onClick={() => setIsFilterPanelOpen(false)}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Active Filter Removable Badges Strip */}
+              {activeFilters.length > 0 && (
+                <div className="active-filters-strip">
+                  <div className="active-filters-heading">
+                    <Filter size={13} />
+                    <span>Filtered by ({activeFilters.length}):</span>
+                  </div>
+                  <div className="active-filter-tags-list">
+                    {activeFilters.map((flt) => (
+                      <span key={flt.id} className={`active-filter-pill-tag tag-${flt.type || 'default'}`}>
+                        <span>{flt.label}</span>
+                        <button
+                          type="button"
+                          onClick={flt.onClear}
+                          title={`Remove filter ${flt.label}`}
+                          aria-label={`Remove filter ${flt.label}`}
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                    <button
+                      type="button"
+                      className="active-clear-all-action"
+                      onClick={handleClearSecondaryFilters}
+                      title="Clear all filters"
+                    >
+                      Clear All
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* View Mode Switcher (Table vs Cards) */}
-            <div className="view-mode-toggle-group">
-              <button
-                type="button"
-                className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
-                onClick={() => {
-                  setUserToggledView(true);
-                  setViewMode('table');
-                }}
-                title="Table View"
-              >
-                <List size={15} />
-                <span>Table</span>
-              </button>
-              <button
-                type="button"
-                className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
-                onClick={() => {
-                  setUserToggledView(true);
-                  setViewMode('cards');
-                }}
-                title="Card View"
-              >
-                <LayoutGrid size={15} />
-                <span>Cards</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Secondary Filters Bar */}
-          <div className="toolbar-bottom-row">
-            {/* Sector Filter (Active for Class IX, Class X, Class XI, or all) */}
-            {hasSectors && (
-              <div className="filter-pill-select-wrap">
-                <span className="filter-chip-label">
-                  <Layers size={13} className="filter-label-icon" />
-                  <span>Sector:</span>
-                </span>
-                <div className="filter-chip-buttons">
-                  <button
-                    type="button"
-                    className={`filter-chip ${selectedSector === 'all' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedSector('all')}
-                  >
-                    All Sectors ({dynamicFilterCounts.sector.total})
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-chip sector-1-chip ${selectedSector === 'Sector 1' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedSector('Sector 1')}
-                  >
-                    <span className="chip-color-dot dot-sec1" />
-                    <span>Sector 1 ({dynamicFilterCounts.sector.s1})</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-chip sector-2-chip ${selectedSector === 'Sector 2' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedSector('Sector 2')}
-                  >
-                    <span className="chip-color-dot dot-sec2" />
-                    <span>Sector 2 ({dynamicFilterCounts.sector.s2})</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Stream Filter (for Senior Secondary Class XI & XII) */}
-            {hasStreams && (
-              <div className="filter-pill-select-wrap">
-                <span className="filter-chip-label">
-                  <Building size={13} className="filter-label-icon" />
-                  <span>Stream:</span>
-                </span>
-                <div className="filter-chip-buttons">
-                  <button
-                    type="button"
-                    className={`filter-chip ${selectedStream === 'all' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedStream('all')}
-                  >
-                    All Streams ({dynamicFilterCounts.stream.total})
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-chip stream-arts-chip ${selectedStream === 'Arts' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedStream('Arts')}
-                  >
-                    <span className="chip-color-dot dot-arts" />
-                    <span>Arts ({dynamicFilterCounts.stream.arts})</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-chip stream-sci-chip ${selectedStream === 'Science' ? 'chip-active' : ''}`}
-                    onClick={() => setSelectedStream('Science')}
-                  >
-                    <span className="chip-color-dot dot-sci" />
-                    <span>Science ({dynamicFilterCounts.stream.sci})</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Gender Filter */}
-            <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">
-                <Users size={13} className="filter-label-icon" />
-                <span>Gender:</span>
-              </span>
-              <div className="filter-chip-buttons">
-                <button
-                  type="button"
-                  className={`filter-chip ${genderFilter === 'all' ? 'chip-active' : ''}`}
-                  onClick={() => setGenderFilter('all')}
-                >
-                  All ({dynamicFilterCounts.gender.total})
-                </button>
-                <button
-                  type="button"
-                  className={`filter-chip boy-chip ${genderFilter === 'Boy' ? 'chip-active' : ''}`}
-                  onClick={() => setGenderFilter('Boy')}
-                >
-                  <BoyIcon size={13} />
-                  <span>Boys ({dynamicFilterCounts.gender.boys})</span>
-                </button>
-                <button
-                  type="button"
-                  className={`filter-chip girl-chip ${genderFilter === 'Girl' ? 'chip-active' : ''}`}
-                  onClick={() => setGenderFilter('Girl')}
-                >
-                  <GirlIcon size={13} />
-                  <span>Girls ({dynamicFilterCounts.gender.girls})</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Caste / Category Filter */}
-            <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">
-                <span>Category:</span>
-              </span>
-              <div className="filter-chip-buttons">
-                {['all', 'GEN', 'OBC', 'SC', 'ST'].map((cat) => {
-                  const cnt = cat === 'all' ? null : dynamicFilterCounts.caste[cat];
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      className={`filter-chip ${casteFilter === cat ? 'chip-active' : ''}`}
-                      onClick={() => setCasteFilter(cat)}
-                    >
-                      {cat === 'all' ? 'All' : `${cat}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Status Filter */}
-            <div className="filter-pill-select-wrap">
-              <span className="filter-chip-label">
-                <span>Status:</span>
-              </span>
-              <div className="filter-chip-buttons">
-                {['all', 'Enrolled', 'Transferred', 'Failed'].map((st) => {
-                  const cnt = st === 'all' ? null : dynamicFilterCounts.status[st];
-                  return (
-                    <button
-                      key={st}
-                      type="button"
-                      className={`filter-chip ${statusFilter === st ? 'chip-active' : ''}`}
-                      onClick={() => setStatusFilter(st)}
-                    >
-                      {st === 'all' ? 'All' : `${st}${typeof cnt === 'number' && cnt > 0 ? ` (${cnt})` : ''}`}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Reset Filters Shortcut (if active) */}
-            {activeFilters.length > 0 && (
-              <button
-                type="button"
-                className="reset-filters-chip-btn"
-                onClick={handleClearSecondaryFilters}
-                title="Reset active secondary filters"
-              >
-                <RotateCcw size={12} />
-                <span>Reset Filters</span>
-              </button>
-            )}
-          </div>
-
-          {/* Active Filter Removable Badges Strip */}
-          {activeFilters.length > 0 && (
-            <div className="active-filters-strip">
-              <div className="active-filters-heading">
-                <Filter size={13} />
-                <span>Filtered by ({activeFilters.length}):</span>
-              </div>
-              <div className="active-filter-tags-list">
-                {activeFilters.map((flt) => (
-                  <span key={flt.id} className={`active-filter-pill-tag tag-${flt.type || 'default'}`}>
-                    <span>{flt.label}</span>
-                    <button
-                      type="button"
-                      onClick={flt.onClear}
-                      title={`Remove filter ${flt.label}`}
-                      aria-label={`Remove filter ${flt.label}`}
-                    >
-                      <X size={12} />
-                    </button>
-                  </span>
-                ))}
-                <button
-                  type="button"
-                  className="active-clear-all-action"
-                  onClick={handleResetAllFilters}
-                  title="Clear all filters & search"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Results Counter & Sort Bar */}
         <div className="voc-results-subbar">
@@ -1394,7 +1896,7 @@ const TeacherVocationalStudents = ({
                 {filteredStudents.map((st) => {
                   const studentKey = st.studentId || st.id || st._id;
                   const isBoy = st.gender === 'Boy' || !st.gender;
-                  const sector = getStudentSector(st);
+                  const sector = getVocationalSector(st);
                   const pen = st.penNumber || st.pen || '';
                   const apaar = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : '';
                   const aadhaar = st.aadhaar || '';
@@ -2173,7 +2675,7 @@ const TeacherVocationalStudents = ({
             {filteredStudents.map((st) => {
               const studentKey = st.studentId || st.id || st._id;
               const isBoy = st.gender === 'Boy' || !st.gender;
-              const sector = getStudentSector(st);
+              const sector = getVocationalSector(st);
               const pen = st.penNumber || st.pen || '';
               const apaar = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : '';
               const aadhaar = st.aadhaar || '';
@@ -2331,6 +2833,8 @@ const TeacherVocationalStudents = ({
           </div>
         </div>
       </div>
+      </div>
+      )}
 
       {/* =========================================================================
           MODAL 1: VIEW FULL STUDENT PROFILE (StudentDetailsModal)
