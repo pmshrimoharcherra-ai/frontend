@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { getStudentSector, getSubjectsForClass, STREAM_RULES } from '../data/curriculumData';
+import { getStudentSector, isVocationalStudent, getSubjectsForClass, STREAM_RULES } from '../data/curriculumData';
 import { isTransferredStudent, isTransferredOrFailed } from './studentStatus';
 
 /**
@@ -51,10 +51,20 @@ export const getStudentSubjectsList = (student, classId) => {
   if (isSecondary) {
     const list = ['English', 'Bengali', 'Science', 'Social Science', 'Mathematics'];
     const sec = getStudentSector(student);
-    if (sec || student.optionalSubject?.includes('IT')) {
+    const hasVoc = isVocationalStudent(student);
+    if (sec || hasVoc) {
       list.push('IT/ITeS (Vocational)');
     }
     return list.join(', ');
+  }
+
+  if (isSenior) {
+    const sec = getStudentSector(student);
+    const hasVoc = isVocationalStudent(student);
+    return defaultSubjects.filter(s => {
+      if (s === 'IT/ITeS') return hasVoc || !!sec;
+      return true;
+    }).join(', ');
   }
 
   return defaultSubjects.length > 0 ? defaultSubjects.join(', ') : '—';
@@ -138,6 +148,7 @@ export const exportStudentsToExcel = ({
   // Map each student to complete row
   const rows = sortedStudents.map((st, index) => {
     const sec = getStudentSector(st);
+    const hasVoc = isVocationalStudent(st);
     const isTransferred = isTransferredStudent(st);
     const effectiveStatus = isTransferred
       ? 'Transferred (TC Issued)'
@@ -147,6 +158,24 @@ export const exportStudentsToExcel = ({
     const studentWingStream = stream
       ? `${stream} Stream (${wing || 'Higher Secondary'})`
       : (st.classId?.includes('sci') ? 'Science Stream' : (st.classId?.includes('arts') ? 'Arts Stream' : (wing || 'General')));
+
+    // Vocational Sector / Trade column:
+    // If student has IT: must explicitly mention whether Sector 1 or Sector 2 (e.g. 'Sector 1 (IT/ITeS)' or 'Sector 2 (IT/ITeS)')
+    // If student does not have IT: strictly output 'NONE'
+    let vocationalSectorTrade = 'NONE';
+    if (hasVoc) {
+      if (sec === 'Sector 1' || /^sector[\s-_]*1$/i.test(sec)) {
+        vocationalSectorTrade = 'Sector 1 (IT/ITeS)';
+      } else if (sec === 'Sector 2' || /^sector[\s-_]*2$/i.test(sec)) {
+        vocationalSectorTrade = 'Sector 2 (IT/ITeS)';
+      } else if (sec) {
+        vocationalSectorTrade = sec.toLowerCase().includes('it') ? sec : `${sec} (IT/ITeS)`;
+      } else {
+        vocationalSectorTrade = 'Sector 1 (IT/ITeS)';
+      }
+    } else {
+      vocationalSectorTrade = 'NONE';
+    }
 
     return {
       'Sl. No.': index + 1,
@@ -172,7 +201,7 @@ export const exportStudentsToExcel = ({
       'Permanent Address / Village': st.address || '—',
       'Blood Group': st.bloodGroup || '—',
       'Enrolled Subjects': getStudentSubjectsList(st, classId),
-      'Vocational Sector / Trade': sec ? `${sec} (IT/ITeS)` : (st.subjects?.some(s => /it/i.test(s)) ? 'IT/ITeS' : 'None'),
+      'Vocational Sector / Trade': vocationalSectorTrade,
       'Overall Attendance %': st.attendance || '0%',
       'Enrollment Status': effectiveStatus,
       'Academic Session': st.academicYear || '2026-2027',
@@ -205,6 +234,9 @@ export const exportStudentsToExcel = ({
     }
     if (header === 'Enrolled Subjects') {
       return { wch: Math.min(Math.max(maxLen + 3, 25), 55) };
+    }
+    if (header === 'Vocational Sector / Trade') {
+      return { wch: Math.max(maxLen + 6, 28) };
     }
     if (header.includes('Address')) {
       return { wch: Math.min(Math.max(maxLen + 3, 20), 45) };

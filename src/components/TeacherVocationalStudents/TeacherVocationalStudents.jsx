@@ -47,7 +47,11 @@ import {
 } from 'lucide-react';
 import { BoyIcon, GirlIcon } from '../GenderIcons/GenderIcons';
 import { isTransferredStudent } from '../../utils/studentStatus';
-import { getStudentSector } from '../../data/curriculumData';
+import {
+  getStudentSector,
+  isVocationalSubject as isVocSubjectCommon,
+  isVocationalStudent as isVocStudentCommon
+} from '../../data/curriculumData';
 import { exportStudentsToExcel } from '../../utils/studentExcelExport';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import StudentDetailsModal from '../StudentDetailsModal/StudentDetailsModal';
@@ -55,36 +59,14 @@ import { SCHOOL_CLASSES } from '../AdminStudents/AdminStudents';
 
 const API_STUDENTS = `${API_BASE_URL}/api/students`;
 
-export const isVocationalSubject = (sub) => {
-  if (!sub) return false;
-  const s = String(sub).trim().toLowerCase();
-  return (
-    s === 'it' ||
-    s === 'ites' ||
-    s === 'it/ites' ||
-    s === 'it & ites' ||
-    s.startsWith('it/') ||
-    s.startsWith('it &') ||
-    s.includes('information technology') ||
-    s.includes('vocational')
-  );
-};
+export const isVocationalSubject = isVocSubjectCommon;
 
 // Helper to determine whether a student is enrolled in vocational subject (IT/ITeS) or has a sector
 export const isVocationalStudent = (st) => {
   if (!st) return false;
-  if (st.sector === 'Sector 1' || st.sector === 'Sector 2') return true;
-  if (st.vocationalSector === 'Sector 1' || st.vocationalSector === 'Sector 2') return true;
+  if (isVocStudentCommon(st)) return true;
   const sec = getVocationalSector(st);
-  if (sec === 'Sector 1' || sec === 'Sector 2') return true;
-
-  if (Array.isArray(st.subjects)) {
-    const hasVoc = st.subjects.some(isVocationalSubject);
-    if (hasVoc) return true;
-  }
-
-  const opt = String(st.optionalSubject || st.vocationalSubject || st.sixthSubject || '').trim();
-  return isVocationalSubject(opt);
+  return sec === 'Sector 1' || sec === 'Sector 2';
 };
 
 // Helper to categorize student into vocational class tabs: 'class-9' | 'class-10' | 'class-11' | 'class-12'

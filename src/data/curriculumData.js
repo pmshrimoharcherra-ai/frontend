@@ -400,6 +400,21 @@ export const getExamSubjectsForClass = (classId, examTerm = '') => {
   );
 };
 
+// Class IX IT/ITeS Vocational Sectors
+export const CLASS9_SECTOR_1_ROLLS = [
+  3, 5, 6, 7, 9, 11, 12, 13, 14, 17,
+  19, 20, 21, 22, 24, 26, 28, 29, 30, 31,
+  32, 35, 36, 37, 38, 40, 43, 44, 45, 47,
+  48, 49, 51, 52, 58, 59, 60, 62, 64, 67
+];
+
+export const CLASS9_SECTOR_2_ROLLS = [
+  2, 4, 8, 10, 15, 16, 18, 23, 27, 33,
+  34, 41, 42, 46, 53, 54, 55, 57, 61, 65,
+  66, 70, 72, 73, 74, 75, 77, 78, 80, 81,
+  82, 84, 85, 88, 89, 90, 91, 92, 93, 95
+];
+
 // Class X IT/ITeS Vocational Sectors
 export const CLASS10_SECTOR_1_ROLLS = [
   1, 2, 3, 5, 8, 10, 13, 15, 17, 20,
@@ -415,21 +430,119 @@ export const CLASS10_SECTOR_2_ROLLS = [
   53, 56, 62, 64, 65, 66, 69, 72, 74, 79
 ];
 
+// Class XI IT/ITeS Vocational Sectors
+export const CLASS11_ARTS_SECTOR_1_ROLLS = [
+  4, 5, 6, 7, 14, 15, 17, 21, 24, 25,
+  26, 32, 33, 34, 35, 36, 39, 43, 46, 47,
+  49, 50, 60, 61, 62, 69, 82, 118, 121, 123,
+  124, 126, 135, 136, 137, 138, 139, 140, 148, 159
+];
+
+export const CLASS11_ARTS_SECTOR_2_ROLLS = [
+  1, 2, 9, 10, 11, 13, 16, 18, 19, 20,
+  22, 23, 28, 40, 44, 48, 59, 64, 65, 66,
+  67, 68, 70, 71, 78, 87, 92, 107, 108, 111,
+  116, 120, 133, 134, 158, 162, 163, 166
+];
+
+export const CLASS11_SCI_SECTOR_2_ROLLS = [5, 6];
+
+// Helper to determine if a subject is Vocational (IT/ITeS)
+// Strictly avoids matching non-vocational subjects containing "it" like "Political Science", "Credit", "Audit"
+export const isVocationalSubject = (sub) => {
+  if (!sub) return false;
+  const s = String(sub).trim().toLowerCase();
+  if (s.includes('political') || s.includes('audit') || s.includes('credit')) return false;
+  if (s === 'it' || s === 'ites' || s === 'it/ites' || s === 'it & ites') return true;
+  if (s.startsWith('it/') || s.startsWith('it &') || s.startsWith('it-') || s.startsWith('ites')) return true;
+  if (s.includes('information technology')) return true;
+  if (s.includes('vocational') && (s.includes('trade') || s.includes('it') || s.includes('nsqf'))) return true;
+  if (/\b(it\/ites|it\s*&\s*ites|ites)\b/i.test(s)) return true;
+  return false;
+};
+
+// Helper to check if a student is enrolled in Vocational IT/ITeS
+export const isVocationalStudent = (st) => {
+  if (!st) return false;
+
+  // 1. Direct sector assignment
+  const rawSec = st.sector || st.vocationalSector;
+  if (rawSec) {
+    const s = String(rawSec).trim().toLowerCase();
+    if (s.includes('sector 1') || s.includes('sector 2') || s === 'sector1' || s === 'sector2') return true;
+    if (s.includes('it') && !s.includes('political')) return true;
+  }
+
+  // 2. Enrolled subjects list
+  if (Array.isArray(st.subjects) && st.subjects.some(isVocationalSubject)) {
+    return true;
+  }
+
+  // 3. Optional / vocational / 6th subject fields
+  const opt = String(st.optionalSubject || st.vocationalSubject || st.sixthSubject || st.trade || '').trim();
+  if (isVocationalSubject(opt)) return true;
+
+  // 4. Fallback roll mapping by class
+  const rollNum = parseInt(st.roll || st.rollNumber, 10);
+  const cid = String(st.classId || '').toLowerCase();
+  if (rollNum) {
+    if (cid.includes('10')) {
+      return CLASS10_SECTOR_1_ROLLS.includes(rollNum) || CLASS10_SECTOR_2_ROLLS.includes(rollNum);
+    }
+    if (cid.includes('11')) {
+      if (cid.includes('sci')) return CLASS11_SCI_SECTOR_2_ROLLS.includes(rollNum);
+      return CLASS11_ARTS_SECTOR_1_ROLLS.includes(rollNum) || CLASS11_ARTS_SECTOR_2_ROLLS.includes(rollNum);
+    }
+    if (cid.includes('9') && !cid.includes('1')) {
+      return CLASS9_SECTOR_1_ROLLS.includes(rollNum) || CLASS9_SECTOR_2_ROLLS.includes(rollNum);
+    }
+  }
+
+  return false;
+};
+
 export const getStudentSector = (st) => {
   if (!st) return '';
   const rawSec = st.sector || st.vocationalSector;
   if (rawSec) {
     const s = String(rawSec).trim();
-    if (/^sector[\s-_]*1$/i.test(s)) return 'Sector 1';
-    if (/^sector[\s-_]*2$/i.test(s)) return 'Sector 2';
+    if (/^sector[\s-_]*1/i.test(s)) return 'Sector 1';
+    if (/^sector[\s-_]*2/i.test(s)) return 'Sector 2';
+    if (/sector\s*1/i.test(s)) return 'Sector 1';
+    if (/sector\s*2/i.test(s)) return 'Sector 2';
     return s;
   }
+
   const rollNum = parseInt(st.roll || st.rollNumber, 10);
-  const isC10 = String(st.classId || '').includes('10');
-  if (isC10 && rollNum) {
+  const cid = String(st.classId || '').toLowerCase();
+
+  // Class 12: all vocational students belong to Sector 1
+  if (cid.includes('12')) {
+    if (isVocationalStudent(st)) return 'Sector 1';
+  }
+
+  // Class 10
+  if (cid.includes('10') && rollNum) {
     if (CLASS10_SECTOR_1_ROLLS.includes(rollNum)) return 'Sector 1';
     if (CLASS10_SECTOR_2_ROLLS.includes(rollNum)) return 'Sector 2';
   }
+
+  // Class 11
+  if (cid.includes('11') && rollNum) {
+    if (cid.includes('sci')) {
+      if (CLASS11_SCI_SECTOR_2_ROLLS.includes(rollNum)) return 'Sector 2';
+    } else {
+      if (CLASS11_ARTS_SECTOR_1_ROLLS.includes(rollNum)) return 'Sector 1';
+      if (CLASS11_ARTS_SECTOR_2_ROLLS.includes(rollNum)) return 'Sector 2';
+    }
+  }
+
+  // Class 9
+  if (cid.includes('9') && !cid.includes('1') && rollNum) {
+    if (CLASS9_SECTOR_1_ROLLS.includes(rollNum)) return 'Sector 1';
+    if (CLASS9_SECTOR_2_ROLLS.includes(rollNum)) return 'Sector 2';
+  }
+
   return '';
 };
 
