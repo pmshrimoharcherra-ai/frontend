@@ -15,12 +15,9 @@ import {
 
 const VisionMission = () => {
   const missionPoints = [
-    'Provide quality and inclusive education for all learners.',
-    'Encourage experiential and activity-based learning.',
-    'Develop 21st-century skills and digital literacy.',
-    'Promote innovation, creativity and critical thinking.',
-    'Build environmental responsibility and social values.',
-    'Ensure holistic development through academics, skills, culture and sports.'
+    'Build every child into a capable, responsible, and performing citizen.',
+    'Enable holistic growth so students may climb the summit of excellence.',
+    'Put forward an inclusive and extensive education for all learners.'
   ];
 
   const coreValues = [
@@ -96,7 +93,7 @@ const VisionMission = () => {
             <div className="vm-title-line"></div>
 
             <p className="vision-text">
-              To nurture responsible, confident, creative and compassionate learners prepared to contribute meaningfully to society.
+              Our focus is to provide an emulative and all-pervasive, stimulating, learning environment with innovative and interactive teaching across the curriculum. We focus on empowering all students to face the challenges of education with excellence, confidence, self-esteem and come out with flying colours, having gone through a positive atmosphere.
             </p>
 
             {/* Subtle Plant/Sprout Graphic */}
@@ -120,6 +117,10 @@ const VisionMission = () => {
 
             <h3 className="vm-card-title">Our Mission</h3>
             <div className="vm-title-line"></div>
+
+            <p className="mission-text">
+              Our mission is to build every child a capable, responsible, and performing citizen enabling them to have holistic growth so that they may climb the summit of excellence. Putting forward an inclusive and extensive education for all students is our mission.
+            </p>
 
             <ul className="mission-list">
               {missionPoints.map((point, index) => (

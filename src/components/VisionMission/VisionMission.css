@@ -171,6 +171,14 @@
   margin: 0;
 }
 
+/* Mission Text */
+.mission-text {
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: #475569;
+  margin: 0 0 16px 0;
+}
+
 .vision-plant-art {
   margin-top: auto;
   align-self: flex-end;
