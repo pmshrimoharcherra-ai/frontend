@@ -523,11 +523,12 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   {subjects.map((subj) => {
                     const c = SUBJECT_COLOR_MAP[subj] || defaultColor;
                     const isOptional = optionalList.includes(subj);
+                    const isVoc = /\b(it|ites)\b/i.test(subj) || subj.includes('IT/ITeS');
 
                     return (
                       <div
                         key={subj}
-                        className={`sdm-subject-pill ${isOptional ? 'optional-pill' : ''}`}
+                        className={`sdm-subject-pill ${isOptional ? (isVoc ? 'vocational-pill' : 'optional-pill') : ''}`}
                         style={{
                           background: c.bg,
                           border: `1.5px solid ${c.border}`,
@@ -537,7 +538,9 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                         <span className="sdm-subject-dot" style={{ background: c.dot }} />
                         <span className="sdm-subject-name">{subj}</span>
                         {isOptional && (
-                          <span className="sdm-subject-tag-label optional">Optional</span>
+                          <span className={`sdm-subject-tag-label ${isVoc ? 'vocational' : 'optional'}`}>
+                            {isVoc ? 'Vocational' : 'Optional'}
+                          </span>
                         )}
                       </div>
                     );

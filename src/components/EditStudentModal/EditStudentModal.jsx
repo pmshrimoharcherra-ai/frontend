@@ -72,14 +72,13 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
 
   const streamRule = currentStream ? STREAM_RULES[currentStream] : null;
 
-  // Initial subjects: ensure the 5 mandatory core subjects are always present
+  // Initial subjects: ensure the 5 mandatory core subjects are always present, alongside any optional/vocational electives
   const initialSubjects = useMemo(() => {
     const existing = Array.isArray(student.subjects) ? student.subjects : [];
     if (streamRule) {
       const mandatory = streamRule.mandatory;
       const optionals = existing.filter(s => !mandatory.includes(s));
-      const sixth = optionals[0] || (existing.includes('IT/ITeS') ? 'IT/ITeS' : (existing.includes('Philosophy') ? 'Philosophy' : null));
-      return sixth ? [...mandatory, sixth] : [...mandatory];
+      return [...new Set([...mandatory, ...optionals])];
     }
     return existing.length > 0 ? existing : getSelectableSubjectsForClass(student.classId || 'class-11-arts');
   }, [student, streamRule]);
@@ -161,25 +160,30 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       return;
     }
 
-    // It is an optional 6th subject (Philosophy or IT/ITeS)
+    // It is an optional subject (e.g. Philosophy or IT/ITeS)
     setFormData(prev => {
       const current = prev.subjects || [];
       const isAlreadySelected = current.includes(subj);
 
       if (isAlreadySelected) {
-        // Deselect the 6th subject, leaving the 5 mandatory core subjects
+        // Deselect the optional subject
         return {
           ...prev,
           subjects: current.filter(s => s !== subj)
         };
       }
 
-      // User selects this subject as their 6th subject.
-      // Retain the 5 mandatory subjects and set this subject as the 6th (swapping any other elective).
-      const newSubjects = [...activeStreamRule.mandatory, subj];
+      // Check against maximum allowed subjects for this stream
+      const maxAllowed = activeStreamRule.maxSubjects || 7;
+      if (current.length >= maxAllowed) {
+        setErrorMessage(`Maximum ${maxAllowed} subjects allowed.`);
+        return prev;
+      }
+
+      // Add the optional subject
       return {
         ...prev,
-        subjects: newSubjects
+        subjects: [...current, subj]
       };
     });
     if (errorMessage) setErrorMessage('');
@@ -199,8 +203,9 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     const clean = customSubject.trim();
     if (!clean) return;
 
-    if ((formData.subjects || []).length >= 6) {
-      setErrorMessage('Maximum 6 subjects allowed. Remove or swap the 6th subject first.');
+    const maxAllowed = activeStreamRule?.maxSubjects || 7;
+    if ((formData.subjects || []).length >= maxAllowed) {
+      setErrorMessage(`Maximum ${maxAllowed} subjects allowed. Remove an elective first.`);
       return;
     }
 
@@ -233,15 +238,16 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       return;
     }
 
-    // Validation for 5 mandatory core subjects + max 6 subjects
+    // Validation for 5 mandatory core subjects + max allowed subjects
     if (activeStreamRule) {
       const missingMandatory = activeStreamRule.mandatory.filter(m => !(formData.subjects || []).includes(m));
       if (missingMandatory.length > 0) {
         setErrorMessage(`All 5 core subjects are mandatory: ${missingMandatory.join(', ')} must be included.`);
         return;
       }
-      if ((formData.subjects || []).length > 6) {
-        setErrorMessage('A student can only take a maximum of 6 subjects (5 mandatory core + 1 elective).');
+      const maxAllowed = activeStreamRule.maxSubjects || 7;
+      if ((formData.subjects || []).length > maxAllowed) {
+        setErrorMessage(`A student can only take a maximum of ${maxAllowed} subjects.`);
         return;
       }
     }
@@ -736,8 +742,8 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 <span>Registered Subjects &amp; Electives</span>
               </div>
               <div className="edit-subjects-header-actions">
-                <span className={`edit-subject-count-badge ${(formData.subjects || []).length === 6 ? 'full' : ''}`}>
-                  {(formData.subjects || []).length} / 6 Subjects
+                <span className={`edit-subject-count-badge ${(formData.subjects || []).length >= (activeStreamRule?.maxSubjects || 7) ? 'full' : ''}`}>
+                  {(formData.subjects || []).length} / {activeStreamRule?.maxSubjects || 7} Subjects
                 </span>
                 {activeStreamRule && (
                   <button
@@ -800,19 +806,19 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                     </div>
                   </div>
 
-                  {/* Group 2: 6th Subject / Optional Elective */}
+                  {/* Group 2: Optional Electives & Vocational */}
                   <div className="edit-subject-group elective-group">
                     <div className="edit-subject-group-header">
                       <div className="edit-group-title">
                         <Sparkles size={13} className="sparkle-icon" />
-                        <strong>6th Subject Elective</strong>
-                        <span className="optional-badge">Pick 1 Optional</span>
+                        <strong>Optional Electives &amp; Vocational</strong>
+                        <span className="optional-badge">Up to 2 Optionals</span>
                       </div>
                       <span className="edit-group-hint">
                         {activeStream === 'secondary' ? (
                           <>5 mandatory subjects are compulsory. You may add <strong>IT/ITeS</strong> as the 6th optional subject (Max 6 total).</>
                         ) : (
-                          <>Choose <strong>Philosophy</strong> or <strong>IT/ITeS</strong> as the 6th subject (Max 6 subjects total)</>
+                          <>5 core subjects are compulsory. Students can add <strong>Philosophy</strong> (Optional) and <strong>IT/ITeS</strong> (Vocational) as electives (Up to 7 subjects total).</>
                         )}
                       </span>
                     </div>
@@ -820,6 +826,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                     <div className="edit-subjects-chip-grid">
                       {activeStreamRule.optionalElectives.map((subj) => {
                         const isSelected = (formData.subjects || []).includes(subj);
+                        const isVoc = subj === 'IT/ITeS';
                         const color = SUBJECT_COLOR_MAP[subj] || {
                           bg: '#f1f5f9',
                           border: '#94a3b8',
@@ -838,7 +845,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                               borderColor: color.border,
                               color: color.text
                             } : {}}
-                            title={isSelected ? `6th Subject: Click to remove ${subj}` : `Click to choose ${subj} as 6th subject`}
+                            title={isSelected ? `Click to remove ${subj}` : `Click to add ${subj}`}
                           >
                             <span
                               className="edit-chip-indicator"
@@ -851,7 +858,11 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                               )}
                             </span>
                             <span className="edit-chip-name">{subj}</span>
-                            {isSelected && <span className="chip-sixth-tag">6th Subject</span>}
+                            {isSelected && (
+                              <span className="chip-sixth-tag">
+                                {isVoc ? 'Vocational' : 'Optional'}
+                              </span>
+                            )}
                           </button>
                         );
                       })}

@@ -558,14 +558,14 @@ export const STREAM_RULES = {
     title: 'Higher Secondary — Arts Stream',
     mandatory: ['English', 'Bengali', 'History', 'Education', 'Political Science'],
     optionalElectives: ['Philosophy', 'IT/ITeS'],
-    maxSubjects: 6,
+    maxSubjects: 7,
     minSubjects: 5
   },
   science: {
     title: 'Higher Secondary — Science Stream',
     mandatory: ['English', 'Bengali', 'Biology', 'Chemistry', 'Physics'],
     optionalElectives: ['Mathematics', 'Philosophy', 'IT/ITeS'],
-    maxSubjects: 6,
+    maxSubjects: 7,
     minSubjects: 5
   }
 };
