@@ -1863,7 +1863,7 @@ const TeacherVocationalStudents = ({
                     <th style={{ width: '60px', textAlign: 'center' }} className="sticky-col-roll">Roll</th>
                     <th style={{ minWidth: '190px' }}>Student & Identifiers</th>
                     <th style={{ width: '145px' }}>Class & Sector</th>
-                    <th style={{ width: '165px' }}>Govt IDs (APAAR / UID)</th>
+                    <th style={{ width: '190px' }}>Govt IDs (APAAR / Aadhaar)</th>
                     <th style={{ width: '200px' }}>Parents & Contact</th>
                     <th style={{ width: '130px', textAlign: 'center' }}>Attendance & Status</th>
                     <th style={{ width: '115px', textAlign: 'center' }} className="no-print sticky-col-actions">
@@ -2038,7 +2038,7 @@ const TeacherVocationalStudents = ({
                                   )}
                                 </div>
                                 <div className="stacked-id-line">
-                                  <span className="id-sublabel font-mono">UID:</span>
+                                  <span className="id-sublabel font-mono">Aadhaar No:</span>
                                   {aadhaar ? (
                                     <span
                                       className="voc-aadhaar-pill font-mono compact-id-pill"
