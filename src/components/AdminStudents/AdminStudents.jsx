@@ -2067,7 +2067,7 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                     />
                   </div>
                   <div className="form-group-item">
-                    <label>Enrollment Year</label>
+                    <label>{newStudent.classId === 'class-10' ? 'Registration Year' : 'Enrollment Year'}</label>
                     <input 
                       type="text" 
                       readOnly

@@ -39,6 +39,13 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
   const isFailed = student.status === 'Failed';
   const isClass8 = student.classId === 'class-8' || currentClass?.id === 'class-8';
   const isClassIXtoXII = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId || currentClass?.id);
+  const isClassX =
+    student.classId === 'class-10' ||
+    currentClass?.id === 'class-10' ||
+    String(student.className || '').toLowerCase().includes('class x') ||
+    String(student.className || '').toLowerCase().includes('class 10') ||
+    String(student.class || '').toLowerCase().includes('10') ||
+    String(student.classId || '').includes('10');
   const hasEnrollment = isClassIXtoXII;
 
   return (
@@ -361,15 +368,19 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   </div>
 
                   <div className="detail-item-box enr-box-highlight">
-                    <span className="detail-label">Enrollment Year</span>
+                    <span className="detail-label">
+                      {isClassX ? 'Registration Year' : 'Enrollment Year'}
+                    </span>
                     <div className="detail-value-row">
                       <span className="enr-yr-pill font-bold">
-                        {student.enrollmentYear || '2026'}
+                        {isClassX 
+                          ? (student.registrationYear || student.enrollmentYear || '2025')
+                          : (student.enrollmentYear || '2026')}
                       </span>
                     </div>
                   </div>
 
-                  {student.registrationYear && (
+                  {!isClassX && student.registrationYear && (
                     <div className="detail-item-box enr-box-highlight">
                       <span className="detail-label">Registration Year</span>
                       <div className="detail-value-row">

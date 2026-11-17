@@ -123,6 +123,12 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
 
   const activeStreamRule = activeStream ? STREAM_RULES[activeStream] : null;
 
+  const isClassX = useMemo(() => {
+    const cid = String(formData.classId || student?.classId || '').toLowerCase();
+    const cname = String(student?.className || '').toLowerCase();
+    return cid === 'class-10' || cid === '10' || cid.includes('class-10') || cname.includes('class x') || cname.includes('class 10');
+  }, [formData.classId, student]);
+
   const handleToggleSubject = (subj) => {
     if (!activeStreamRule) {
       // General classes
@@ -659,13 +665,13 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 <div className="edit-form-field">
                   <label>
                     <Sparkles size={14} />
-                    <span>Enrollment Year</span>
+                    <span>{isClassX ? 'Registration Year' : 'Enrollment Year'}</span>
                   </label>
                   <input
                     type="text"
                     value={formData.enrollmentYear}
                     onChange={(e) => handleChange('enrollmentYear', e.target.value)}
-                    placeholder={`e.g. ${defaultYear}`}
+                    placeholder={isClassX ? 'e.g. 2025' : `e.g. ${defaultYear}`}
                   />
                 </div>
               </>
