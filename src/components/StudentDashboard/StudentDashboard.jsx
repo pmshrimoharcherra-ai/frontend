@@ -111,9 +111,14 @@ const StudentDashboard = ({ student: propStudent }) => {
                 PEN: {activeStudent.penNumber}
               </span>
             )}
-            {activeStudent.enrollmentNo && activeStudent.enrollmentNo !== '—' && (
+            {activeStudent.registrationNo && activeStudent.registrationNo !== '—' && (
               <span className="sp-badge-pill reg">
-                Reg No: {activeStudent.enrollmentNo}
+                Reg No: {activeStudent.registrationNo}
+              </span>
+            )}
+            {activeStudent.enrollmentNo && activeStudent.enrollmentNo !== '—' && (
+              <span className="sp-badge-pill enr" style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+                Enr No: {activeStudent.enrollmentNo}
               </span>
             )}
           </div>

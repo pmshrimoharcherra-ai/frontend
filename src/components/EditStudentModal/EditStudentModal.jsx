@@ -90,6 +90,7 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     gender: student.gender ? (student.gender.toLowerCase() === 'girl' ? 'Girl' : 'Boy') : 'Boy',
     classId: student.classId || 'class-1',
     enrollmentNo: student.enrollmentNo || '',
+    registrationNo: student.registrationNo || '',
     enrollmentYear: student.enrollmentYear || defaultYear,
     registrationYear: student.registrationYear || '',
     guardian: student.guardian || '',
@@ -252,7 +253,9 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       gender: formData.gender || 'Boy',
       classId: formData.classId,
       enrollmentNo: formData.enrollmentNo?.trim() || '',
+      registrationNo: formData.registrationNo?.trim() || '',
       enrollmentYear: formData.enrollmentYear?.trim() || defaultYear,
+      registrationYear: formData.registrationYear?.trim() || '',
       guardian: formData.guardian?.trim() || formData.father?.trim() || '',
       father: formData.father?.trim() || '',
       mother: formData.mother?.trim() || '',
@@ -296,9 +299,10 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             <div>
               <div className="edit-title-row">
                 <h3>Edit Student Details</h3>
-                {isEnrollmentClass && formData.enrollmentNo && (
+                {isEnrollmentClass && (formData.registrationNo || formData.enrollmentNo) && (
                   <span className="edit-student-id-pill enr-pill">
-                    Reg: {formData.enrollmentNo} (Year: {formData.enrollmentYear || defaultYear})
+                    {formData.registrationNo ? `Reg: ${formData.registrationNo} ` : ''}
+                    {formData.enrollmentNo ? `Enr: ${formData.enrollmentNo}` : ''}
                   </span>
                 )}
               </div>
@@ -660,13 +664,25 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                 <div className="edit-form-field">
                   <label>
                     <Sparkles size={14} />
-                    <span>Enrollment / Reg No.</span>
+                    <span>Enrollment Number</span>
                   </label>
                   <input
                     type="text"
                     value={formData.enrollmentNo}
                     onChange={(e) => handleChange('enrollmentNo', e.target.value)}
                     placeholder="e.g. 322202805469"
+                  />
+                </div>
+                <div className="edit-form-field">
+                  <label>
+                    <Sparkles size={14} />
+                    <span>Registration Number</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.registrationNo}
+                    onChange={(e) => handleChange('registrationNo', e.target.value)}
+                    placeholder="e.g. 31202508101"
                   />
                 </div>
                 {isClassXII ? (

@@ -361,6 +361,7 @@ const AdminExaminations = () => {
         s.roll?.toLowerCase().includes(q) ||
         s.studentId?.toLowerCase().includes(q) ||
         s.enrollmentNo?.toLowerCase().includes(q) ||
+        s.registrationNo?.toLowerCase().includes(q) ||
         s.penNumber?.toLowerCase().includes(q) ||
         s.apaarId?.toLowerCase().includes(q);
 

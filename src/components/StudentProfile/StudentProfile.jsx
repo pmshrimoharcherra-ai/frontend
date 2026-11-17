@@ -121,9 +121,15 @@ const StudentProfile = ({ student: propStudent }) => {
               </span>
             </div>
             <div className="p-field">
-              <span className="p-lbl">Board Registration / Enrollment No.</span>
+              <span className="p-lbl">Enrollment Number</span>
               <span className="p-val font-mono font-bold">{activeStudent.enrollmentNo || '—'}</span>
             </div>
+            {activeStudent.registrationNo && (
+              <div className="p-field">
+                <span className="p-lbl">Registration Number</span>
+                <span className="p-val font-mono font-bold" style={{ color: '#047857' }}>{activeStudent.registrationNo}</span>
+              </div>
+            )}
             <div className="p-field">
               <span className="p-lbl">Date of Birth (DOB)</span>
               <span className="p-val font-mono">{activeStudent.dob || '—'}</span>

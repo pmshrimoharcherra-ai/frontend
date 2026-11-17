@@ -319,13 +319,15 @@ const TeacherExaminations = ({
       const roll = String(st.roll || '').toLowerCase();
       const apaarId = String(st.apaarId || st.penNumber || '').toLowerCase();
       const enrollmentNo = String(st.enrollmentNo || '').toLowerCase();
+      const registrationNo = String(st.registrationNo || '').toLowerCase();
       return (
         name.includes(q) ||
         roll === q ||
         `#${roll}`.includes(q) ||
         roll.includes(q) ||
         apaarId.includes(q) ||
-        enrollmentNo.includes(q)
+        enrollmentNo.includes(q) ||
+        registrationNo.includes(q)
       );
     });
   }, [examStudents, searchQuery]);

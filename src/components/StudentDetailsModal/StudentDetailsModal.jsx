@@ -79,10 +79,19 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   {student.gender?.toLowerCase() === 'girl' ? <GirlIcon size={12} /> : <BoyIcon size={12} />}
                   <span>{student.gender === 'Girl' ? 'Girl' : 'Boy'}</span>
                 </span>
-                {isClassIXtoXII && student.enrollmentNo && student.enrollmentNo !== '—' && (
-                  <span className="details-enr-badge" title={`Registration No: ${student.enrollmentNo}`}>
-                    Reg: {student.enrollmentNo}
-                  </span>
+                {isClassIXtoXII && (
+                  <>
+                    {student.registrationNo && student.registrationNo !== '—' && (
+                      <span className="details-enr-badge reg-badge" title={`Registration No: ${student.registrationNo}`}>
+                        Reg: {student.registrationNo}
+                      </span>
+                    )}
+                    {student.enrollmentNo && student.enrollmentNo !== '—' && (
+                      <span className="details-enr-badge enr-badge" title={`Enrollment No: ${student.enrollmentNo}`}>
+                        Enr: {student.enrollmentNo}
+                      </span>
+                    )}
+                  </>
                 )}
                 <span className={`details-status-badge ${isTransferred ? 'transferred' : (isFailed ? 'failed' : (student.status === 'Leave' ? 'leave' : 'enrolled'))}`}>
                   {isTransferred ? 'Transferred (TC Issued)' : (isFailed ? 'Failed' : (student.status || 'Enrolled'))}
@@ -352,7 +361,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
               {hasEnrollment ? (
                 <>
                   <div className="detail-item-box enr-box-highlight">
-                    <span className="detail-label">Enrollment / Registration No.</span>
+                    <span className="detail-label">Enrollment Number</span>
                     <div className="detail-value-row">
                       <span className="font-mono font-bold enr-val-text">
                         {student.enrollmentNo && student.enrollmentNo !== '—' 
@@ -367,6 +376,27 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                           title="Copy Enrollment Number"
                         >
                           {copiedField === 'enr' ? <Check size={12} className="copied-icon" /> : <Copy size={12} />}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="detail-item-box enr-box-highlight">
+                    <span className="detail-label">Registration Number</span>
+                    <div className="detail-value-row">
+                      <span className="font-mono font-bold enr-val-text reg-val-text">
+                        {student.registrationNo && student.registrationNo !== '—' 
+                          ? student.registrationNo 
+                          : <span className="text-muted">Not Yet Assigned / Pending</span>}
+                      </span>
+                      {student.registrationNo && student.registrationNo !== '—' && (
+                        <button
+                          type="button"
+                          className="copy-mini-btn"
+                          onClick={() => handleCopy(student.registrationNo, 'reg')}
+                          title="Copy Registration Number"
+                        >
+                          {copiedField === 'reg' ? <Check size={12} className="copied-icon" /> : <Copy size={12} />}
                         </button>
                       )}
                     </div>
