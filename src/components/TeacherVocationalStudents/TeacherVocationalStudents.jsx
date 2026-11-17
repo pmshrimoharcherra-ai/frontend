@@ -379,6 +379,8 @@ const TeacherVocationalStudents = ({
   // Modals state
   const [viewingStudent, setViewingStudent] = useState(null);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedExportSector, setSelectedExportSector] = useState('both'); // 'both' | 'Sector 1' | 'Sector 2'
   const [feedbackMsg, setFeedbackMsg] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
@@ -842,23 +844,92 @@ const TeacherVocationalStudents = ({
     toggleRowExpanded(studentKey);
   };
 
-  // Export current filtered list as responsive Excel sheet (.xlsx)
+  // Calculate scoped counts and student lists for the export modal
+  const exportModalData = useMemo(() => {
+    // If viewing a specific class, scope to that class; else scope to all vocational students
+    const baseList = selectedClassTab === 'all'
+      ? students
+      : students.filter((s) => getStudentVocationalClass(s) === selectedClassTab);
+
+    // If active secondary filters (search, gender, status) are reducing the list,
+    // we use the filtered set so user's search or gender filter is respected
+    const hasActiveFilters = searchQuery || genderFilter !== 'all' || statusFilter !== 'all' || casteFilter !== 'all' || selectedStream !== 'all';
+    const targetSource = hasActiveFilters && filteredStudents.length > 0 ? filteredStudents : baseList;
+
+    const s1List = targetSource.filter((s) => getVocationalSector(s) === 'Sector 1');
+    const s2List = targetSource.filter((s) => getVocationalSector(s) === 'Sector 2');
+    const bothList = targetSource;
+
+    return {
+      hasActiveFilters,
+      baseTotal: baseList.length,
+      targetTotal: targetSource.length,
+      s1Count: s1List.length,
+      s2Count: s2List.length,
+      bothCount: bothList.length,
+      s1List,
+      s2List,
+      bothList
+    };
+  }, [students, filteredStudents, selectedClassTab, searchQuery, genderFilter, statusFilter, casteFilter, selectedStream]);
+
+  // Open the Sector Export Selection Modal
   const handleExportExcel = () => {
     if (filteredStudents.length === 0) return;
+    if (selectedSector === 'Sector 1') {
+      setSelectedExportSector('Sector 1');
+    } else if (selectedSector === 'Sector 2') {
+      setSelectedExportSector('Sector 2');
+    } else {
+      setSelectedExportSector('both');
+    }
+    setShowExportModal(true);
+  };
+
+  // Perform Excel export for selected sector ('Sector 1' | 'Sector 2' | 'both')
+  const handlePerformExport = (sectorChoice = selectedExportSector) => {
+    setShowExportModal(false);
+
+    let exportList = [];
+    let sectorFileTag = 'All_Sectors';
+    let sectorDisplay = 'Both Sectors';
+
+    if (sectorChoice === 'Sector 1') {
+      exportList = exportModalData.s1List;
+      sectorFileTag = 'Sector_1';
+      sectorDisplay = 'Sector 1';
+    } else if (sectorChoice === 'Sector 2') {
+      exportList = exportModalData.s2List;
+      sectorFileTag = 'Sector_2';
+      sectorDisplay = 'Sector 2';
+    } else {
+      exportList = exportModalData.bothList;
+      sectorFileTag = 'Both_Sectors';
+      sectorDisplay = 'Both Sectors';
+    }
+
+    if (exportList.length === 0) {
+      setFeedbackMsg({
+        type: 'error',
+        text: `No students available for ${sectorDisplay} to export.`
+      });
+      setTimeout(() => setFeedbackMsg(null), 4000);
+      return;
+    }
 
     try {
       const res = exportStudentsToExcel({
-        students: filteredStudents,
+        students: exportList,
         currentClass: {
-          name: `Vocational_${activeClassLabel}`,
+          name: `Vocational_${activeClassLabel}_${sectorFileTag}`,
           id: selectedClassTab
         },
-        customTitle: `Vocational_IT_ITeS_${selectedClassTab}`,
+        customTitle: `Vocational_IT_ITeS_${selectedClassTab}_${sectorFileTag}`,
         includeTransferred: true
       });
       setFeedbackMsg({
         type: 'success',
-        text: `Exported ${res.count} vocational students to ${res.fileName} successfully!`
+        text: `Exported ${res.count} vocational students (${sectorDisplay}) to ${res.fileName} successfully!`
       });
       setTimeout(() => setFeedbackMsg(null), 4500);
     } catch (err) {
@@ -2809,6 +2880,170 @@ const TeacherVocationalStudents = ({
           onClose={() => setEditingStudent(null)}
           onSave={handleSaveStudent}
         />
+      )}
+
+      {/* =========================================================================
+          MODAL 3: EXPORT SECTOR SELECTION MODAL
+         ========================================================================= */}
+      {showExportModal && (
+        <div className="voc-export-modal-backdrop" onClick={() => setShowExportModal(false)}>
+          <div
+            className="voc-export-modal-card"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="voc-export-modal-title"
+          >
+            {/* Modal Header */}
+            <div className="voc-export-modal-header">
+              <div className="voc-export-header-left">
+                <div className="voc-export-icon-wrap">
+                  <FileSpreadsheet size={22} className="voc-export-head-icon" />
+                </div>
+                <div>
+                  <h3 id="voc-export-modal-title" className="voc-export-title">
+                    Export Vocational Students Roster
+                  </h3>
+                  <div className="voc-export-subtitle-row">
+                    <span className="voc-export-class-badge">{activeClassLabel}</span>
+                    <span className="voc-export-sub-text">Select Sector to Export as Excel (.xlsx)</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="voc-export-close-btn"
+                onClick={() => setShowExportModal(false)}
+                title="Close"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="voc-export-modal-body">
+              <p className="voc-export-instruction">
+                Please choose which vocational sector you want to export. The exported Excel file includes complete government IDs, roll numbers, contact information, and parent details.
+              </p>
+
+              <div className="voc-sector-options-grid">
+                {/* Option 1: Sector 1 */}
+                <div
+                  className={`voc-sector-card ${selectedExportSector === 'Sector 1' ? 'active sec-1-active' : ''} ${exportModalData.s1Count === 0 ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (exportModalData.s1Count > 0) setSelectedExportSector('Sector 1');
+                  }}
+                >
+                  <div className="voc-sector-card-header">
+                    <div className="voc-sector-pill sec-1-pill">
+                      <Layers size={13} />
+                      <span>Sector 1</span>
+                    </div>
+                    <span className="voc-sector-count font-mono font-bold">
+                      {exportModalData.s1Count} {exportModalData.s1Count === 1 ? 'Student' : 'Students'}
+                    </span>
+                  </div>
+                  <h4 className="voc-sector-card-title">Sector 1 Only</h4>
+                  <p className="voc-sector-card-desc">
+                    {exportModalData.s1Count > 0 
+                      ? 'Export roster for students enrolled in IT/ITeS Sector 1'
+                      : 'No students enrolled in Sector 1 for this class'}
+                  </p>
+                  <div className="voc-sector-card-footer">
+                    <span className="voc-radio-indicator">
+                      {selectedExportSector === 'Sector 1' && <Check size={12} />}
+                    </span>
+                    <span className="voc-radio-label">
+                      {selectedExportSector === 'Sector 1' ? 'Selected' : (exportModalData.s1Count > 0 ? 'Click to select' : 'Unavailable')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Option 2: Sector 2 */}
+                <div
+                  className={`voc-sector-card ${selectedExportSector === 'Sector 2' ? 'active sec-2-active' : ''} ${exportModalData.s2Count === 0 ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (exportModalData.s2Count > 0) setSelectedExportSector('Sector 2');
+                  }}
+                >
+                  <div className="voc-sector-card-header">
+                    <div className="voc-sector-pill sec-2-pill">
+                      <Layers size={13} />
+                      <span>Sector 2</span>
+                    </div>
+                    <span className="voc-sector-count font-mono font-bold">
+                      {exportModalData.s2Count} {exportModalData.s2Count === 1 ? 'Student' : 'Students'}
+                    </span>
+                  </div>
+                  <h4 className="voc-sector-card-title">Sector 2 Only</h4>
+                  <p className="voc-sector-card-desc">
+                    {exportModalData.s2Count > 0 
+                      ? 'Export roster for students enrolled in IT/ITeS Sector 2'
+                      : 'No students enrolled in Sector 2 for this class'}
+                  </p>
+                  <div className="voc-sector-card-footer">
+                    <span className="voc-radio-indicator">
+                      {selectedExportSector === 'Sector 2' && <Check size={12} />}
+                    </span>
+                    <span className="voc-radio-label">
+                      {selectedExportSector === 'Sector 2' ? 'Selected' : (exportModalData.s2Count > 0 ? 'Click to select' : 'Unavailable')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Option 3: Both Sectors */}
+                <div
+                  className={`voc-sector-card voc-sector-card-both ${selectedExportSector === 'both' ? 'active both-active' : ''}`}
+                  onClick={() => setSelectedExportSector('both')}
+                >
+                  <div className="voc-sector-card-header">
+                    <div className="voc-sector-pill both-pill">
+                      <Sparkles size={13} />
+                      <span>Both Sectors</span>
+                    </div>
+                    <span className="voc-sector-count font-mono font-bold">
+                      {exportModalData.bothCount} Students
+                    </span>
+                  </div>
+                  <h4 className="voc-sector-card-title">Both Sectors (Combined)</h4>
+                  <p className="voc-sector-card-desc">
+                    Complete vocational roster combining Sector 1 and Sector 2
+                  </p>
+                  <div className="voc-sector-card-footer">
+                    <span className="voc-radio-indicator">
+                      {selectedExportSector === 'both' && <Check size={12} />}
+                    </span>
+                    <span className="voc-radio-label">
+                      {selectedExportSector === 'both' ? 'Selected' : 'Click to select'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="voc-export-modal-footer">
+              <button
+                type="button"
+                className="voc-export-btn-cancel"
+                onClick={() => setShowExportModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="voc-export-btn-confirm"
+                onClick={() => handlePerformExport(selectedExportSector)}
+              >
+                <Download size={16} />
+                <span>
+                  Export {selectedExportSector === 'both' ? 'Both Sectors' : selectedExportSector} (.xlsx)
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
