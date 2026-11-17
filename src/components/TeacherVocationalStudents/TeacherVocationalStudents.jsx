@@ -966,29 +966,9 @@ const TeacherVocationalStudents = ({
                 title="Download complete Vocational Directory as Excel Sheet (.xlsx)"
                 disabled={students.length === 0}
               >
-                <FileSpreadsheet size={15} />
+                <FileSpreadsheet size={16} />
                 <span>Export to Excel</span>
-              </button>
-
-              <button
-                type="button"
-                className="hero-action-btn btn-print"
-                onClick={handlePrint}
-                title="Print Vocational Directory overview"
-              >
-                <Printer size={15} />
-                <span>Print Overview</span>
-              </button>
-
-              <button
-                type="button"
-                className="hero-action-btn btn-refresh"
-                onClick={() => fetchVocationalStudents(true)}
-                disabled={refreshing || loading}
-                title="Refresh student database"
-              >
-                <RefreshCw size={15} className={refreshing ? 'spinning-icon' : ''} />
-                <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
+                <span className="btn-excel-badge font-mono">.XLSX</span>
               </button>
             </div>
           </div>
@@ -1337,29 +1317,9 @@ const TeacherVocationalStudents = ({
                 title="Export this class roster to Excel spreadsheet (.xlsx)"
                 disabled={filteredStudents.length === 0}
               >
-                <FileSpreadsheet size={15} />
+                <FileSpreadsheet size={16} />
                 <span>Export Class to Excel</span>
-              </button>
-
-              <button
-                type="button"
-                className="hero-action-btn btn-print"
-                onClick={handlePrint}
-                title="Print this class roster"
-              >
-                <Printer size={15} />
-                <span>Print Class Roster</span>
-              </button>
-
-              <button
-                type="button"
-                className="hero-action-btn btn-refresh"
-                onClick={() => fetchVocationalStudents(true)}
-                disabled={refreshing || loading}
-                title="Refresh student records"
-              >
-                <RefreshCw size={15} className={refreshing ? 'spinning-icon' : ''} />
-                <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
+                <span className="btn-excel-badge font-mono">.XLSX</span>
               </button>
             </div>
           </div>
