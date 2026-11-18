@@ -59,6 +59,12 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
     /\b(class\s*12|class\s*xii)\b/i.test(student.className || student.class || '');
   const hasEnrollment = isSenior;
 
+  const displayRegNo = (student.registrationNo && student.registrationNo !== '—' && student.registrationNo !== 'Not found')
+    ? student.registrationNo
+    : (isSecondary && student.enrollmentNo && student.enrollmentNo !== '—' && student.enrollmentNo !== 'Not found'
+      ? student.enrollmentNo
+      : '');
+
   return (
     <div className="student-details-backdrop" onClick={onClose}>
       <div 
@@ -87,18 +93,18 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                 </span>
                 {isSecondary && (
                   <>
-                    {student.registrationNo && student.registrationNo !== '—' && (
-                      <span className="details-enr-badge reg-badge" title={`Registration No: ${student.registrationNo}`}>
-                        Reg: {student.registrationNo}
+                    {displayRegNo && (
+                      <span className="details-enr-badge reg-badge" title={`Registration No: ${displayRegNo}`}>
+                        Reg: {displayRegNo}
                       </span>
                     )}
                   </>
                 )}
                 {isSenior && (
                   <>
-                    {student.registrationNo && student.registrationNo !== '—' && (
-                      <span className="details-enr-badge reg-badge" title={`Registration No: ${student.registrationNo}`}>
-                        Reg: {student.registrationNo}
+                    {displayRegNo && (
+                      <span className="details-enr-badge reg-badge" title={`Registration No: ${displayRegNo}`}>
+                        Reg: {displayRegNo}
                       </span>
                     )}
                     {student.enrollmentNo && student.enrollmentNo !== '—' && (
@@ -379,15 +385,13 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                     <span className="detail-label">Registration Number</span>
                     <div className="detail-value-row">
                       <span className="font-mono font-bold enr-val-text reg-val-text">
-                        {student.registrationNo && student.registrationNo !== '—' && student.registrationNo !== 'Not found'
-                          ? student.registrationNo 
-                          : <span className="text-muted">Not Yet Assigned / Pending</span>}
+                        {displayRegNo ? displayRegNo : <span className="text-muted">Not Yet Assigned / Pending</span>}
                       </span>
-                      {student.registrationNo && student.registrationNo !== '—' && student.registrationNo !== 'Not found' && (
+                      {displayRegNo && (
                         <button
                           type="button"
                           className="copy-mini-btn"
-                          onClick={() => handleCopy(student.registrationNo, 'reg')}
+                          onClick={() => handleCopy(displayRegNo, 'reg')}
                           title="Copy Registration Number"
                         >
                           {copiedField === 'reg' ? <Check size={12} className="copied-icon" /> : <Copy size={12} />}
@@ -400,7 +404,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                     <span className="detail-label">Registration Year</span>
                     <div className="detail-value-row">
                       <span className="reg-yr-pill font-bold">
-                        {student.registrationYear || (isClassX ? '2025' : '2026')}
+                        {student.registrationYear || student.enrollmentYear || (isClassX ? '2025' : '2026')}
                       </span>
                     </div>
                   </div>

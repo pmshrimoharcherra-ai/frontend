@@ -83,15 +83,19 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     return existing.length > 0 ? existing : getSelectableSubjectsForClass(student.classId || 'class-11-arts');
   }, [student, streamRule]);
 
+  const isStudentSecondary = ['class-9', 'class-10'].includes(student.classId || '');
+  const initialRegNo = student.registrationNo || (isStudentSecondary && student.enrollmentNo !== 'Not found' ? student.enrollmentNo : '') || '';
+  const initialRegYear = student.registrationYear || (isStudentSecondary ? (student.enrollmentYear || (student.classId === 'class-10' ? '2025' : '2026')) : '');
+
   const [formData, setFormData] = useState({
     name: student.name || '',
     roll: student.roll || '',
     gender: student.gender ? (student.gender.toLowerCase() === 'girl' ? 'Girl' : 'Boy') : 'Boy',
     classId: student.classId || 'class-1',
-    enrollmentNo: student.enrollmentNo || '',
-    registrationNo: student.registrationNo || '',
-    enrollmentYear: student.enrollmentYear || defaultYear,
-    registrationYear: student.registrationYear || '',
+    enrollmentNo: isStudentSecondary ? '' : (student.enrollmentNo || ''),
+    registrationNo: initialRegNo,
+    enrollmentYear: isStudentSecondary ? '' : (student.enrollmentYear || defaultYear),
+    registrationYear: initialRegYear,
     guardian: student.guardian || '',
     father: student.father || '',
     mother: student.mother || '',
