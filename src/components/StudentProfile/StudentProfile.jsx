@@ -120,11 +120,13 @@ const StudentProfile = ({ student: propStudent }) => {
                 {activeStudent.aadhaar ? activeStudent.aadhaar : 'Verified in School Archive'}
               </span>
             </div>
-            <div className="p-field">
-              <span className="p-lbl">Enrollment Number</span>
-              <span className="p-val font-mono font-bold">{activeStudent.enrollmentNo || '—'}</span>
-            </div>
-            {activeStudent.registrationNo && (
+            {activeStudent.enrollmentNo && activeStudent.enrollmentNo !== '—' && (
+              <div className="p-field">
+                <span className="p-lbl">Enrollment Number</span>
+                <span className="p-val font-mono font-bold">{activeStudent.enrollmentNo}</span>
+              </div>
+            )}
+            {activeStudent.registrationNo && activeStudent.registrationNo !== '—' && (
               <div className="p-field">
                 <span className="p-lbl">Registration Number</span>
                 <span className="p-val font-mono font-bold" style={{ color: '#047857' }}>{activeStudent.registrationNo}</span>

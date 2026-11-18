@@ -129,9 +129,11 @@ const ExamMarksheetTable = ({
                 const penNumber =
                   st.penNumber ||
                   st.pen ||
-                  (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
-                    ? st.enrollmentNo
-                    : '');
+                  (st.registrationNo && st.registrationNo !== '-' && st.registrationNo !== '—' && !st.registrationNo.includes('Not found')
+                    ? st.registrationNo
+                    : (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
+                      ? st.enrollmentNo
+                      : ''));
                 const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
                 const displayedApaarId = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
@@ -356,9 +358,11 @@ const ExamMarksheetTable = ({
                 const penNumber =
                   st.penNumber ||
                   st.pen ||
-                  (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
-                    ? st.enrollmentNo
-                    : '');
+                  (st.registrationNo && st.registrationNo !== '-' && st.registrationNo !== '—' && !st.registrationNo.includes('Not found')
+                    ? st.registrationNo
+                    : (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
+                      ? st.enrollmentNo
+                      : ''));
                 const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
                 const displayedApaarId = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
@@ -526,9 +530,11 @@ const ExamMarksheetTable = ({
                 const penNumber =
                   st.penNumber ||
                   st.pen ||
-                  (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
-                    ? st.enrollmentNo
-                    : '');
+                  (st.registrationNo && st.registrationNo !== '-' && st.registrationNo !== '—' && !st.registrationNo.includes('Not found')
+                    ? st.registrationNo
+                    : (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
+                      ? st.enrollmentNo
+                      : ''));
                 const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
                 const displayedApaarId = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 
@@ -665,9 +671,11 @@ const ExamMarksheetTable = ({
                 const penNumber =
                   st.penNumber ||
                   st.pen ||
-                  (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
-                    ? st.enrollmentNo
-                    : '');
+                  (st.registrationNo && st.registrationNo !== '-' && st.registrationNo !== '—' && !st.registrationNo.includes('Not found')
+                    ? st.registrationNo
+                    : (st.enrollmentNo && st.enrollmentNo !== '-' && st.enrollmentNo !== '—' && !st.enrollmentNo.includes('Not found')
+                      ? st.enrollmentNo
+                      : ''));
                 const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
                 const displayedApaarId = apaarId || (st.apaarId === 'Not Available' ? 'Not Available' : 'Pending');
 

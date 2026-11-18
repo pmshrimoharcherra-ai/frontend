@@ -849,16 +849,17 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
     if (!newStudent.name || !newStudent.roll) return;
 
     const classObj = SCHOOL_CLASSES.find(c => c.id === newStudent.classId);
+    const isSec = ['class-9', 'class-10'].includes(newStudent.classId);
     const newEntry = {
       name: newStudent.name.trim(),
       classId: newStudent.classId,
       className: classObj?.name || `Class ${newStudent.classId.replace('class-', '')}`,
       roll: String(newStudent.roll).trim(),
       gender: newStudent.gender || 'Boy',
-      enrollmentNo: newStudent.enrollmentNo?.trim() || '',
+      enrollmentNo: isSec ? '' : (newStudent.enrollmentNo?.trim() || ''),
       registrationNo: newStudent.registrationNo?.trim() || '',
-      enrollmentYear: newStudent.enrollmentYear?.trim() || getDefaultEnrollmentYear(newStudent.classId),
-      registrationYear: newStudent.registrationYear?.trim() || '',
+      enrollmentYear: isSec ? '' : (newStudent.enrollmentYear?.trim() || getDefaultEnrollmentYear(newStudent.classId)),
+      registrationYear: newStudent.registrationYear?.trim() || (isSec ? (newStudent.classId === 'class-10' ? '2025' : '2026') : ''),
       guardian: newStudent.guardian?.trim() || newStudent.father?.trim() || '',
       father: newStudent.father?.trim() || '',
       mother: newStudent.mother?.trim() || '',
@@ -2059,18 +2060,34 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                 </div>
               </div>
 
-              {['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(newStudent.classId) && (
+              {['class-9', 'class-10'].includes(newStudent.classId) && (
                 <>
                   <div className="form-row-grid-2">
                     <div className="form-group-item">
-                      <label>Enrollment Number</label>
+                      <label>Registration Number</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. 321202713757"
-                        value={newStudent.enrollmentNo}
-                        onChange={(e) => setNewStudent({ ...newStudent, enrollmentNo: e.target.value })}
+                        placeholder={newStudent.classId === 'class-10' ? 'e.g. 31202738262' : 'e.g. 31202826958'}
+                        value={newStudent.registrationNo}
+                        onChange={(e) => setNewStudent({ ...newStudent, registrationNo: e.target.value })}
                       />
                     </div>
+                    <div className="form-group-item">
+                      <label>Registration Year</label>
+                      <input 
+                        type="text" 
+                        readOnly
+                        value={newStudent.classId === 'class-10' ? '2025' : '2026'}
+                        className="readonly-input"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {['class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(newStudent.classId) && (
+                <>
+                  <div className="form-row-grid-2">
                     <div className="form-group-item">
                       <label>Registration Number</label>
                       <input 
@@ -2080,10 +2097,28 @@ const AdminStudents = ({ initialOpenAdd = false, initialSelectedClassId = null }
                         onChange={(e) => setNewStudent({ ...newStudent, registrationNo: e.target.value })}
                       />
                     </div>
+                    <div className="form-group-item">
+                      <label>Enrollment Number</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 321202713757"
+                        value={newStudent.enrollmentNo}
+                        onChange={(e) => setNewStudent({ ...newStudent, enrollmentNo: e.target.value })}
+                      />
+                    </div>
                   </div>
                   <div className="form-row-grid-2">
                     <div className="form-group-item">
-                      <label>{newStudent.classId === 'class-10' ? 'Registration Year' : 'Enrollment Year'}</label>
+                      <label>Registration Year</label>
+                      <input 
+                        type="text" 
+                        readOnly
+                        value={newStudent.classId.includes('12') ? '2023' : '2024'}
+                        className="readonly-input"
+                      />
+                    </div>
+                    <div className="form-group-item">
+                      <label>Enrollment Year</label>
                       <input 
                         type="text" 
                         readOnly

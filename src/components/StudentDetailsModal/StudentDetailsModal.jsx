@@ -38,7 +38,13 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
   const isTransferred = isTransferredStudent(student);
   const isFailed = student.status === 'Failed';
   const isClass8 = student.classId === 'class-8' || currentClass?.id === 'class-8';
-  const isClassIXtoXII = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId || currentClass?.id);
+  // Secondary: Classes 9 & 10 (Registration only, NO Enrollment Number or Year)
+  const isSecondary = ['class-9', 'class-10'].includes(student.classId || currentClass?.id) ||
+    /\b(class\s*9|class\s*ix|class\s*10|class\s*x)\b/i.test(student.className || student.class || '');
+  // Higher Secondary: Classes 11 & 12 (Both Registration and Enrollment Number / Year)
+  const isSenior = ['class-11', 'class-11-arts', 'class-11-sci', 'class-12', 'class-12-arts', 'class-12-sci'].includes(student.classId || currentClass?.id) ||
+    /\b(class\s*11|class\s*xi|class\s*12|class\s*xii)\b/i.test(student.className || student.class || '');
+  const isClassIXtoXII = isSecondary || isSenior;
   const isClassX =
     student.classId === 'class-10' ||
     currentClass?.id === 'class-10' ||
@@ -51,7 +57,7 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
     currentClass?.id === 'class-12-arts' ||
     currentClass?.id === 'class-12-sci' ||
     /\b(class\s*12|class\s*xii)\b/i.test(student.className || student.class || '');
-  const hasEnrollment = isClassIXtoXII;
+  const hasEnrollment = isSenior;
 
   return (
     <div className="student-details-backdrop" onClick={onClose}>
@@ -79,7 +85,16 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                   {student.gender?.toLowerCase() === 'girl' ? <GirlIcon size={12} /> : <BoyIcon size={12} />}
                   <span>{student.gender === 'Girl' ? 'Girl' : 'Boy'}</span>
                 </span>
-                {isClassIXtoXII && (
+                {isSecondary && (
+                  <>
+                    {student.registrationNo && student.registrationNo !== '—' && (
+                      <span className="details-enr-badge reg-badge" title={`Registration No: ${student.registrationNo}`}>
+                        Reg: {student.registrationNo}
+                      </span>
+                    )}
+                  </>
+                )}
+                {isSenior && (
                   <>
                     {student.registrationNo && student.registrationNo !== '—' && (
                       <span className="details-enr-badge reg-badge" title={`Registration No: ${student.registrationNo}`}>
@@ -358,7 +373,39 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                 </div>
               </div>
 
-              {hasEnrollment ? (
+              {isSecondary ? (
+                <>
+                  <div className="detail-item-box enr-box-highlight">
+                    <span className="detail-label">Registration Number</span>
+                    <div className="detail-value-row">
+                      <span className="font-mono font-bold enr-val-text reg-val-text">
+                        {student.registrationNo && student.registrationNo !== '—' && student.registrationNo !== 'Not found'
+                          ? student.registrationNo 
+                          : <span className="text-muted">Not Yet Assigned / Pending</span>}
+                      </span>
+                      {student.registrationNo && student.registrationNo !== '—' && student.registrationNo !== 'Not found' && (
+                        <button
+                          type="button"
+                          className="copy-mini-btn"
+                          onClick={() => handleCopy(student.registrationNo, 'reg')}
+                          title="Copy Registration Number"
+                        >
+                          {copiedField === 'reg' ? <Check size={12} className="copied-icon" /> : <Copy size={12} />}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="detail-item-box enr-box-highlight">
+                    <span className="detail-label">Registration Year</span>
+                    <div className="detail-value-row">
+                      <span className="reg-yr-pill font-bold">
+                        {student.registrationYear || (isClassX ? '2025' : '2026')}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : isSenior ? (
                 <>
                   <div className="detail-item-box enr-box-highlight">
                     <span className="detail-label">Enrollment Number</span>
@@ -402,59 +449,23 @@ const StudentDetailsModal = ({ student, currentClass, onClose, onEdit, onMarkAtt
                     </div>
                   </div>
 
-                  {/* For Class X: Only Registration Year (no separate enrollment year) */}
-                  {isClassX ? (
-                    <div className="detail-item-box enr-box-highlight">
-                      <span className="detail-label">Registration Year</span>
-                      <div className="detail-value-row">
-                        <span className="reg-yr-pill font-bold">
-                          {student.registrationYear || student.enrollmentYear || '2025'}
-                        </span>
-                      </div>
+                  <div className="detail-item-box enr-box-highlight">
+                    <span className="detail-label">Registration Year</span>
+                    <div className="detail-value-row">
+                      <span className="reg-yr-pill font-bold">
+                        {student.registrationYear || (isClassXII ? '2023' : '2024')}
+                      </span>
                     </div>
-                  ) : isClassXII ? (
-                    /* For Class XII: Both Registration Year (2023) and Enrollment Year (2025) */
-                    <>
-                      <div className="detail-item-box enr-box-highlight">
-                        <span className="detail-label">Registration Year</span>
-                        <div className="detail-value-row">
-                          <span className="reg-yr-pill font-bold">
-                            {student.registrationYear || '2023'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="detail-item-box enr-box-highlight">
-                        <span className="detail-label">Enrollment Year</span>
-                        <div className="detail-value-row">
-                          <span className="enr-yr-pill font-bold">
-                            {student.enrollmentYear || '2025'}
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    /* Other Classes (Class IX, XI, etc.) */
-                    <>
-                      {student.registrationYear && (
-                        <div className="detail-item-box enr-box-highlight">
-                          <span className="detail-label">Registration Year</span>
-                          <div className="detail-value-row">
-                            <span className="reg-yr-pill font-bold">
-                              {student.registrationYear}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <div className="detail-item-box enr-box-highlight">
-                        <span className="detail-label">Enrollment Year</span>
-                        <div className="detail-value-row">
-                          <span className="enr-yr-pill font-bold">
-                            {student.enrollmentYear || '2026'}
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  </div>
+
+                  <div className="detail-item-box enr-box-highlight">
+                    <span className="detail-label">Enrollment Year</span>
+                    <div className="detail-value-row">
+                      <span className="enr-yr-pill font-bold">
+                        {student.enrollmentYear || (isClassXII ? '2025' : '2026')}
+                      </span>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <div className="detail-item-box">

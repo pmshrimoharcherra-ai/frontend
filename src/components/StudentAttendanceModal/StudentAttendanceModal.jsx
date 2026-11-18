@@ -208,7 +208,14 @@ const StudentAttendanceModal = ({ student, className, onClose, onSave }) => {
                 <span className="class-chip">{className || student.class}</span>
               </div>
               <p className="student-meta-sub">
-                {['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId) ? (
+                {['class-9', 'class-10'].includes(student.classId) ? (
+                  <>
+                    {student.registrationNo && (
+                      <>Reg No: <code>{student.registrationNo}</code> · </>
+                    )}
+                    Reg Year: <code>{student.registrationYear || (student.classId === 'class-10' ? '2025' : '2026')}</code> ·{' '}
+                  </>
+                ) : ['class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(student.classId) ? (
                   <>
                     {student.registrationNo && (
                       <>Reg No: <code>{student.registrationNo}</code> · </>
@@ -216,7 +223,7 @@ const StudentAttendanceModal = ({ student, className, onClose, onSave }) => {
                     {student.enrollmentNo && (
                       <>Enrollment No: <code>{student.enrollmentNo}</code> · </>
                     )}
-                    Year: <code>{student.enrollmentYear || (student.classId?.includes('11') ? '2024' : '2026')}</code> ·{' '}
+                    Year: <code>{student.enrollmentYear || '2025'}</code> ·{' '}
                   </>
                 ) : (
                   !['class-1', 'class-2', 'class-3', 'class-4', 'class-5', 'class-6', 'class-7', 'class-8'].includes(student.classId) && (

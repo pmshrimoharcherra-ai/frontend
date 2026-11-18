@@ -361,65 +361,51 @@ const TeacherExaminations = ({
     fetchExamRoster();
   }, [examClassId]);
 
-  // Populate marks: fetch from backend first, or generate realistic marks
+  // Populate marks: fetch from backend (scoped strictly to class, subject, and exam term)
   useEffect(() => {
     if (isCoScholasticSection) return;
-    if (examStudents.length === 0) {
+    if (!examClassId || !examSubject || !selectedExamTerm) {
       setMarksRecords({});
       setIsLocked(false);
       return;
     }
-    const termMax = maxMarks;
 
     const loadExamMarks = async () => {
       try {
-        if (examClassId && examSubject && selectedExamTerm) {
-          const res = await fetch(
-            `${API_BASE_URL}/api/examinations?classId=${examClassId}&examTerm=${encodeURIComponent(
-              selectedExamTerm
-            )}&subject=${encodeURIComponent(examSubject)}`
-          );
-          const data = await res.json();
-          if (data.success && data.records && data.records.length > 0) {
-            const savedMap = {};
-            data.records[0].marks.forEach((m) => {
-              savedMap[m.studentId] = {
-                marks: m.marks,
-                theory: m.marks
-              };
+        const res = await fetch(
+          `${API_BASE_URL}/api/examinations?classId=${examClassId}&examTerm=${encodeURIComponent(
+            selectedExamTerm
+          )}&subject=${encodeURIComponent(examSubject)}`
+        );
+        const data = await res.json();
+        if (data.success && data.records && data.records.length > 0) {
+          const record = data.records[0];
+          const savedMap = {};
+          if (Array.isArray(record.marks) && record.marks.length > 0) {
+            record.marks.forEach((m) => {
+              if (m && m.studentId) {
+                savedMap[m.studentId] = {
+                  marks: m.marks !== undefined && m.marks !== null ? m.marks : '',
+                  theory: m.marks !== undefined && m.marks !== null ? m.marks : ''
+                };
+              }
             });
-            setMarksRecords(savedMap);
-            setIsLocked(data.records[0].isLocked !== false);
-            return;
           }
+          setMarksRecords(savedMap);
+          setIsLocked(Boolean(record.isLocked));
+          return;
         }
       } catch (err) {
-        console.warn('Could not load saved marks, generating defaults:', err);
+        console.warn('Could not load saved marks:', err);
       }
 
+      // No saved record in database: initialize with clean, editable roster (no hardcoded fake marks)
       setIsLocked(false);
-      // Default realistic generated marks
-      setMarksRecords((prev) => {
-        const initialMarks = {};
-        examStudents.forEach((s) => {
-          const key = s.studentId || s.id;
-          const rollNum = parseInt(s.roll, 10) || 1;
-          const pctFactor = 0.62 + ((rollNum * 7) % 32) / 100;
-          const baseScore = Math.min(
-            termMax,
-            Math.max(Math.round(termMax * 0.35), Math.round(termMax * pctFactor))
-          );
-          initialMarks[key] = {
-            marks: baseScore,
-            theory: baseScore
-          };
-        });
-        return initialMarks;
-      });
+      setMarksRecords({});
     };
 
     loadExamMarks();
-  }, [examStudents, selectedExamTerm, examClassId, examSubject]);
+  }, [examClassId, examSubject, selectedExamTerm, isCoScholasticSection]);
 
   // Update student mark field
   const handleMarkChange = (studentKey, field, val) => {
@@ -453,10 +439,29 @@ const TeacherExaminations = ({
       setSavingMarks(true);
       setMarksSaveMessage('');
 
-      const marksArray = examStudents.map((st) => {
+      // Build target roster of ALL enrolled students for this subject in the class
+      // (ensures saving while in Sector 1 or Sector 2 never wipes out the other sector)
+      const targetRoster = isSubjectVocationalOrIT
+        ? (enrolledVocationalStudents.length > 0 ? enrolledVocationalStudents : allClassStudents)
+        : allClassStudents.filter((st) => {
+            const effectiveSubjects = (Array.isArray(st.subjects) && st.subjects.length > 0)
+              ? st.subjects
+              : getSubjectsForClass(st.classId || examClassId);
+            if (isSecondarySciencePart(examClassId, examSubject)) {
+              return effectiveSubjects.some((sub) => String(sub).toLowerCase().includes('science'));
+            }
+            if (isSecondarySocialSciencePart(examClassId, examSubject)) {
+              return effectiveSubjects.some((sub) => String(sub).toLowerCase().includes('social'));
+            }
+            return effectiveSubjects.some((sub) => String(sub).trim().toLowerCase() === String(examSubject || '').trim().toLowerCase());
+          });
+
+      const marksArray = targetRoster.map((st) => {
         const key = st.studentId || st.id;
         const current = marksRecords[key] || {};
-        const score = current.marks !== undefined ? current.marks : (Number(current.theory) || 0);
+        const score = current.marks !== undefined && current.marks !== ''
+          ? Number(current.marks)
+          : (current.theory !== undefined && current.theory !== '' ? Number(current.theory) : '');
         return {
           studentId: key,
           roll: st.roll || '',
@@ -464,7 +469,7 @@ const TeacherExaminations = ({
           enrollmentNo: st.enrollmentNo || '',
           penNumber: st.penNumber || '',
           apaarId: st.apaarId || '',
-          marks: Number(score) || 0
+          marks: score !== '' ? Number(score) : 0
         };
       });
 
@@ -493,12 +498,12 @@ const TeacherExaminations = ({
       if (data.success) {
         setMarksSaveSuccess(true);
         setMarksSaveMessage(
-          `Marks successfully recorded, locked, and published to Admin Panel for ${examStudents.length} students in ${examSubject} for ${selectedExamTerm}!`
+          `Marks successfully recorded, locked, and published to Admin Panel for ${targetRoster.length} students in ${examSubject} for ${selectedExamTerm}!`
         );
       } else {
         setMarksSaveSuccess(true);
         setMarksSaveMessage(
-          `Marks recorded and locked for ${examStudents.length} students in ${examSubject} (${selectedExamTerm})!`
+          `Marks recorded and locked for ${targetRoster.length} students in ${examSubject} (${selectedExamTerm})!`
         );
       }
       setTimeout(() => setMarksSaveSuccess(false), 5000);
@@ -847,9 +852,9 @@ const TeacherExaminations = ({
                     const key = st.studentId || st.id;
                     const currentMarks = marksRecords[key] || {};
                     const score =
-                      currentMarks.marks !== undefined
+                      currentMarks.marks !== undefined && currentMarks.marks !== ''
                         ? currentMarks.marks
-                        : (Number(currentMarks.theory) || 0);
+                        : (currentMarks.theory !== undefined && currentMarks.theory !== '' ? currentMarks.theory : '');
                     const isBoy = st.gender === 'Boy' || !st.gender;
                     const penNumber = st.penNumber || st.pen || (st.enrollmentNo && st.enrollmentNo !== 'Not found' ? st.enrollmentNo : '');
                     const apaarId = st.apaarId && st.apaarId !== 'Not Available' ? st.apaarId : (st.apaar || '');
@@ -910,7 +915,8 @@ const TeacherExaminations = ({
                             step="0.5"
                             min="0"
                             max={maxMarks}
-                            value={score}
+                            placeholder="-"
+                            value={score !== undefined && score !== null ? score : ''}
                             disabled={isLocked}
                             readOnly={isLocked}
                             onChange={(e) => handleMarkChange(key, 'marks', e.target.value)}
@@ -920,7 +926,9 @@ const TeacherExaminations = ({
                         </td>
 
                         <td style={{ textAlign: 'center' }}>
-                          <span className="exam-total-score font-bold font-mono">{score}</span>
+                          <span className="exam-total-score font-bold font-mono">
+                            {score !== undefined && score !== null && score !== '' ? score : '-'}
+                          </span>
                         </td>
                       </tr>
                     );

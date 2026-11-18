@@ -782,6 +782,7 @@ const TeacherVocationalStudents = ({
           const guardian = String(s.guardian || '').toLowerCase();
           const address = String(s.address || '').toLowerCase();
           const enr = String(s.enrollmentNo || '').toLowerCase();
+          const reg = String(s.registrationNo || '').toLowerCase();
 
           const matches =
             name.includes(q) ||
@@ -794,7 +795,8 @@ const TeacherVocationalStudents = ({
             mother.includes(q) ||
             guardian.includes(q) ||
             address.includes(q) ||
-            enr.includes(q);
+            enr.includes(q) ||
+            reg.includes(q);
 
           if (!matches) return false;
         }

@@ -252,16 +252,17 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
       }
     }
 
+    const isSec = ['class-9', 'class-10'].includes(formData.classId);
     const updatedStudent = {
       ...student,
       name: formData.name.trim(),
       roll: String(formData.roll).trim().padStart(2, '0'),
       gender: formData.gender || 'Boy',
       classId: formData.classId,
-      enrollmentNo: formData.enrollmentNo?.trim() || '',
+      enrollmentNo: isSec ? '' : (formData.enrollmentNo?.trim() || ''),
       registrationNo: formData.registrationNo?.trim() || '',
-      enrollmentYear: formData.enrollmentYear?.trim() || defaultYear,
-      registrationYear: formData.registrationYear?.trim() || '',
+      enrollmentYear: isSec ? '' : (formData.enrollmentYear?.trim() || defaultYear),
+      registrationYear: formData.registrationYear?.trim() || (isSec ? (formData.classId === 'class-10' ? '2025' : '2026') : ''),
       guardian: formData.guardian?.trim() || formData.father?.trim() || '',
       father: formData.father?.trim() || '',
       mother: formData.mother?.trim() || '',
@@ -286,7 +287,9 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
     }, 450);
   };
 
-  const isEnrollmentClass = ['class-9', 'class-10', 'class-11-arts', 'class-11-sci', 'class-12-arts', 'class-12-sci'].includes(formData.classId) || Boolean(formData.enrollmentNo);
+  const isSecondaryClass = ['class-9', 'class-10'].includes(formData.classId);
+  const isSeniorClass = ['class-11', 'class-11-arts', 'class-11-sci', 'class-12', 'class-12-arts', 'class-12-sci'].includes(formData.classId);
+  const isEnrollmentClass = isSecondaryClass || isSeniorClass || Boolean(formData.enrollmentNo);
 
   return (
     <div className="edit-student-backdrop" onClick={onClose}>
@@ -305,7 +308,12 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
             <div>
               <div className="edit-title-row">
                 <h3>Edit Student Details</h3>
-                {isEnrollmentClass && (formData.registrationNo || formData.enrollmentNo) && (
+                {isSecondaryClass && formData.registrationNo && (
+                  <span className="edit-student-id-pill enr-pill">
+                    Reg: {formData.registrationNo}
+                  </span>
+                )}
+                {isSeniorClass && (formData.registrationNo || formData.enrollmentNo) && (
                   <span className="edit-student-id-pill enr-pill">
                     {formData.registrationNo ? `Reg: ${formData.registrationNo} ` : ''}
                     {formData.enrollmentNo ? `Enr: ${formData.enrollmentNo}` : ''}
@@ -661,23 +669,44 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
               </select>
             </div>
 
-            {/* Registration Details for Secondary & Higher Secondary (Class 9, 10, 11, 12) or if enrollmentNo exists */}
-            {isEnrollmentClass && (
+            {/* Board Registration Details for Secondary (Class 9 & 10) - ONLY Registration Number & Year */}
+            {isSecondaryClass && (
               <>
                 <div className="edit-section-header full-width">
-                  <span>Board Registration & Enrollment Record</span>
+                  <span>Board Registration Record (Madhyamik)</span>
                 </div>
                 <div className="edit-form-field">
                   <label>
                     <Sparkles size={14} />
-                    <span>Enrollment Number</span>
+                    <span>Registration Number</span>
                   </label>
                   <input
                     type="text"
-                    value={formData.enrollmentNo}
-                    onChange={(e) => handleChange('enrollmentNo', e.target.value)}
-                    placeholder="e.g. 322202805469"
+                    value={formData.registrationNo}
+                    onChange={(e) => handleChange('registrationNo', e.target.value)}
+                    placeholder={formData.classId === 'class-10' ? 'e.g. 31202738262' : 'e.g. 31202826958'}
                   />
+                </div>
+                <div className="edit-form-field">
+                  <label>
+                    <Sparkles size={14} />
+                    <span>Registration Year</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.registrationYear || ''}
+                    onChange={(e) => handleChange('registrationYear', e.target.value)}
+                    placeholder={formData.classId === 'class-10' ? '2025' : '2026'}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Board Registration & Enrollment Details for Higher Secondary (Class 11 & 12) */}
+            {isSeniorClass && (
+              <>
+                <div className="edit-section-header full-width">
+                  <span>Board Registration &amp; Enrollment Record</span>
                 </div>
                 <div className="edit-form-field">
                   <label>
@@ -691,47 +720,42 @@ const EditStudentModal = ({ student, classes, onClose, onSave }) => {
                     placeholder="e.g. 31202508101"
                   />
                 </div>
-                {isClassXII ? (
-                  <>
-                    <div className="edit-form-field">
-                      <label>
-                        <Sparkles size={14} />
-                        <span>Registration Year</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.registrationYear || ''}
-                        onChange={(e) => handleChange('registrationYear', e.target.value)}
-                        placeholder="e.g. 2023"
-                      />
-                    </div>
-                    <div className="edit-form-field">
-                      <label>
-                        <Sparkles size={14} />
-                        <span>Enrollment Year</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.enrollmentYear || ''}
-                        onChange={(e) => handleChange('enrollmentYear', e.target.value)}
-                        placeholder="e.g. 2025"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="edit-form-field">
-                    <label>
-                      <Sparkles size={14} />
-                      <span>{isClassX ? 'Registration Year' : 'Enrollment Year'}</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.enrollmentYear}
-                      onChange={(e) => handleChange('enrollmentYear', e.target.value)}
-                      placeholder={isClassX ? 'e.g. 2025' : `e.g. ${defaultYear}`}
-                    />
-                  </div>
-                )}
+                <div className="edit-form-field">
+                  <label>
+                    <Sparkles size={14} />
+                    <span>Enrollment Number</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.enrollmentNo}
+                    onChange={(e) => handleChange('enrollmentNo', e.target.value)}
+                    placeholder="e.g. 321202713757"
+                  />
+                </div>
+                <div className="edit-form-field">
+                  <label>
+                    <Sparkles size={14} />
+                    <span>Registration Year</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.registrationYear || ''}
+                    onChange={(e) => handleChange('registrationYear', e.target.value)}
+                    placeholder={isClassXII ? '2023' : '2024'}
+                  />
+                </div>
+                <div className="edit-form-field">
+                  <label>
+                    <Sparkles size={14} />
+                    <span>Enrollment Year</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.enrollmentYear || ''}
+                    onChange={(e) => handleChange('enrollmentYear', e.target.value)}
+                    placeholder={isClassXII ? '2025' : '2026'}
+                  />
+                </div>
               </>
             )}
 

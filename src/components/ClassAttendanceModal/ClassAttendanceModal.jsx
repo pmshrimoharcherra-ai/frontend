@@ -254,7 +254,7 @@ const ClassAttendanceModal = ({
                     </td>
                     {isEnrollmentClass && (
                       <td>
-                        {renderEnrollmentBadge(st.enrollmentNo)}
+                        {renderEnrollmentBadge(st.registrationNo || st.enrollmentNo)}
                       </td>
                     )}
                     {showStudentId && <td><code>{st.id}</code></td>}
