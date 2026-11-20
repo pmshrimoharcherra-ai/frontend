@@ -1,0 +1,717 @@
+/* ==========================================================================
+   TEACHER PROFILE & SIGNATURE MODAL STYLES
+   ========================================================================== */
+
+.teacher-profile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: tpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tpFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.teacher-profile-modal-card {
+  width: 100%;
+  max-width: 660px;
+  max-height: 90vh;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 18px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #f3f4f6;
+  animation: tpSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tpSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   MODAL HEADER
+   ========================================================================== */
+.tp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: #1f2937;
+  border-bottom: 1px solid #374151;
+}
+
+.tp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tp-header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+  flex-shrink: 0;
+}
+
+.tp-modal-header h3 {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #f9fafb;
+  letter-spacing: -0.01em;
+}
+
+.tp-header-sub {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: #9ca3af;
+}
+
+.tp-header-sub strong {
+  color: #fbbf24;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.tp-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #111827;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tp-close-btn:hover {
+  background: #374151;
+  color: #f3f4f6;
+  border-color: #4b5563;
+}
+
+/* ==========================================================================
+   HERO BANNER & TABS
+   ========================================================================== */
+.tp-hero-banner {
+  padding: 16px 24px 0;
+  background: #161e2e;
+  border-bottom: 1px solid #2d3748;
+}
+
+.tp-banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tp-role-pill,
+.tp-classteacher-pill,
+.tp-subjectteacher-pill,
+.tp-dept-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.tp-role-pill {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.tp-classteacher-pill {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+
+.tp-subjectteacher-pill {
+  background: rgba(107, 114, 128, 0.2);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  color: #d1d5db;
+}
+
+.tp-dept-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+}
+
+.tp-tabs-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.tp-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.tp-tab-btn:hover {
+  color: #f3f4f6;
+}
+
+.tp-tab-btn.active {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
+  font-weight: 600;
+}
+
+.tp-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+/* ==========================================================================
+   STATUS ALERT
+   ========================================================================== */
+.tp-status-alert {
+  margin: 14px 24px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.tp-status-alert.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
+}
+
+.tp-status-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.tp-status-alert.info {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #bae6fd;
+}
+
+/* ==========================================================================
+   MODAL BODY
+   ========================================================================== */
+.tp-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Profile Details Grid */
+.tp-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.tp-info-box {
+  background: #1a2234;
+  border: 1px solid #283548;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tp-box-full {
+  grid-column: 1 / -1;
+}
+
+.tp-box-label {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.tp-box-val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.92rem;
+  color: #f1f5f9;
+}
+
+.tp-val-highlight {
+  color: #f59e0b;
+}
+
+.tp-email-text {
+  word-break: break-all;
+}
+
+.tp-copy-btn {
+  background: #232f42;
+  border: 1px solid #3b4961;
+  color: #94a3b8;
+  padding: 4px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.tp-copy-btn:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.tp-copy-btn .copied {
+  color: #10b981;
+}
+
+.tp-assigned-class-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fbbf24;
+  font-size: 0.86rem;
+}
+
+.tp-assigned-class-badge strong {
+  color: #fef08a;
+}
+
+.tp-teaching-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tp-teaching-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #232f42;
+  border: 1px solid #374761;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+
+.tp-chip-class {
+  color: #38bdf8;
+}
+
+.tp-chip-divider {
+  color: #64748b;
+}
+
+.tp-chip-subject {
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   SIGNATURE TAB
+   ========================================================================== */
+.tp-signature-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tp-sig-intro-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 14px 16px;
+  border-radius: 12px;
+}
+
+.tp-sig-intro-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tp-sig-intro-card h4 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.tp-sig-intro-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.tp-sig-intro-card strong {
+  color: #f1f5f9;
+}
+
+.tp-sig-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tp-sig-preview-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.tp-sig-card-container {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+
+.tp-sig-display-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.tp-signature-img-preview {
+  max-height: 90px;
+  max-width: 100%;
+  object-fit: contain;
+  filter: contrast(110%);
+}
+
+.tp-sig-rule-line {
+  width: 220px;
+  height: 1px;
+  background: #475569;
+  margin-top: 4px;
+}
+
+.tp-sig-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.tp-sig-name-caption {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tp-sig-empty-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  color: #64748b;
+}
+
+.tp-empty-title {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.tp-empty-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.tp-empty-sub code {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #0f172a;
+  font-family: 'Brush Script MT', 'Dancing Script', cursive, sans-serif;
+  font-size: 0.95rem;
+}
+
+.tp-sig-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.tp-upload-btn,
+.tp-save-sig-btn,
+.tp-remove-sig-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.tp-upload-btn {
+  background: #1e293b;
+  border: 1px solid #3b4961;
+  color: #e2e8f0;
+}
+
+.tp-upload-btn:hover:not(:disabled) {
+  background: #2d3b52;
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+.tp-save-sig-btn {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.tp-save-sig-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.tp-remove-sig-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.tp-remove-sig-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.tp-sig-actions-row button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tp-sig-guidelines-box {
+  background: #182234;
+  border: 1px solid #2a374d;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.guidelines-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tp-sig-guidelines-box ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* Restricted Card for Subject Teachers */
+.tp-sig-restricted-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #1a2234;
+  border: 1px solid #283548;
+  border-radius: 14px;
+  padding: 36px 24px;
+}
+
+.tp-lock-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.tp-sig-restricted-card h4 {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.tp-sig-restricted-card p {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.tp-sig-restricted-card p.tp-restricted-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.tp-sig-restricted-card strong {
+  color: #e2e8f0;
+}
+
+/* ==========================================================================
+   MODAL FOOTER
+   ========================================================================== */
+.tp-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: #1f2937;
+  border-top: 1px solid #374151;
+}
+
+.tp-footer-meta {
+  font-size: 0.76rem;
+  color: #6b7280;
+}
+
+.tp-close-footer-btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  background: #374151;
+  color: #f3f4f6;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: 1px solid #4b5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tp-close-footer-btn:hover {
+  background: #4b5563;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 640px) {
+  .tp-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .tp-modal-header {
+    padding: 14px 18px;
+  }
+  .tp-hero-banner {
+    padding: 14px 18px 0;
+  }
+  .tp-modal-body {
+    padding: 16px 18px;
+  }
+  .tp-modal-footer {
+    padding: 12px 18px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .tp-footer-meta {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -30,7 +30,8 @@ const TeacherSidebar = ({
   teacherRole = '',
   teachingAssignments = [],
   onLogout = () => {},
-  onNavigateHome = () => {}
+  onNavigateHome = () => {},
+  onOpenProfile = () => {}
 }) => {
   const handleTabClick = (tab) => {
     onSelectTab(tab);
@@ -188,8 +189,13 @@ const TeacherSidebar = ({
 
         {/* Sidebar Footer with Quick Faculty Card & Actions */}
         <div className="teacher-sidebar-footer">
-          {/* Faculty Mini Card (Visible when expanded) */}
-          <div className="teacher-footer-user-card">
+          {/* Faculty Mini Card (Click to open Faculty Profile & Signature Modal) */}
+          <button
+            type="button"
+            className="teacher-footer-user-card"
+            onClick={onOpenProfile}
+            title="Click to view Teacher Profile & upload official signature"
+          >
             <div className="footer-avatar">
               {teacherName.charAt(0).toUpperCase()}
             </div>
@@ -203,7 +209,7 @@ const TeacherSidebar = ({
                   : 'Faculty Member'}
               </span>
             </div>
-          </div>
+          </button>
 
           {/* Public Portal Button */}
           <button

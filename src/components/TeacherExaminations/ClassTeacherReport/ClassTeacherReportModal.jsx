@@ -307,6 +307,19 @@ const PRINTABLE_PAGE_CSS = `
     margin-bottom: 2px;
     transform: rotate(-3deg);
   }
+  .teacher-sig-img-wrap {
+    height: 44px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 2px;
+  }
+  .teacher-sig-img {
+    max-height: 42px;
+    max-width: 140px;
+    object-fit: contain;
+    filter: contrast(110%);
+    display: block;
+  }
   .sig-date-str {
     font-size: 8.5pt;
     color: #222222;
@@ -459,6 +472,15 @@ const PRINTABLE_PAGE_CSS = `
     display: inline-block;
     transform: rotate(-2deg);
   }
+  .teacher-inline-sig-img {
+    max-height: 26px;
+    max-width: 110px;
+    object-fit: contain;
+    vertical-align: middle;
+    filter: contrast(110%);
+    display: inline-block;
+    margin-right: 4px;
+  }
   .teacher-inline-sig .sig-date-str {
     font-size: 8pt;
     font-family: monospace;
@@ -591,6 +613,7 @@ const ClassTeacherReportModal = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [savingMeta, setSavingMeta] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [classTeacherInfo, setClassTeacherInfo] = useState(null);
 
   // Fetch full consolidated annual report data
   useEffect(() => {
@@ -611,6 +634,17 @@ const ClassTeacherReportModal = ({
             metaMap[m.studentId] = m;
           });
           setMetaRecords(metaMap);
+        }
+
+        // Fetch official appointed Class Teacher for this class to get official signature
+        try {
+          const ctRes = await fetch(`${API_BASE_URL}/api/teachers/class-teacher/${classId}`);
+          const ctData = await ctRes.json();
+          if (ctData.success && ctData.teacher) {
+            setClassTeacherInfo(ctData.teacher);
+          }
+        } catch (ctErr) {
+          console.warn('Could not fetch class teacher data for report signature:', ctErr);
         }
       } catch (err) {
         console.error('Error fetching annual report data:', err);
@@ -883,7 +917,36 @@ const ClassTeacherReportModal = ({
     const isClass9 = String(classId).toLowerCase().includes('9');
     const classDisplay = isClass9 ? 'CLASS-IX' : 'CLASS-XI';
     const prcNo = `${st.roll || '00'}/${isClass9 ? 'IX' : 'XI'}/${academicSession}`;
-    const teacherDisplayName = teacherName || activeUser?.name || 'Sangita Das';
+
+    const isCurrentUserClassTeacher =
+      activeUser?.assignedClassId === classId ||
+      String(activeUser?.assignedClassId).toLowerCase() === String(classId).toLowerCase();
+
+    let storedSig = '';
+    try {
+      const stored = JSON.parse(localStorage.getItem('pmshri_user') || '{}');
+      if (
+        (stored.assignedClassId === classId ||
+          String(stored.assignedClassId).toLowerCase() === String(classId).toLowerCase()) &&
+        stored.signature
+      ) {
+        storedSig = stored.signature;
+      }
+    } catch {}
+
+    const officialTeacherName =
+      classTeacherInfo?.name ||
+      (isCurrentUserClassTeacher ? (teacherName || activeUser?.name) : null) ||
+      teacherName ||
+      activeUser?.name ||
+      'Sujit Debnath';
+
+    const officialTeacherSignature =
+      classTeacherInfo?.signature ||
+      storedSig ||
+      (isCurrentUserClassTeacher ? activeUser?.signature : '') ||
+      '';
+
     const meta = perf?.meta || {};
     const formattedSeason = formatAcademicSeason(academicSession);
     const sectionDisplay = 'X'; // No separate sections in Class IX & XI, designated as 'X'
@@ -1030,7 +1093,11 @@ const ClassTeacherReportModal = ({
         <!-- 3 Signatures: Class Teacher (Left), Guardian (Center), Headmaster (Right) -->
         <div class="signatures-container">
           <div class="sig-block teacher-sig">
-            <span class="sig-scribble">${teacherDisplayName}</span>
+            ${
+              officialTeacherSignature
+                ? `<div class="teacher-sig-img-wrap"><img src="${officialTeacherSignature}" alt="Signature of Class Teacher" class="teacher-sig-img" /></div>`
+                : `<span class="sig-scribble">${officialTeacherName}</span>`
+            }
             <span class="sig-date-str font-mono">${issueDate}</span>
             <div class="sig-rule-text">Signature of Class Teacher</div>
           </div>
@@ -1118,7 +1185,11 @@ const ClassTeacherReportModal = ({
               <div class="meta-row teacher-sig-line-row">
                 <span class="meta-lbl">Signature of Class Teacher:</span>
                 <span class="teacher-inline-sig">
-                  <span class="sig-scribble">${teacherDisplayName}</span>
+                  ${
+                    officialTeacherSignature
+                      ? `<img src="${officialTeacherSignature}" alt="Signature of Class Teacher" class="teacher-inline-sig-img" />`
+                      : `<span class="sig-scribble">${officialTeacherName}</span>`
+                  }
                   <span class="sig-date-str font-mono">${issueDate}</span>
                 </span>
               </div>

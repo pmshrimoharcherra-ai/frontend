@@ -232,6 +232,18 @@
   border: 1px solid #334155;
   border-radius: 10px;
   overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: all 0.18s ease;
+}
+
+.teacher-footer-user-card:hover {
+  background: #273549;
+  border-color: #475569;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
 }
 
 .footer-avatar {

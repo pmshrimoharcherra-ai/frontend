@@ -7,6 +7,7 @@ import TeacherExaminations from '../TeacherExaminations/TeacherExaminations';
 import TeacherStudents from '../TeacherStudents/TeacherStudents';
 import TeacherVocationalStudents from '../TeacherVocationalStudents/TeacherVocationalStudents';
 import TeacherMonthlyAttendance from '../TeacherMonthlyAttendance/TeacherMonthlyAttendance';
+import TeacherProfileModal from '../TeacherProfileModal/TeacherProfileModal';
 import AcademicDatePicker from '../AcademicDatePicker/AcademicDatePicker';
 import {
   Users,
@@ -186,6 +187,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
   const [assignedClassName, setAssignedClassName] = useState(
     activeUser?.assignedClassName || ''
   );
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // Vocational Teacher detection (VT / IT/ITeS)
   const isVocationalTeacher = useMemo(() => {
@@ -629,6 +631,7 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
         teachingAssignments={teachingList}
         onLogout={onLogout}
         onNavigateHome={() => navigate('/')}
+        onOpenProfile={() => setShowProfileModal(true)}
       />
 
       {/* =========================================================================
@@ -1490,7 +1493,11 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
              ===================================================================== */}
           {activeTab === 'examinations' && (
             <TeacherExaminations
-              activeUser={activeUser}
+              activeUser={{
+                ...activeUser,
+                ...teacherData,
+                signature: teacherData?.signature || activeUser?.signature || ''
+              }}
               teacherName={teacherName}
               teachingList={teachingList}
             />
@@ -1510,6 +1517,22 @@ const TeacherDashboard = ({ currentUser, onLogout, defaultTab }) => {
           </button>
         )}
       </div>
+
+      {/* Faculty Profile & Signature Modal */}
+      <TeacherProfileModal
+        teacher={{
+          ...activeUser,
+          ...teacherData,
+          assignedClassId,
+          assignedClassName,
+          teachingAssignments: teacherData?.teachingAssignments || teachingList || []
+        }}
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSignatureUpdated={(newSig) => {
+          setTeacherData((prev) => ({ ...prev, signature: newSig }));
+        }}
+      />
     </div>
   );
 };

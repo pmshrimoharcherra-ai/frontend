@@ -723,6 +723,21 @@
   transform: rotate(-3deg);
 }
 
+.document-preview-scroll-container .teacher-sig-img-wrap {
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 2px;
+}
+
+.document-preview-scroll-container .teacher-sig-img {
+  max-height: 42px;
+  max-width: 140px;
+  object-fit: contain;
+  filter: contrast(110%);
+  display: block;
+}
+
 .document-preview-scroll-container .sig-date-str {
   font-size: 8.5pt;
   color: #222222;
@@ -902,6 +917,16 @@
   color: #1e3a8a;
   display: inline-block;
   transform: rotate(-2deg);
+}
+
+.document-preview-scroll-container .teacher-inline-sig-img {
+  max-height: 26px;
+  max-width: 110px;
+  object-fit: contain;
+  vertical-align: middle;
+  filter: contrast(110%);
+  display: inline-block;
+  margin-right: 4px;
 }
 
 .document-preview-scroll-container .teacher-inline-sig .sig-date-str {
